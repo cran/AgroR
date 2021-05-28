@@ -14,7 +14,7 @@ FAT2DBC.art(
   ylab = "Sum of posts",
   legend.title = "Factor",
   sup = NA,
-  theme = theme_bw()
+  theme = theme_classic()
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ FAT2DBC.art(
 
 \item{sup}{Number of units above the standard deviation or average bar on the graph}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 }
 \value{
 The function returns the Anova of aligned ranks, the multiple comparison test and the interaction graph.

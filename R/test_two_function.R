@@ -10,6 +10,9 @@
 #' @param paired A logical indicating whether you want a paired t-test.
 #' @param var.equal A logical variable indicating whether to treat the two variances as being equal. If TRUE then the pooled variance is used to estimate the variance otherwise the Welch (or Satterthwaite) approximation to the degrees of freedom is used.
 #' @param conf.level Confidence level of the interval.
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
+#' @param ylab Variable response name (Accepts the \emph{expression}() function)
+#' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @details Alternative = "greater" is the alternative that x has a larger mean than y. For the one-sample case: that the mean is positive.
 #' @details If paired is TRUE then both x and y must be specified and they must be the same length. Missing values are silently removed (in pairs if paired is TRUE). If var.equal is TRUE then the pooled estimate of the variance is used. By default, if var.equal is FALSE then the variance is estimated separately for both groups and the Welch modification to the degrees of freedom is used.
 #' @details If the input data are effectively constant (compared to the larger of the two means) an error is generated.
@@ -27,6 +30,9 @@ test_two=function(trat,
                 test="t",
                 alternative = c("two.sided", "less", "greater"),
                 conf.level=0.95,
+                theme=theme_classic(),
+                ylab="Reponse",
+                xlab="",
                 var.equal=FALSE){
   if(test=="t"){teste=t.test(resp~trat,
                 paired=paired,
@@ -50,9 +56,11 @@ test_two=function(trat,
   geom_label(data=media,aes(y=media,
                             x=trat,
                             label=round(media,2)),fill="lightyellow")+
-  theme_classic()+ylab("Resposta")+xlab("")+
+  theme+ylab(ylab)+xlab(xlab)+
   theme(axis.text = element_text(size=12,color="black"))+
-  annotate(geom="text",x=1.5,y=min(resp),hjust=0.5,vjust=0,
+  annotate(geom="text",
+           x=1.5,
+           y=min(resp),hjust=0.5,vjust=0,
            label=
              ifelse(teste$p.value<0.001,
                     expression(italic("p-value <0.001")),

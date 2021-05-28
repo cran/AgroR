@@ -17,7 +17,7 @@ conjdic(
   alpha.f = 0.05,
   alpha.t = 0.05,
   grau = NA,
-  theme = theme_bw(),
+  theme = theme_classic(),
   ylab = "response",
   title = "",
   xlab = "",
@@ -55,7 +55,7 @@ conjdic(
 
 \item{grau}{Degree of polynomial in case of quantitative factor (\emph{default} is 1)}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{ylab}{Variable response name (Accepts the \emph{expression}() function)}
 

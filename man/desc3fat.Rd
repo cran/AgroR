@@ -12,7 +12,7 @@ desc3fat(
   legend.title = "Legend",
   xlab = "xlab",
   ylab = "ylab",
-  theme = theme_bw(),
+  theme = theme_classic(),
   plot = "interaction"
 )
 }

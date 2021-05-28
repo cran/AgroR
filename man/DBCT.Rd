@@ -11,8 +11,8 @@ DBCT(
   response,
   alpha.f = 0.05,
   alpha.t = 0.05,
-  theme = theme_bw(),
-  geom = "point",
+  theme = theme_classic(),
+  geom = "bar",
   fill = "gray",
   ylab = "Response",
   xlab = "Independent",
@@ -43,9 +43,9 @@ DBCT(
 
 \item{alpha.t}{Significance level of the multiple comparison test (\emph{default} is 0.05)}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
-\item{geom}{Graph type (columns, boxes or segments)}
+\item{geom}{Graph type (columns - "bar" or segments "point")}
 
 \item{fill}{Defines chart color (to generate different colors for different treatments, define fill = "trat")}
 
@@ -53,7 +53,7 @@ DBCT(
 
 \item{xlab}{Treatments name (Accepts the \emph{expression}() function)}
 
-\item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)}
+\item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD ("lsd"), Scott-Knott ("sk"), Duncan ("duncan") and Friedman ("fd"))}
 
 \item{textsize}{Font size of the texts and titles of the axes}
 
@@ -92,7 +92,16 @@ The ordering of the graph is according to the sequence in which the factor level
 \examples{
 data(simulate2)
 attach(simulate2)
+
+#===================================
+# default
+#===================================
 DBCT(trat, bloco, tempo, resp)
+
+#===================================
+# segment chart
+#===================================
+DBCT(trat, bloco, tempo, resp, geom="point")
 }
 \references{
 

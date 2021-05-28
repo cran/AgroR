@@ -18,9 +18,24 @@
 #' @export
 #' @examples
 #' Trat=paste("Treatments",1:6)
+#'
+#' #=============================
+#' # Completely randomized design
+#' #=============================
 #' sketch(Trat,r=3)
-#' set.seed(1)
-#' sketch(Trat,r=3)
+#'
+#' #=============================
+#' # Randomized block design
+#' #=============================
+#' sketch(Trat, r=3, design="dbc")
+#'
+#' #=============================
+#' # Completely randomized experiments in double factorial
+#' #=============================
+#' sketch(trat=c(1,2),
+#'        trat1=c(1,2,3),
+#'        design = "fat2dic",
+#'        r=3)
 
 sketch=function(trat,
                 trat1=NULL,

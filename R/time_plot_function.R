@@ -11,6 +11,7 @@
 #' @param legend.position Legend position
 #' @param ylab y axis title
 #' @param xlab x axis title
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @seealso \link{radargraph}, \link{sk_graph}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}
 #' @return Returns a line chart with error bars
 #' @export
@@ -26,7 +27,8 @@ line_plot=function(time,
                    errorbar="sd",
                    ylab="Response",
                    xlab="Time",
-                   legend.position="right"){
+                   legend.position="right",
+                   theme=theme_classic()){
   requireNamespace("ggplot2")
   time=as.numeric(as.character(time))
   if(is.na(factor[1])==FALSE){
@@ -46,7 +48,7 @@ line_plot=function(time,
                     width=0.3)+
       geom_point(size=4,color="black",shape=21)+
       geom_line(size=1)+
-      theme_bw()+theme(axis.text = element_text(size=12,color="black"),
+      theme+theme(axis.text = element_text(size=12,color="black"),
                        axis.title = element_text(size=13),
                        legend.text = element_text(size=12),
                        legend.title = element_text(size=13),

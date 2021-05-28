@@ -10,7 +10,8 @@ polynomial(
   ylab = "Response",
   xlab = "Independent",
   grau = NA,
-  theme = theme_bw(),
+  theme = theme_classic(),
+  point = "mean_sd",
   color = "gray80",
   posi = "top",
   textsize = 12,
@@ -18,7 +19,8 @@ polynomial(
   ylim = NA,
   family = "sans",
   pointsize = 4.5,
-  decimal = "."
+  decimal = ".",
+  width.bar = NA
 )
 }
 \arguments{
@@ -32,7 +34,9 @@ polynomial(
 
 \item{grau}{Degree of the polynomial (1,2 or 3)}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
+
+\item{point}{Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").}
 
 \item{color}{Graph color (\emph{default} is gray80)}
 
@@ -49,6 +53,8 @@ polynomial(
 \item{pointsize}{Point size}
 
 \item{decimal}{Decimal separate}
+
+\item{width.bar}{width of the error bars of a regression graph.}
 }
 \value{
 Returns linear, quadratic or cubic regression analysis.

@@ -39,7 +39,7 @@ desc=function(trat,
   Desvio=sd(response)
   CV=Desvio/Media*100
   juntos=cbind(Media,Mediana,Minimo,Maximo,Variancia,Desvio,CV)
-  rownames(juntos)="Geral"
+  rownames(juntos)="General"
   colnames(juntos)=c("Mean","Median","Min","Max","Variance","SD","CV(%)")
 
   Media=tapply(response, trat, mean, na.rm=TRUE)
@@ -55,7 +55,7 @@ desc=function(trat,
   grafico=ggplot(dados,aes(x=trat,y=response))+
     geom_boxplot(aes(fill=trat, group=trat),show.legend = FALSE)+
     geom_jitter(aes(group=trat),show.legend = F, width=0.1,alpha=0.2)+
-    ylab(ylab)+xlab(xlab)+theme_bw()
+    ylab(ylab)+xlab(xlab)+theme_classic()
   if(is.na(ylim)==TRUE){grafico=grafico}else{grafico=grafico+ylim(ylim)}
   grafico=grafico+
     theme(text = element_text(size=14,color="black"),
@@ -64,7 +64,7 @@ desc=function(trat,
     geom_text(aes(label=rownames(dados)),size=4, nudge_x = 0.1)
   print(grafico)
   cat(green(bold("\n-----------------------------------------------------------------\n")))
-  green(italic(cat("general description")))
+  green(italic(cat("General description")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   print(juntos)
   cat(green(bold("\n-----------------------------------------------------------------\n")))

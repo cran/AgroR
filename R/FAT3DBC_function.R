@@ -11,6 +11,7 @@
 #' @param response Numerical vector containing the response of the experiment.
 #' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
+#' @param names.fat Allows labeling the factors 1, 2 and 3.
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
@@ -26,9 +27,10 @@
 #' @param textsize Font size
 #' @param dec Number of cells
 #' @param family Font family
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
+#' @param angle.label label angle
 #' @return The analysis of variance table, the Shapiro-Wilk error normality test, the Bartlett homogeneity test of variances, the Durbin-Watson error independence test, multiple comparison test (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.For significant triple interaction only, no graph is returned.
 #' @note The function does not perform multiple regression in the case of two or more quantitative factors. The bars of the column and segment graphs are standard deviation.
 #' @references
@@ -62,6 +64,7 @@ FAT3DBC=function(f1,
                  block,
                  response,
                  quali=c(TRUE,TRUE,TRUE),
+                 names.fat=c("F1","F2","F3"),
                  mcomp='tukey',
                  transf=1,
                  norm="sw",
@@ -73,20 +76,22 @@ FAT3DBC=function(f1,
                  sup=NA,
                  grau=NA,
                  fill="lightblue",
-                 theme=theme_bw(),
+                 theme=theme_classic(),
                  angulo=0,
                  errorbar=TRUE,
                  addmean=TRUE,
                  family="sans",
                  dec=3,
                  geom="bar",
-                 textsize=12) {
+                 textsize=12,
+                 angle.label=0) {
     if(is.na(sup==TRUE)){sup=0.2*mean(response)}
+    if(angle.label==0){hjust=0.5}else{hjust=0}
     fator1=f1
     fator2=f2
     fator3=f3
     bloco=block
-    fac.names=c('F1','F2','F3')
+    fac.names=names.fat
     requireNamespace("ScottKnott")
     requireNamespace("crayon")
     requireNamespace("ggplot2")
@@ -121,6 +126,22 @@ FAT3DBC=function(f1,
     anavaF3<-anova(anava)
     anovaF3=anavaF3
     colnames(anovaF3)=c("GL","SQ","QM","Fcal","p-value")
+    respad=anava$residuals/sqrt(anavaF3$`Mean Sq`[9])
+    out=respad[respad>3 | respad<(-3)]
+    out=names(out)
+    out=ifelse(length(out)==0,"No discrepant point",out)
+    resids=anava$residuals/sqrt(anavaF3$`Mean Sq`[9])
+    Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
+    residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+        geom_point(shape=21,color="gray",fill="gray",size=3)+
+        labs(x="",y="Standardized residuals")+
+        geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
+        scale_x_continuous(breaks=1:length(resids))+
+        theme_classic()+theme(axis.text.y = element_text(size=12),
+                              axis.text.x = element_blank())+
+        geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
+    print(residplot)
+
 
     # =================================
     ## Saída inicial
@@ -155,11 +176,22 @@ FAT3DBC=function(f1,
     message(if(indep$p.value>0.05){
         black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered independent")}
         else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors are not independent"})
-    cat("\n\n")
+    cat("\n")
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    cat(green(bold("Additional Information")))
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    cat(paste("\nCV (%) = ",round(sqrt(anavaF3$`Mean Sq`[9])/mean(resp,na.rm=TRUE)*100,2)))
+    cat(paste("\nMean = ",round(mean(response,na.rm=TRUE),4)))
+    cat(paste("\nMedian = ",round(median(response,na.rm=TRUE),4)))
+    cat("\nPossible outliers = ", out)
+    cat("\n")
     cat(green(bold("\n------------------------------------------\n")))
     cat(green(bold("Analysis of Variance")))
     cat(green(bold("\n------------------------------------------\n")))
-    print(anovaF3)
+    anava1=as.matrix(data.frame(anovaF3))
+    colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+    print(anava1,na.print = "")
+    cat("\n")
 
     if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 &&homog1$p.value<0.05){
         message("\n Your analysis is not valid, suggests using a non-parametric test and try to transform the data\n")}else{}
@@ -227,9 +259,9 @@ FAT3DBC=function(f1,
                 if(errorbar==TRUE){grafico=grafico+
                     geom_text(aes(y=media+sup+
                                       if(sup<0){-desvio}else{desvio},
-                                  label=letra),family=family)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
                 if(errorbar==FALSE){grafico=grafico+
-                    geom_text(aes(y=media+sup,label=letra),family=family)}
+                    geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
                 if(errorbar==TRUE){grafico=grafico+
                     geom_errorbar(data=dadosm,
                                   aes(ymin=media-desvio,
@@ -256,10 +288,10 @@ FAT3DBC=function(f1,
                     geom_point(aes(color=Tratamentos),color=fill,size=4)}
                 if(errorbar==TRUE){grafico=grafico+
                     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                                  label=letra),family=family)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
                 if(errorbar==FALSE){grafico=grafico+
                     geom_text(aes(y=media+sup,
-                                  label=letra),family=family)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
                 if(errorbar==TRUE){grafico=grafico+
                     geom_errorbar(data=dadosm,
                                   aes(ymin=media-desvio,
@@ -488,7 +520,7 @@ FAT3DBC=function(f1,
                                       width=0.3,position = position_dodge(width=0.9))+
                         geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                                       label=numero),
-                                  position = position_dodge(width=0.9))+
+                                  position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
                         theme(text=element_text(size=12),
                               axis.text = element_text(size=12,color="black"),
                               axis.title = element_text(size=12,color="black"))
@@ -581,9 +613,9 @@ FAT3DBC=function(f1,
                             geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
                         if(errorbar==TRUE){grafico=grafico+
                             geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                                          label=letra),family=family)}
+                                          label=letra),family=family,angle=angle.label, hjust=hjust)}
                         if(errorbar==FALSE){grafico=grafico+
-                            geom_text(aes(y=media+sup,label=letra),family=family)}
+                            geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
                         if(errorbar==TRUE){grafico=grafico+
                             geom_errorbar(data=dadosm,
                                           aes(ymin=media-desvio,
@@ -813,7 +845,7 @@ FAT3DBC=function(f1,
                           position = position_dodge(width=0.9))+
             geom_text(aes(y=media+desvio+sup,
                           label=numero),
-                      position = position_dodge(width=0.9))+
+                      position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
             theme(text=element_text(size=12),
                   axis.text = element_text(size=12,color="black"),
                   axis.title = element_text(size=12,color="black"))
@@ -905,9 +937,9 @@ FAT3DBC=function(f1,
                         else{grafico=grafico+
                             geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
                         if(errorbar==TRUE){grafico=grafico+
-                            geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},label=letra),family=family)}
+                            geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},label=letra),family=family,angle=angle.label, hjust=hjust)}
                         if(errorbar==FALSE){grafico=grafico+
-                            geom_text(aes(y=media+sup,label=letra),family=family)}
+                            geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
                         if(errorbar==TRUE){grafico=grafico+
                             geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                                           ymax=media+desvio,color=1),
@@ -1129,7 +1161,7 @@ FAT3DBC=function(f1,
                                       width=0.3,position = position_dodge(width=0.9))+
                         geom_text(aes(y=media+desvio+sup,
                                       label=numero),
-                                  position = position_dodge(width=0.9))+
+                                  position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
                         theme(text=element_text(size=12),
                               axis.text = element_text(size=12,color="black"),
                               axis.title = element_text(size=12,color="black"))
@@ -1221,9 +1253,9 @@ FAT3DBC=function(f1,
                             geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
                         if(errorbar==TRUE){grafico=grafico+
                             geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                                          label=letra),family=family)}
+                                          label=letra),family=family,angle=angle.label, hjust=hjust)}
                         if(errorbar==FALSE){grafico=grafico+
-                            geom_text(aes(y=media+sup,label=letra),family=family)}
+                            geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
                         if(errorbar==TRUE){grafico=grafico+
                             geom_errorbar(data=dadosm,
                                           aes(ymin=media-desvio,

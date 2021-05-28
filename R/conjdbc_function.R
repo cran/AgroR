@@ -19,7 +19,7 @@
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param title Graph title
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param dec Number of cells
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
 #' @param angulo x-axis scale text rotation
@@ -57,7 +57,7 @@ conjdbc=function(trat,
                  transf=1,
                  norm="sw",
                  homog="bt",
-                 theme=theme_bw(),
+                 theme=theme_classic(),
                  mcomp="tukey",
                  quali=TRUE,
                  alpha.f=0.05,
@@ -112,18 +112,23 @@ conjdbc=function(trat,
   ratio=matriza/matrizb
   rownames(ratio)=levels(local)
   colnames(ratio)=levels(local)
-  razao=data.frame(resp=c(ratio),
+  razao=data.frame(resp1=c(ratio),
                    var1=rep(rownames(ratio),e=length(rownames(ratio))),
                    var2=rep(colnames(ratio),length(colnames(ratio))))
+  var1=razao$var1
+  var2=razao$var2
+  resp1=razao$resp1
+
   ratioplot=ggplot(razao,
-                   aes(x=razao$var2,
-                       y=razao$var1,
-                       fill=razao$resp))+
+                   aes(x=var2,
+                       y=var1,
+                       fill=resp1))+
     geom_tile(color="gray50",size=1)+
     scale_x_discrete(position = "top")+
     scale_fill_distiller(palette = "RdBu",direction = 1)+
-    ylab("Numerator")+xlab("Denominator")+
-    geom_label(aes(label=format(razao$resp,digits=2)),fill="white")+
+    ylab("Numerator")+
+    xlab("Denominator")+
+    geom_label(aes(label=format(resp1,digits=2)),fill="white")+
     labs(fill="ratio")+
     theme(axis.text = element_text(size=12,color="black"),
           legend.text = element_text(size=12),
@@ -136,6 +141,26 @@ conjdbc=function(trat,
   print(ratioplot)
   QMRES=as.vector(qmres$QM)
   qmresmedio=max(QMRES)/min(QMRES)
+  b1=matrix(unlist(b$`Error: local:tratamento`),
+            ncol=5,2)
+  b2=matrix(c(unlist(b$`Error: local:bloco`),NA,NA,NA,NA,NA,NA),
+            ncol=5,3)[2:3,]
+  datas=rbind(b1[1,],b2);colnames(datas)=colnames(a)
+  datas=rbind(datas,a[1,])
+  nexp=length(unique(local))
+  ntrat=length(unique(trat))
+  nrep=table(trat)/nexp
+  GL=nexp*(ntrat*nrep[1]-(ntrat-1)-(nrep[1]-1))
+  resmed=data.frame(rbind(c(GL,NA,mean(QMRES),NA,NA)))
+  colnames(resmed)=colnames(datas)
+  datas=rbind(datas,resmed)
+  rownames(datas)=c("Trat","Exp","Block/Local","Exp:Trat","Average residue")
+  datas[2,4]=datas[2,3]/datas[4,3]
+  datas[3,4]=datas[3,3]/datas[4,3]
+  datas[2,5]=1-pf(datas[2,4],datas[2,1],datas[4,1])
+  datas[3,5]=1-pf(datas[3,4],datas[3,1],datas[4,1])
+  datas[5,2]=datas[5,3]*datas[5,1]
+
   d=aov(resp~tratamento*local+bloco)
   if(norm=="sw"){norm1 = shapiro.test(d$res)}
   if(norm=="li"){norm1=nortest::lillie.test(d$residuals)}
@@ -202,15 +227,15 @@ conjdbc=function(trat,
     message(black("The experiments can be analyzed together"))}else{
       message("Experiments cannot be analyzed together (Separate by experiment)")}
   cat("\n\n")
+  # cat(green(bold("\n-----------------------------------------------------------------\n")))
+  # cat(green(bold("Anova location and treatment interaction")))
+  # cat(green(bold("\n-----------------------------------------------------------------\n")))
+  # print(a)
   cat(green(bold("\n-----------------------------------------------------------------\n")))
-  cat(green(bold("Anova location and treatment interaction")))
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  print(a)
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  cat(green(bold("Analysis of variances isolated")))
+  cat(green(bold("Analysis of variance")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   #print(b$`Error: local:tratamento`)
-  print(b)
+  print(as.matrix(datas),na.print = "")
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   if(a$`Pr(>F)`[1] < alpha.f | qmresmedio > 7){
     for(i in 1:length(levels(local))){
@@ -256,7 +281,7 @@ conjdbc=function(trat,
                          aes(x=dadosm$Tratamentos,
                              y=dadosm$media))+
             geom_col(aes(fill=dadosm$Tratamentos),fill=fill,color=1)+
-            theme_bw()+
+            theme_classic()+
             ylab(ylab)+
             xlab(xlab)+ylim(0,1.5*max(dadosm$limite))+
             geom_errorbar(aes(ymin=dadosm$media-dadosm$desvio,
@@ -313,19 +338,24 @@ conjdbc=function(trat,
       dadosm$Tratamentos=rownames(dadosm)
       dadosm$limite=dadosm$media+dadosm$desvio
       dadosm$letra=paste(format(dadosm$media,digits = dec),dadosm$groups)
-
-      grafico1=ggplot(dadosm,aes(x=dadosm$Tratamentos,y=dadosm$media))
+      media=dadosm$media
+      desvio=dadosm$desvio
+      limite=dadosm$limite
+      Tratamentos=dadosm$Tratamentos
+      letra=dadosm$letra
+      grafico1=ggplot(dadosm,aes(x=Tratamentos,y=media))
       if(fill=="trat"){grafico1=grafico+
-        geom_col(aes(fill=dadosm$Tratamentos),color=1)}
+        geom_col(aes(fill=Tratamentos),color=1)}
       else{grafico1=grafico1+
-        geom_col(aes(fill=dadosm$Tratamentos),fill=fill,color=1)}
+        geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
       if(errorbar==TRUE){grafico1=grafico1+
-        geom_text(aes(y=dadosm$media+sup+if(sup<0){-dadosm$desvio}else{dadosm$desvio},label=dadosm$letra),family=family)}
+        geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
+                      label=letra),family=family)}
       if(errorbar==FALSE){grafico1=grafico1+
-        geom_text(aes(y=dadosm$media+sup,label=dadosm$letra),family=family)}
+        geom_text(aes(y=media+sup,label=letra),family=family)}
       if(errorbar==TRUE){grafico1=grafico1+
-        geom_errorbar(data=dadosm,aes(ymin=dadosm$media-dadosm$desvio,
-                                      ymax=dadosm$media+dadosm$desvio,color=1),
+        geom_errorbar(data=dadosm,aes(ymin=media-desvio,
+                                      ymax=media+desvio,color=1),
                       color="black", width=0.3)}
       grafico1=grafico1+theme+
         ylab(ylab)+
@@ -335,6 +365,8 @@ conjdbc=function(trat,
               axis.title = element_text(size=textsize,color="black",family=family),
               legend.position = "none")
       if(angulo !=0){grafico1=grafico1+theme(axis.text.x=element_text(hjust = 1.01,angle = angulo))}
+      cat("Multiple comparison test (",mcomp,")")
+      cat(green(bold("\n-----------------------------------------------------------------\n")))
       print(tukeyjuntos)
       print(grafico1)
       graficos=list(grafico1)}

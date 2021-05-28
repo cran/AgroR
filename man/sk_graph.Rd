@@ -22,10 +22,12 @@ Returns a bar chart with columns separated by color according to the Scott-Knott
 This is a function of the bar graph for the Scott-Knott test
 }
 \examples{
-data(pomegranate)
-attach(pomegranate)
-a=DIC(trat, WL, mcomp = "sk")
-sk_graph(a)
+data("laranja")
+attach(laranja)
+a=DBC(trat, bloco, resp,
+     mcomp = "sk",angle=45,
+     ylab = "Number of fruits/plants")
+sk_graph(a,dec = 0,horiz = FALSE)
 }
 \seealso{
 \link{radargraph}, \link{barplot_positive}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}

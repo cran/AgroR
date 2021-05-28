@@ -18,7 +18,7 @@ FAT2DBC(
   quali = c(TRUE, TRUE),
   grau = NA,
   geom = "bar",
-  theme = theme_bw(),
+  theme = theme_classic(),
   ylab = "Response",
   xlab = "",
   legend = "Legend",
@@ -27,14 +27,15 @@ FAT2DBC(
   textsize = 12,
   dec = 3,
   family = "sans",
-  point = "mean_se",
+  point = "mean_sd",
   addmean = TRUE,
   errorbar = TRUE,
   CV = TRUE,
   sup = NA,
   color = "rainbow",
   posi = "right",
-  ylim = NA
+  ylim = NA,
+  angle.label = 0
 )
 }
 \arguments{
@@ -64,7 +65,7 @@ FAT2DBC(
 
 \item{geom}{Graph type (columns or segments (For simple effect only))}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{ylab}{Variable response name (Accepts the \emph{expression}() function)}
 
@@ -82,7 +83,7 @@ FAT2DBC(
 
 \item{family}{font family}
 
-\item{point}{if quali=FALSE, defines whether to plot all points ("all"), mean ("mean") or mean with standard error (\emph{default} - "mean_se").}
+\item{point}{if quali=FALSE, defines whether to plot all points ("all"), mean ("mean"), standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").}
 
 \item{addmean}{Plot the average value on the graph (\emph{default} is TRUE)}
 
@@ -97,6 +98,8 @@ FAT2DBC(
 \item{posi}{Legend position}
 
 \item{ylim}{y-axis scale}
+
+\item{angle.label}{label angle}
 }
 \value{
 The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.
@@ -113,7 +116,7 @@ The function does not perform multiple regression in the case of two quantitativ
 library(AgroR)
 data(cloro)
 attach(cloro)
-FAT2DBC(f1, f2, bloco, resp)
+FAT2DBC(f1, f2, bloco, resp, ylab="Number of nodules", legend = "Stages")
 }
 \references{
 Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997

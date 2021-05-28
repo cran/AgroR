@@ -12,7 +12,7 @@ conjdbc(
   transf = 1,
   norm = "sw",
   homog = "bt",
-  theme = theme_bw(),
+  theme = theme_classic(),
   mcomp = "tukey",
   quali = TRUE,
   alpha.f = 0.05,
@@ -44,7 +44,7 @@ conjdbc(
 
 \item{homog}{Homogeneity test of variances (\emph{default} is Bartlett)}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)}
 

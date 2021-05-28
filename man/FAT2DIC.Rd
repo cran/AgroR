@@ -17,11 +17,11 @@ FAT2DIC(
   grau = NA,
   transf = 1,
   geom = "bar",
-  theme = theme_bw(),
+  theme = theme_classic(),
   ylab = "Response",
   xlab = "",
   legend = "Legend",
-  color = "gray",
+  color = "rainbow",
   fill = "lightblue",
   textsize = 12,
   addmean = TRUE,
@@ -31,9 +31,10 @@ FAT2DIC(
   angle = 0,
   posi = "right",
   family = "sans",
-  point = "mean_se",
+  point = "mean_sd",
   sup = NA,
-  ylim = NA
+  ylim = NA,
+  angle.label = 0
 )
 }
 \arguments{
@@ -61,7 +62,7 @@ FAT2DIC(
 
 \item{geom}{Graph type (columns or segments (For simple effect only))}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{ylab}{Variable response name (Accepts the \emph{expression}() function)}
 
@@ -89,11 +90,13 @@ FAT2DIC(
 
 \item{family}{Font family}
 
-\item{point}{if quali=F, defines whether to plot all points ("all"), mean ("mean") or mean with standard error (\emph{default} - "mean_se").}
+\item{point}{if quali=F, defines whether to plot all points ("all"), mean ("mean"), standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").}
 
 \item{sup}{Number of units above the standard deviation or average bar on the graph}
 
 \item{ylim}{y-axis scale}
+
+\item{angle.label}{label angle}
 }
 \value{
 The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.
@@ -110,7 +113,7 @@ The function does not perform multiple regression in the case of two quantitativ
 library(AgroR)
 data(cloro)
 attach(cloro)
-FAT2DIC(f1, f2, resp)
+FAT2DIC(f1, f2, resp, ylab="Number of nodules", legend = "Stages")
 }
 \references{
 Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997

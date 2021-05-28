@@ -18,7 +18,7 @@ DIC(
   test = "parametric",
   p.adj = "holm",
   geom = "bar",
-  theme = theme_bw(),
+  theme = theme_classic(),
   sup = NA,
   CV = TRUE,
   ylab = "Response",
@@ -30,7 +30,9 @@ DIC(
   dec = 3,
   addmean = TRUE,
   errorbar = TRUE,
-  posi = "top"
+  posi = "top",
+  point = "mean_sd",
+  angle.label = 0
 )
 }
 \arguments{
@@ -60,7 +62,7 @@ DIC(
 
 \item{geom}{Graph type (columns, boxes or segments)}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{sup}{Number of units above the standard deviation or average bar on the graph}
 
@@ -85,6 +87,10 @@ DIC(
 \item{errorbar}{Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE}
 
 \item{posi}{Legend position}
+
+\item{point}{Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").}
+
+\item{angle.label}{label angle}
 }
 \value{
 The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Kruskal-Wallis test. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
@@ -94,18 +100,37 @@ Statistical analysis of experiments conducted in a completely randomized and bal
 }
 \note{
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+
+Post hoc test in nonparametric is using the criterium Fisher's least significant difference (p-adj="holm").
 }
 \examples{
 library(AgroR)
 data(pomegranate)
 attach(pomegranate)
+
 DIC(trat, WL) # tukey
 DIC(trat, WL, mcomp = "sk")
 DIC(trat, WL, mcomp = "duncan")
+
+#=============================
+# Kruskal-Wallis
+#=============================
 DIC(trat, WL, test = "noparametric")
+
+#=============================
+# data transformation
+#=============================
 DIC(trat, WL, transf = 0)
+
+#=============================
+# chart type
+#=============================
 DIC(trat, WL, geom="point")
 DIC(trat, WL, ylab = "Weight loss (\%)", xlab="Treatments")
+
+#=============================
+# quantitative factor
+#=============================
 data("phao")
 attach(phao)
 DIC(dose,comp,quali=FALSE,grau=2)
@@ -115,7 +140,7 @@ Principles and procedures of statistics a biometrical approach Steel & Torry & D
 
 Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 
-Practical Nonparametrics Statistics. W.J. Conover, 1999
+W.J. Conover, Practical Nonparametrics Statistics. 1999
 
 Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
 

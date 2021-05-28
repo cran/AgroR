@@ -16,7 +16,7 @@
 #' @param transf Applies data transformation (default is 1; for log consider 0)
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
 #' @param geom Graph type (columns or segments (For simple effect only))
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param posi Legend position
@@ -32,7 +32,8 @@
 #' @param CV Plotting the coefficient of variation and p-value of Anova (\emph{default} is TRUE)
 #' @param sup Number of units above the standard deviation or average bar on the graph
 #' @param color Column chart color (\emph{default} is "rainbow")
-#' @param point if quali=FALSE, defines whether to plot all points ("all"), mean ("mean") or mean with standard error (\emph{default} - "mean_se").
+#' @param point if quali=FALSE, defines whether to plot all points ("all"), mean ("mean"), standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
+#' @param angle.label label angle
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.
 #' @note The function does not perform multiple regression in the case of two quantitative factors.
@@ -65,7 +66,7 @@
 #' library(AgroR)
 #' data(cloro)
 #' attach(cloro)
-#' FAT2DBC(f1, f2, bloco, resp)
+#' FAT2DBC(f1, f2, bloco, resp, ylab="Number of nodules", legend = "Stages")
 
 FAT2DBC=function(f1,
                  f2,
@@ -80,7 +81,7 @@ FAT2DBC=function(f1,
                   quali=c(TRUE,TRUE),
                   grau=NA,
                   geom="bar",
-                  theme=theme_bw(),
+                  theme=theme_classic(),
                   ylab="Response",
                   xlab="",
                   legend="Legend",
@@ -89,14 +90,16 @@ FAT2DBC=function(f1,
                   textsize=12,
                   dec=3,
                   family="sans",
-                  point="mean_se",
+                  point="mean_sd",
                   addmean=TRUE,
                   errorbar=TRUE,
                   CV=TRUE,
                   sup=NA,
                   color="rainbow",
                   posi="right",
-                  ylim=NA){
+                  ylim=NA,
+                 angle.label=0){
+  if(angle.label==0){hjust=0.5}else{hjust=0}
   requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
@@ -129,6 +132,10 @@ FAT2DBC=function(f1,
   b=aov(resp~Fator1*Fator2+bloco)
   anava=a
   colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
+  respad=b$residuals/sqrt(a$`Mean Sq`[4])
+  out=respad[respad>3 | respad<(-3)]
+  out=names(out)
+  out=ifelse(length(out)==0,"No discrepant point",out)
 
   if(norm=="sw"){norm1 = shapiro.test(b$res)}
   if(norm=="li"){norm1=lillie.test(b$residuals)}
@@ -152,12 +159,17 @@ FAT2DBC=function(f1,
     names(homog1)=c("Df", "F value","p.value")}
 
   indep = dwtest(b)
-  plot(b$residuals/sqrt(a$`Mean Sq`[5]),
-       ylab = "Standardized Residuals",
-       las = 1,
-       pch = 16,
-       col = "blue")
-  abline(h=c(0,3,-3),lty=c(1,2,2),col="red")
+  resids=b$residuals/sqrt(a$`Mean Sq`[5])
+  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
+  residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+    geom_point(shape=21,color="gray",fill="gray",size=3)+
+    labs(x="",y="Standardized residuals")+
+    geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
+    scale_x_continuous(breaks=1:length(resids))+
+    theme_classic()+theme(axis.text.y = element_text(size=12),
+                          axis.text.x = element_blank())+
+    geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
+  print(residplot)
 
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Normality of errors")))
@@ -199,12 +211,22 @@ FAT2DBC=function(f1,
   message(if(indep$p.value>0.05){
     black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered independent")}
       else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors are not independent"})
-  cat("\n\n")
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(green(bold("Additional Information")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(paste("\nCV (%) = ",round(sqrt(a$`Mean Sq`[4])/mean(resp,na.rm=TRUE)*100,2)))
+  cat(paste("\nMean = ",round(mean(response,na.rm=TRUE),4)))
+  cat(paste("\nMedian = ",round(median(response,na.rm=TRUE),4)))
+  cat("\nPossible outliers = ", out)
+
+  cat("\n")
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Analysis of Variance")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
-  print(anava)
-
+  anava1=as.matrix(data.frame(anava))
+  colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+  print(anava1,na.print = "")
+  cat("\n")
   if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 &&homog1$p.value<0.05){
     message("\n Your analysis is not valid, suggests using a non-parametric test and try to transform the data\n")}else{}
   if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){
@@ -262,9 +284,9 @@ FAT2DBC=function(f1,
         xlab(xlab)
       if(errorbar==TRUE){grafico=grafico+
         geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                      label=letra),family=family)}
+                      label=letra),family=family,angle=angle.label, hjust=hjust)}
       if(errorbar==FALSE){grafico=grafico+geom_text(aes(y=media+sup,
-                                                        label=letra),family=family)}
+                                                        label=letra),family=family,angle=angle.label, hjust=hjust)}
       if(errorbar==TRUE){grafico=grafico+
         geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                       ymax=media+desvio,color=1),
@@ -290,10 +312,10 @@ FAT2DBC=function(f1,
       if(errorbar==TRUE){grafico=grafico+
         geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                       label=letra),
-                  family=family)}
+                  family=family,angle=angle.label, hjust=hjust)}
       if(errorbar==FALSE){grafico=grafico+
         geom_text(aes(y=media+sup,
-                      label=letra),family=family)}
+                      label=letra),family=family,angle=angle.label, hjust=hjust)}
       if(errorbar==TRUE){grafico=grafico+
         geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                       ymax=media+desvio,color=1),
@@ -315,9 +337,17 @@ FAT2DBC=function(f1,
       }
       if(quali[i]==FALSE){
         dose=as.numeric(as.character(as.vector(unlist(fatores[i]))))
-        grafico=polynomial(dose, resp, grau = grau, ylab=ylab, xlab=xlab,
-                      posi=posi, theme=theme, textsize=textsize,
-                      se=errorbar, family=family)
+        grafico=polynomial(dose,
+                           resp,
+                           grau = grau,
+                           ylab=ylab,
+                           xlab=xlab,
+                           posi=posi,
+                           theme=theme,
+                           textsize=textsize,
+                           point=point,
+                           se=errorbar,
+                           family=family)
         grafico=grafico[[1]]}
     graficos[[i]]=grafico}
     }
@@ -325,17 +355,23 @@ FAT2DBC=function(f1,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
     cat(green("Isolated factors 1 not significant"))
     cat(green(bold("\n-----------------------------------------------------------------\n")))
-    print(tapply(resp,fator1,mean, na.rm=TRUE))}
+    d1=data.frame(tapply(response,fator1,mean, na.rm=TRUE))
+    colnames(d1)="Mean"
+    print(d1)
+    }
     if(a$`Pr(>F)`[1]<alpha.f && a$`Pr(>F)`[2] >=alpha.f){
       cat(green(bold("\n-----------------------------------------------------------------\n")))
       cat(green("Isolated factors 2 not significant"))
       cat(green(bold("\n-----------------------------------------------------------------\n")))
-      print(tapply(resp,fator2,mean, na.rm=TRUE))}
+      d1=data.frame(tapply(response,fator2,mean, na.rm=TRUE))
+      colnames(d1)="Mean"
+      print(d1)
+      }
     if(a$`Pr(>F)`[1]>=alpha.f && a$`Pr(>F)`[2] >=alpha.f){
       cat(green(bold("\n-----------------------------------------------------------------\n")))
       cat(green("Isolated factors not significant"))
       cat(green(bold("\n-----------------------------------------------------------------\n")))
-      print(tapply(resp,list(fator1,fator2),mean, na.rm=TRUE))}
+      print(tapply(response,list(fator1,fator2),mean, na.rm=TRUE))}
   }
   if (a$`Pr(>F)`[4]  <= alpha.f) {
     cat(green(bold("-----------------------------------------------------------------\n")))
@@ -485,34 +521,69 @@ FAT2DBC=function(f1,
     if(quali[1]==FALSE && color=="gray"| quali[2]==FALSE && color=="gray"){
       if(quali[2]==FALSE){
         Fator2=as.numeric(as.character(Fator2))
-        grafico=polynomial2(Fator2,response,Fator1, grau = grau,
-                            ylab=ylab,xlab=xlab,
-                            theme=theme,point=point,
-                            posi=posi,ylim=ylim,
-                            textsize=textsize, se=errorbar, family=family)}
+        grafico=polynomial2(Fator2,
+                            response,
+                            Fator1,
+                            grau = grau,
+                            ylab=ylab,
+                            xlab=xlab,
+                            theme=theme,
+                            point=point,
+                            posi=posi,
+                            ylim=ylim,
+                            textsize=textsize,
+                            se=errorbar,
+                            family=family)}
       if(quali[2]==TRUE){
         Fator1=as.numeric(as.character(Fator1))
-        grafico=polynomial2(Fator1,response,Fator2, grau = grau,
-                            color=color,ylab=ylab,xlab=xlab,
-                            theme=theme, point=point,
-                            posi=posi, ylim=ylim, textsize=textsize,
-                            se=errorbar,  family=family)
+        grafico=polynomial2(Fator1,
+                            response,
+                            Fator2,
+                            grau = grau,
+                            color=color,
+                            ylab=ylab,
+                            xlab=xlab,
+                            theme=theme,
+                            point=point,
+                            posi=posi,
+                            ylim=ylim,
+                            textsize=textsize,
+                            se=errorbar,
+                            family=family)
       }
     }
     if(quali[1]==FALSE && color=="rainbow"| quali[2]==FALSE && color=="rainbow"){
       if(quali[2]==FALSE){
         Fator2=as.numeric(as.character(Fator2))
-        grafico=polynomial2_color(Fator2,response,Fator1,
-                                  grau = grau,ylab=ylab,xlab=xlab,
-                                  theme=theme,point=point,
-                                  posi=posi,ylim=ylim,
-                                  textsize=textsize, se=errorbar, family=family)}
+        grafico=polynomial2_color(Fator2,
+                                  response,
+                                  Fator1,
+                                  grau = grau,
+                                  ylab=ylab,
+                                  xlab=xlab,
+                                  theme=theme,
+                                  point=point,
+                                  posi=posi,
+                                  ylim=ylim,
+                                  textsize=textsize,
+                                  se=errorbar,
+                                  family=family)}
       if(quali[2]==TRUE){
         Fator1=as.numeric(as.character(Fator1))
-        grafico=polynomial2_color(Fator1,response,Fator2, grau = grau,color=color,ylab=ylab,xlab=xlab,
-                    theme=theme,point=point,
-                    posi=posi,ylim=ylim,
-                    textsize=textsize, se=errorbar,  family=family)
+        grafico=polynomial2_color(Fator1,
+                                  response,
+                                  Fator2,
+                                  grau = grau,
+                                  color=color,
+                                  ylab=ylab,
+                                  xlab=xlab,
+                                  theme=theme,
+                                  point=point,
+                                  posi=posi,
+                                  ylim=ylim,
+                                  textsize=textsize,
+                                  se=errorbar,
+                                  family=family)
       }
     }
 
@@ -556,10 +627,10 @@ FAT2DBC=function(f1,
     if(errorbar==TRUE){colint=colint+
       geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                     label=numero),
-                position = position_dodge(width=0.9),family = family)}
+                position = position_dodge(width=0.9),family = family,angle=angle.label, hjust=hjust)}
     if(errorbar==FALSE){colint=colint+
       geom_text(aes(y=media+sup,label=numero),
-                position = position_dodge(width=0.9),family = family)}
+                position = position_dodge(width=0.9),family = family,angle=angle.label, hjust=hjust)}
     colint=colint+theme(text=element_text(size=12, family = family),
                         axis.text = element_text(size=12,color="black", family = family),
                         axis.title = element_text(size=12,color="black", family = family),

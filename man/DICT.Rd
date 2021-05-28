@@ -11,10 +11,11 @@ DICT(
   alpha.f = 0.05,
   alpha.t = 0.05,
   mcomp = "tukey",
-  theme = theme_bw(),
-  geom = "point",
+  theme = theme_classic(),
+  geom = "bar",
   xlab = "Independent",
   ylab = "Response",
+  p.adj = "holm",
   dec = 3,
   fill = "gray",
   error = TRUE,
@@ -40,15 +41,17 @@ DICT(
 
 \item{alpha.t}{Significance level of the multiple comparison test (\emph{default} is 0.05)}
 
-\item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)}
+\item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD ("lsd"), Scott-Knott ("sk"), Duncan ("duncan") and Kruskal-Wallis ("kw"))}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
-\item{geom}{Graph type (columns, boxes or segments)}
+\item{geom}{Graph type (columns - "bar" or segments "point")}
 
 \item{xlab}{treatments name (Accepts the \emph{expression}() function)}
 
 \item{ylab}{Variable response name (Accepts the \emph{expression}() function)}
+
+\item{p.adj}{Method for adjusting p values for Kruskal-Wallis ("none","holm","hommel", "hochberg", "bonferroni", "BH", "BY", "fdr")}
 
 \item{dec}{Number of cells}
 

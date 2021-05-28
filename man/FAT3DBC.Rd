@@ -11,6 +11,7 @@ FAT3DBC(
   block,
   response,
   quali = c(TRUE, TRUE, TRUE),
+  names.fat = c("F1", "F2", "F3"),
   mcomp = "tukey",
   transf = 1,
   norm = "sw",
@@ -22,14 +23,15 @@ FAT3DBC(
   sup = NA,
   grau = NA,
   fill = "lightblue",
-  theme = theme_bw(),
+  theme = theme_classic(),
   angulo = 0,
   errorbar = TRUE,
   addmean = TRUE,
   family = "sans",
   dec = 3,
   geom = "bar",
-  textsize = 12
+  textsize = 12,
+  angle.label = 0
 )
 }
 \arguments{
@@ -44,6 +46,8 @@ FAT3DBC(
 \item{response}{Numerical vector containing the response of the experiment.}
 
 \item{quali}{Defines whether the factor is quantitative or qualitative (\emph{qualitative})}
+
+\item{names.fat}{Allows labeling the factors 1, 2 and 3.}
 
 \item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)}
 
@@ -67,7 +71,7 @@ FAT3DBC(
 
 \item{fill}{Defines chart color (to generate different colors for different treatments, define fill = "trat")}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{angulo}{x-axis scale text rotation}
 
@@ -82,6 +86,8 @@ FAT3DBC(
 \item{geom}{Graph type (columns or segments)}
 
 \item{textsize}{Font size}
+
+\item{angle.label}{label angle}
 }
 \value{
 The analysis of variance table, the Shapiro-Wilk error normality test, the Bartlett homogeneity test of variances, the Durbin-Watson error independence test, multiple comparison test (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.For significant triple interaction only, no graph is returned.

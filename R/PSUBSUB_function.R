@@ -613,8 +613,6 @@ PSUBSUBDBC=function(f1,
                          alpha.t)
           duncan=duncan$groups;colnames(duncan)=c("Mean","letters")
           print(duncan)}
-
-
         }
     }
   }

@@ -15,7 +15,7 @@
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param error Add error bar
 #' @param sup Number of units above the standard deviation or average bar on the graph
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
@@ -23,7 +23,7 @@
 #' @param labelsize Font size of the labels
 #' @param family Font family
 #' @param dec Number of cells
-#' @param geom Graph type (columns, boxes or segments)
+#' @param geom Graph type (columns - "bar" or segments "point")
 #' @param legend Legend title
 #' @param posi Legend position
 #' @param ylim y-axis scale
@@ -69,12 +69,12 @@ DQLT=function(trat,
               sup=0,
               addmean=F,
               posi=c(0.1,0.8),
-              geom="point",
+              geom="bar",
               fill="gray",
               legend="Legend",
               ylim=NA,
               dec=3,
-              theme=theme_bw(),
+              theme=theme_classic(),
               xnumeric=FALSE){
   requireNamespace("ScottKnott")
   requireNamespace("crayon")
@@ -97,9 +97,11 @@ DQLT=function(trat,
     homog=c()
     indepg=c()
     anovag=c()
+    cv=c()
     for(i in 1:length(levels(tempo))){
       mod=aov(resp~trat+line+column, data=dados[dados$tempo==levels(dados$tempo)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+      cv[[i]]=sqrt(anova(mod)$`Mean Sq`[4])/mean(mod$model$resp)*100
       tukey=HSD.test(mod,"trat",alpha = alpha.t)
       tukey$groups=tukey$groups[unique(as.character(trat)),2]
       if(anova(mod)$`Pr(>F)`[1]>alpha.f){tukey$groups=c("ns",rep(" ",length(unique(trat))-1))}
@@ -117,7 +119,9 @@ DQLT=function(trat,
     hom=unlist(homog)
     ind=unlist(indepg)
     an=unlist(anovag)
-    press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+    cv=unlist(cv)
+    press=data.frame(an,nor,hom,ind,cv)
+    colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
 
 
   if(mcomp=="lsd"){
@@ -127,9 +131,11 @@ DQLT=function(trat,
     homog=c()
     indepg=c()
     anovag=c()
+    cv=c()
     for(i in 1:length(levels(tempo))){
       mod=aov(resp~trat+line+column, data=dados[dados$tempo==levels(dados$tempo)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+      cv[[i]]=sqrt(anova(mod)$`Mean Sq`[4])/mean(mod$model$resp)*100
       lsd=LSD.test(mod,"trat",alpha = alpha.t)
       lsd$groups=lsd$groups[unique(as.character(trat)),2]
       if(anova(mod)$`Pr(>F)`[1]>alpha.f){lsd$groups=c("ns",rep(" ",length(unique(trat))-1))}
@@ -147,7 +153,9 @@ DQLT=function(trat,
     hom=unlist(homog)
     ind=unlist(indepg)
     an=unlist(anovag)
-    press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+    cv=unlist(cv)
+    press=data.frame(an,nor,hom,ind,cv)
+    colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV(%)")}
 
 
   if(mcomp=="duncan"){
@@ -157,9 +165,11 @@ DQLT=function(trat,
     homog=c()
     indepg=c()
     anovag=c()
+    cv=c()
     for(i in 1:length(levels(tempo))){
       mod=aov(resp~trat+line+column, data=dados[dados$tempo==levels(dados$tempo)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+      cv[[i]]=sqrt(anova(mod)$`Mean Sq`[4])/mean(mod$model$resp)*100
       duncan=duncan.test(mod,"trat",alpha = alpha.t)
       duncan$groups=duncan$groups[unique(as.character(trat)),2]
       if(anova(mod)$`Pr(>F)`[1]>alpha.f){duncan$groups=c("ns",rep(" ",length(unique(trat))-1))}
@@ -177,7 +187,9 @@ DQLT=function(trat,
     hom=unlist(homog)
     ind=unlist(indepg)
     an=unlist(anovag)
-    press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+    cv=unlist(cv)
+    press=data.frame(an,nor,hom,ind,cv)
+    colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
 
 
   if(mcomp=="sk"){
@@ -186,9 +198,11 @@ DQLT=function(trat,
     homog=c()
     indepg=c()
     anovag=c()
+    cv=c()
     for(i in 1:length(levels(tempo))){
       mod=aov(resp~trat+line+column, data=dados[dados$tempo==levels(dados$tempo)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+      cv[[i]]=sqrt(anova(mod)$`Mean Sq`[4])/mean(mod$model$resp)*100
       letra=SK(mod,"trat",sig.level = alpha.t)
       data=data.frame(sk=letters[letra$groups])
       rownames(data)=rownames(letra$m.inf)
@@ -208,7 +222,9 @@ DQLT=function(trat,
     hom=unlist(homog)
     ind=unlist(indepg)
     an=unlist(anovag)
-    press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+    cv=unlist(cv)
+    press=data.frame(an,nor,hom,ind,cv)
+    colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
 
 
 

@@ -5,7 +5,7 @@
 #' the 1973 evaluation (12 years old). The rootstocks are: T1: Tangerine Sunki;
 #' T2: National rough lemon; T3: Florida rough lemon; T4: Cleopatra tangerine;
 #' T5: Citranger-troyer; T6: Trifoliata; T7: Clove Tangerine; T8: Country orange;
-#' T9: Clove Lemon
+#' T9: Clove Lemon. The number of fruits per plant was evaluated.
 #'
 #' @docType data
 #'
@@ -15,7 +15,7 @@
 #'   \describe{
 #'   \item{\code{f1}}{Categorical vector with treatments}
 #'   \item{\code{bloco}}{Categorical vector with block}
-#'   \item{\code{resp}}{Numeric vector}
+#'   \item{\code{resp}}{Numeric vector with number of fruits per plant}
 #'   }
 #'
 #' @keywords datasets

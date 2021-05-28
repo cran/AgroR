@@ -11,6 +11,9 @@ test_two(
   test = "t",
   alternative = c("two.sided", "less", "greater"),
   conf.level = 0.95,
+  theme = theme_classic(),
+  ylab = "Reponse",
+  xlab = "",
   var.equal = FALSE
 )
 }
@@ -26,6 +29,12 @@ test_two(
 \item{alternative}{A character string specifying the alternative hypothesis, must be one of "two.sided" (default), "greater" or "less". You can specify just the initial letter.}
 
 \item{conf.level}{Confidence level of the interval.}
+
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
+
+\item{ylab}{Variable response name (Accepts the \emph{expression}() function)}
+
+\item{xlab}{Treatments name (Accepts the \emph{expression}() function)}
 
 \item{var.equal}{A logical variable indicating whether to treat the two variances as being equal. If TRUE then the pooled variance is used to estimate the variance otherwise the Welch (or Satterthwaite) approximation to the degrees of freedom is used.}
 }

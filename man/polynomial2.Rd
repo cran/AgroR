@@ -12,14 +12,15 @@ polynomial2(
   grau = NA,
   ylab = "Response",
   xlab = "Independent",
-  theme = theme_bw(),
+  theme = theme_classic(),
   se = FALSE,
-  point = "mean_se",
+  point = "mean_sd",
   legend.title = "Treatments",
   posi = "top",
   textsize = 12,
   ylim = NA,
-  family = "sans"
+  family = "sans",
+  width.bar = NA
 )
 }
 \arguments{
@@ -37,11 +38,11 @@ polynomial2(
 
 \item{xlab}{Independent variable name (Accepts the \emph{expression}() function)}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{se}{Adds confidence interval (\emph{default} is FALSE)}
 
-\item{point}{Defines whether to plot all points ("all"), mean ("mean") or mean with standard error (\emph{default} - "mean_se").}
+\item{point}{Defines whether to plot all points ("all"), mean ("mean"), mean with standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").}
 
 \item{legend.title}{Title legend}
 
@@ -52,6 +53,8 @@ polynomial2(
 \item{ylim}{y-axis scale}
 
 \item{family}{Font family (\emph{default} is sans)}
+
+\item{width.bar}{width of the error bars of a regression graph.}
 }
 \value{
 Returns two or more linear, quadratic or cubic regression analyzes.

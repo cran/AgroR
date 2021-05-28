@@ -8,7 +8,7 @@
 #' @param ylab Dependent variable name (Accepts the \emph{expression}() function)
 #' @param xlab Independent variable name (Accepts the \emph{expression}() function)
 #' @param grau Degree of the polynomial (1,2 or 3)
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param color Graph color (\emph{default} is gray80)
 #' @param posi Legend position
 #' @param textsize Font size
@@ -17,6 +17,8 @@
 #' @param decimal Decimal separate
 #' @param ylim y-axis scale
 #' @param se Adds confidence interval (\emph{default} is FALSE)
+#' @param width.bar width of the error bars of a regression graph.
+#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").
 #' @return Returns linear, quadratic or cubic regression analysis.
 #' @keywords Regression
 #' @keywords Experimental
@@ -33,7 +35,8 @@ polynomial=function(trat,
                ylab="Response",
                xlab="Independent",
                grau=NA,
-               theme=theme_bw(),
+               theme=theme_classic(),
+               point="mean_sd",
                color="gray80",
                posi="top",
                textsize=12,
@@ -41,8 +44,10 @@ polynomial=function(trat,
                ylim=NA,
                family="sans",
                pointsize=4.5,
-               decimal=".")
+               decimal=".",
+               width.bar=NA)
 {requireNamespace("ggplot2")
+  if(is.na(width.bar)==TRUE){width.bar=0.1*mean(trat)}
   if(is.na(grau)==TRUE){grau=1}
   # ================================
   # vetores
@@ -67,6 +72,7 @@ polynomial=function(trat,
   fparcial3=c()
   media=tapply(resp, trat, mean, na.rm=TRUE)
   desvio=tapply(resp, trat, sd, na.rm=TRUE)
+  erro=tapply(resp, trat, sd, na.rm=TRUE)/sqrt(table(trat))
   dose=tapply(trat, trat, mean, na.rm=TRUE)
   moda=lm(resp~trat)
   mod1a=lm(resp~trat+I(trat^2))
@@ -118,11 +124,18 @@ polynomial=function(trat,
   data1=data.frame(trat,resp)
   data1=data.frame(trat=as.numeric(as.character(names(media))),
                    resp=media,
-                   desvio)
-  grafico=ggplot(data1,aes(x=trat,y=resp))+
-    geom_errorbar(aes(ymin=resp-desvio,
-                      ymax=resp+desvio),width=0.15)+
-    geom_point(aes(fill=as.factor(rep(1,length(resp)))),na.rm=TRUE,
+                   desvio, erro)
+  grafico=ggplot(data1,aes(x=trat,y=resp))
+  if(point=="all"){grafico=grafico+
+    geom_point(data=dados,
+               aes(y=resp,x=trat),shape=21,
+               color="black")}
+  if(point=="mean_sd"){grafico=grafico+
+    geom_errorbar(aes(ymin=resp-desvio,ymax=resp+desvio),width=width.bar)}
+  if(point=="mean_se"){grafico=grafico+
+    geom_errorbar(aes(ymin=resp-erro,ymax=resp+erro),width=width.bar)}
+  if(point=="mean"){grafico=grafico}
+  grafico=grafico+geom_point(aes(fill=as.factor(rep(1,length(resp)))),na.rm=TRUE,
                size=pointsize,shape=21,
                color="black")+
     theme+ylab(ylab)+xlab(xlab)

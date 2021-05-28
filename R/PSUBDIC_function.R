@@ -16,7 +16,7 @@
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
 #' @param geom Graph type (columns or segments (For simple effect only))
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
@@ -32,6 +32,7 @@
 #' @param ylim y-axis limit
 #' @param posi Legend position
 #' @param point Point type for regression ("mean_se","mean_sd","mean" or "all")
+#' @param angle.label label angle
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @import ggplot2
 #' @importFrom crayon green
@@ -50,7 +51,7 @@
 #'
 #' Practical Nonparametrics Statistics. W.J. Conover, 1999
 #'
-#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
@@ -74,7 +75,7 @@ PSUBDIC=function(f1,
                  transf=1,
                  grau=NA,
                  geom="bar",
-                 theme=theme_bw(),
+                 theme=theme_classic(),
                  ylab="Response",
                  xlab="",
                  fill="lightblue",
@@ -89,7 +90,9 @@ PSUBDIC=function(f1,
                  dec=3,
                  ylim=NA,
                  posi="right",
-                 point="mean_se"){
+                 point="mean_se",
+                 angle.label=0){
+    if(angle.label==0){hjust=0.5}else{hjust=0}
     requireNamespace("crayon")
     requireNamespace("ggplot2")
     requireNamespace("gridExtra")
@@ -119,15 +122,28 @@ PSUBDIC=function(f1,
     # -----------------------------
     # Analise de variancia
     # -----------------------------
-    mod=aov(resp~Fator1*Fator2+Error(bloco:Fator1))
-    a=summary(mod)
-    parcela=data.frame(a$`Error: bloco:Fator1`[[1]])
-    subparcela=data.frame(a$`Error: Within`[[1]])
-    anova=rbind(parcela,subparcela)
-    anova=round(anova,6)
-    anova[c(2,5),4:5]=""
-    colnames(anova)=c("Df","SQ","QM","Fcal","p-value")
+    mod=aov(resp~Fator1*Fator2+Fator1:bloco)
+    anova=summary(mod)[[1]]
+    anova=anova[c(1,4,2,3,5),]
+    anova$`F value`[1]=anova$`Mean Sq`[1]/anova$`Mean Sq`[2]
+    anova$`F value`[2]=NA
+    anova$`Pr(>F)`[2]=NA
+    anova$`Pr(>F)`[1]=1-pf(anova[1,4],anova[1,1],anova[2,1])
+    anova1=anova
+    anova=data.frame(anova)
+    colnames(anova)=colnames(anova1)
+    rownames(anova)=c("F1","Error A", "F2", "F1 x F2", "Error B")
     tab=anova
+
+    # mod=aov(resp~Fator1*Fator2+Error(bloco:Fator1))
+    # a=summary(mod)
+    # parcela=data.frame(a$`Error: bloco:Fator1`[[1]])
+    # subparcela=data.frame(a$`Error: Within`[[1]])
+    # anova=rbind(parcela,subparcela)
+    # anova=round(anova,6)
+    # anova[c(2,5),4:5]=""
+    # colnames(anova)=c("Df","SQ","QM","Fcal","p-value")
+    # tab=anova
 
     # -----------------------------
     # Pressupostos
@@ -207,7 +223,9 @@ PSUBDIC=function(f1,
     cat(green(bold("\n\n-----------------------------------------------------------------\n")))
     cat(green(bold("Analysis of Variance")))
     cat(green(bold("\n-----------------------------------------------------------------\n")))
-    print(anova)
+    anova$`Pr(>F)`=ifelse(anova$`Pr(>F)`>0.001,
+                          round(anova$`Pr(>F)`,3),"p<0.001")
+    print(as.matrix(anova),na.print="",quote = FALSE)
 
     if(transf==1 && norm1$p.value<0.05 |  transf==1 &&homog1$p.value<0.05){
         message("\n \nYour analysis is not valid, suggests using a try to transform the data\n")}else{}
@@ -297,9 +315,9 @@ PSUBDIC=function(f1,
                     xlab(xlab)
                 if(errorbar==TRUE){grafico=grafico+
                     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                                  label=letra),family=family)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
                 if(errorbar==FALSE){grafico=grafico+
-                    geom_text(aes(y=media+sup,label=letra),family=family)}
+                    geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
                 if(errorbar==TRUE){grafico=grafico+
                     geom_errorbar(data=dadosm,
                                   aes(ymin=media-desvio,
@@ -331,10 +349,10 @@ PSUBDIC=function(f1,
                     xlab(xlab)
                 if(errorbar==TRUE){grafico=grafico+
                     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                                  label=letra),family=family)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
                 if(errorbar==FALSE){grafico=grafico+
                     geom_text(aes(y=media+sup,
-                                  label=letra),family=family)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
                 if(errorbar==TRUE){grafico=grafico+
                     geom_errorbar(data=dadosm,
                                   aes(ymin=media-desvio,
@@ -356,7 +374,7 @@ PSUBDIC=function(f1,
 
             # # Regression
             if(quali[i]==FALSE){dose=as.numeric(as.character(as.vector(unlist(fat[i]))))
-            grafico=polynomial(dose,resp,grau = grau,ylab=ylab,xlab=xlab,
+            grafico=polynomial(dose,resp,grau = grau,ylab=ylab,xlab=xlab,point=point,
                           theme=theme,posi=posi,textsize=textsize, se=errorbar,
                           family=family)
             grafico=grafico[[1]]}
@@ -368,17 +386,21 @@ PSUBDIC=function(f1,
             cat(green(bold("-----------------------------------------------------------------\n")))
             cat("Isolated factors 1 not significant")
             cat(green(bold("\n-----------------------------------------------------------------\n")))
-            print(cbind(tapply(resp,fator1,mean, na.rm=TRUE)))}
+            d1=data.frame(tapply(response,fator1,mean, na.rm=TRUE))
+            colnames(d1)="Mean"
+            print(d1)}
         if(as.numeric(tab[3,5])>=alpha.f && as.numeric(tab[1,5])<alpha.f){
             cat(green(bold("-----------------------------------------------------------------\n")))
             cat("Isolated factors 2 not significant")
             cat(green(bold("\n-----------------------------------------------------------------\n")))
-            print(cbind(tapply(resp,fator2,mean, na.rm=TRUE)))}
+            d1=data.frame(tapply(response,fator2,mean, na.rm=TRUE))
+            colnames(d1)="Mean"
+            print(d1)}
         if(as.numeric(tab[1,5])>=alpha.f && as.numeric(tab[3,5])>=alpha.f){
             cat(green(bold("-----------------------------------------------------------------\n")))
             cat("Isolated factors not significant")
             cat(green(bold("\n-----------------------------------------------------------------\n")))
-            print(tapply(resp,list(fator1,fator2),mean, na.rm=TRUE))}
+            print(tapply(response,list(fator1,fator2),mean, na.rm=TRUE))}
     }
 
     #-----------------------------------
@@ -655,11 +677,11 @@ PSUBDIC=function(f1,
                 geom_text(aes(y=media+sup+
                                   if(sup<0){-desvio}else{desvio},
                               label=numero),
-                          position = position_dodge(width=0.9))}
+                          position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)}
             if(errorbar==FALSE){colint=colint+
                 geom_text(aes(y=media+sup,
                               label=numero),
-                          position = position_dodge(width=0.9))}
+                          position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)}
             colint=colint+
                 theme(text=element_text(size=12),
                       axis.text = element_text(size=12,color="black"),

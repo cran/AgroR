@@ -1,7 +1,7 @@
 #' Graph: Positive barplot
 #'
 #' @description Column chart with two variables that assume a positive response and represented by opposite sides, such as dry mass of the area and dry mass of the root
-#' @author Gabriel Danilo Shimizu
+#' @author Gabriel Danilo Shimizu, \email{shimizu@uel.br}
 #' @param a Object of DIC, DBC or DQL functions
 #' @param b Object of DIC, DBC or DQL functions
 #' @param ylab Y axis names
@@ -15,7 +15,7 @@
 #' attach(passiflora)
 #' a=DBC(trat,bloco,MSPA)
 #' b=DBC(trat,bloco,MSR)
-#' barplot_positive(a,b)
+#' barplot_positive(a,b,var_name = c("DMAP","DRM"),ylab = "Dry root (g)")
 
 barplot_positive=function(a,
                           b,
@@ -53,7 +53,7 @@ barplot_positive=function(a,
                   width=0.2)+
     scale_y_continuous(breaks = pretty(media*1.5),
                        labels = abs(pretty(media*1.5)))+
-    theme_bw()+xlab("")+ylab(ylab)+
+    theme_classic()+xlab("")+ylab(ylab)+
     geom_text(aes(y=limite,
                   label=letra))+
     scale_fill_manual(values=fill_color,

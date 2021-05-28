@@ -22,12 +22,12 @@ DQLT(
   sup = 0,
   addmean = F,
   posi = c(0.1, 0.8),
-  geom = "point",
+  geom = "bar",
   fill = "gray",
   legend = "Legend",
   ylim = NA,
   dec = 3,
-  theme = theme_bw(),
+  theme = theme_classic(),
   xnumeric = FALSE
 )
 }
@@ -66,7 +66,7 @@ DQLT(
 
 \item{posi}{Legend position}
 
-\item{geom}{Graph type (columns, boxes or segments)}
+\item{geom}{Graph type (columns - "bar" or segments "point")}
 
 \item{fill}{Defines chart color (to generate different colors for different treatments, define fill = "trat")}
 
@@ -76,7 +76,7 @@ DQLT(
 
 \item{dec}{Number of cells}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{xnumeric}{Declare x as numeric (\emph{default} is FALSE)}
 }

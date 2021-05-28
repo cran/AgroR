@@ -68,15 +68,16 @@ plot_TH=function(tempo,
                  sc=2.5,
                  angle=0,
                  legend.position="bottom",
-                 theme=theme_bw()){
+                 theme=theme_classic()){
   data=data.frame(tempo,Tmed,Tmax,Tmin,UR)
   requireNamespace("ggplot2")
-  requireNamespace("scales")
+  #requireNamespace("scales")
   # Dados completos
   if(is.na(Tmed[1])==FALSE && is.na(Tmin[1])==FALSE && is.na(Tmax[1])==FALSE && is.na(UR[1])==FALSE){
     if(x=="days"){
       a=ggplot(data, aes(x = tempo)) +
-        geom_col(aes(y = UR, fill=legend.H))+scale_x_continuous() +
+        geom_col(aes(y = UR, fill=legend.H))+
+        scale_x_continuous() +
         scale_y_continuous(sec.axis = sec_axis(~ . *1 ))+
         geom_line(aes(y = Tmed*sc,color=legend.tmed),size=linesize)+
         geom_line(aes(y = Tmin*sc,color=legend.tmin),size=linesize)+

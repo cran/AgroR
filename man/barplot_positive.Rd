@@ -34,11 +34,11 @@ data("passiflora")
 attach(passiflora)
 a=DBC(trat,bloco,MSPA)
 b=DBC(trat,bloco,MSR)
-barplot_positive(a,b)
+barplot_positive(a,b,var_name = c("DMAP","DRM"),ylab = "Dry root (g)")
 }
 \seealso{
 \link{radargraph}, \link{sk_graph}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}
 }
 \author{
-Gabriel Danilo Shimizu
+Gabriel Danilo Shimizu, \email{shimizu@uel.br}
 }

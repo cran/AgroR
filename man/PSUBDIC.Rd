@@ -18,7 +18,7 @@ PSUBDIC(
   transf = 1,
   grau = NA,
   geom = "bar",
-  theme = theme_bw(),
+  theme = theme_classic(),
   ylab = "Response",
   xlab = "",
   fill = "lightblue",
@@ -33,7 +33,8 @@ PSUBDIC(
   dec = 3,
   ylim = NA,
   posi = "right",
-  point = "mean_se"
+  point = "mean_se",
+  angle.label = 0
 )
 }
 \arguments{
@@ -63,7 +64,7 @@ PSUBDIC(
 
 \item{geom}{Graph type (columns or segments (For simple effect only))}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{ylab}{Variable response name (Accepts the \emph{expression}() function)}
 
@@ -94,6 +95,8 @@ PSUBDIC(
 \item{posi}{Legend position}
 
 \item{point}{Point type for regression ("mean_se","mean_sd","mean" or "all")}
+
+\item{angle.label}{label angle}
 }
 \value{
 The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
@@ -117,7 +120,7 @@ Multiple comparisons theory and methods. Departament of statistics the Ohio Stat
 
 Practical Nonparametrics Statistics. W.J. Conover, 1999
 
-Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 
 Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 }

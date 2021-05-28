@@ -10,14 +10,15 @@
 #' @param grau Degree of the polynomial (1,2 or 3)
 #' @param ylab Dependent variable name (Accepts the \emph{expression}() function)
 #' @param xlab Independent variable name (Accepts the \emph{expression}() function)
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param se Adds confidence interval (\emph{default} is FALSE)
 #' @param legend.title Title legend
 #' @param textsize Font size (\emph{default} is 12)
 #' @param family Font family (\emph{default} is sans)
-#' @param point Defines whether to plot all points ("all"), mean ("mean") or mean with standard error (\emph{default} - "mean_se").
+#' @param point Defines whether to plot all points ("all"), mean ("mean"), mean with standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").
 #' @param ylim y-axis scale
 #' @param posi Legend position
+#' @param width.bar width of the error bars of a regression graph.
 #' @keywords regression
 #' @keywords Experimental
 #' @seealso \link{polynomial}
@@ -38,14 +39,16 @@ polynomial2=function(fator1,
                      grau=NA,
                      ylab="Response",
                      xlab="Independent",
-                     theme=theme_bw(),
+                     theme=theme_classic(),
                      se=FALSE,
-                     point="mean_se",
+                     point="mean_sd",
                      legend.title="Treatments",
                      posi="top",
                      textsize=12,
                      ylim=NA,
-                     family="sans"){
+                     family="sans",
+                     width.bar=NA){
+  if(is.na(width.bar)==TRUE){width.bar=0.1*mean(fator1)}
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("gridExtra")
@@ -66,7 +69,7 @@ polynomial2=function(fator1,
     stat_summary(aes(group=fator2),fun = mean,
                  geom = "errorbar",na.rm=TRUE,
                  fun.max = function(x) mean(x) + sd(x),
-                 fun.min = function(x) mean(x) - sd(x),width=0.3)}
+                 fun.min = function(x) mean(x) - sd(x),width=0.05*mean(resp))}
   if(point=="mean_se"){grafico=grafico+
     stat_summary(aes(shape=fator2,group=fator2),fun="mean",  geom="point",na.rm=TRUE, size=3)+
     stat_summary(aes(group=fator2),fun.data=mean_se, geom="errorbar",na.rm=TRUE,width=0.3)}
@@ -161,14 +164,15 @@ polynomial2_color=function(fator1,
                            grau=NA,
                            ylab="Response",
                            xlab="independent",
-                           theme=theme_bw(),
+                           theme=theme_classic(),
                            se=FALSE,
                            point="mean_se",
                            legend.title="Tratamentos",
                            posi="top",
                            textsize=12,
                            ylim=NA,
-                           family="sans"){
+                           family="sans",
+                           width.bar=NA){
   requireNamespace("ggplot2")
   requireNamespace("gridExtra")
   Fator2=as.factor(fator2)
@@ -188,10 +192,11 @@ polynomial2_color=function(fator1,
     stat_summary(aes(color=fator2),fun = mean,
                  geom = "errorbar",
                  fun.max = function(x) mean(x) + sd(x),
-                 fun.min = function(x) mean(x) - sd(x),width=0.2)}
+                 fun.min = function(x) mean(x) - sd(x),width=width.bar)}
   if(point=="mean_se"){grafico=grafico+
     stat_summary(aes(color=fator2),fun="mean",  geom="point", size=3)+
-    stat_summary(aes(color=fator2),fun.data=mean_se, geom="errorbar",width=0.2)}
+    stat_summary(aes(color=fator2),fun.data=mean_se, geom="errorbar",
+                 width=width.bar)}
   if(point=="mean"){grafico=grafico+
     stat_summary(aes(color=fator2),fun="mean",  geom="point")}
   if(point=="all"){grafico=grafico+

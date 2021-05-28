@@ -9,7 +9,7 @@
 #' @param response Numerical vector containing the response of the experiment.
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param legend.title legend title name
 #' @param decreasing letter order (\emph{default} is TRUE)
 #' @param sup Number of units above the standard deviation or average bar on the graph
@@ -36,7 +36,7 @@ FAT2DBC.art=function(f1,
                      ylab="Sum of posts",
                      legend.title="Factor",
                      sup=NA,
-                     theme=theme_bw()){
+                     theme=theme_classic()){
   requireNamespace("emmeans")
   requireNamespace("ARTool")
   requireNamespace("ggplot2")

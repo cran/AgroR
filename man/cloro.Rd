@@ -10,7 +10,7 @@ data.frame containing data set
   \item{\code{f1}}{Categorical vector with factor 1}
   \item{\code{f2}}{Categorical vector with factor 2}
   \item{\code{bloco}}{Categorical vector with block}
-  \item{\code{resp}}{Numeric vector}
+  \item{\code{resp}}{Numeric vector with number nodules}
   }
 }
 \usage{

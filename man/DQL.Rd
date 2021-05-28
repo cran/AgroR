@@ -18,7 +18,7 @@ DQL(
   transf = 1,
   grau = 1,
   geom = "bar",
-  theme = theme_bw(),
+  theme = theme_classic(),
   sup = NA,
   CV = TRUE,
   ylab = "Response",
@@ -30,7 +30,9 @@ DQL(
   dec = 3,
   addmean = TRUE,
   errorbar = TRUE,
-  posi = "top"
+  posi = "top",
+  point = "mean_sd",
+  angle.label = 0
 )
 }
 \arguments{
@@ -60,7 +62,7 @@ DQL(
 
 \item{geom}{Graph type (columns, boxes or segments)}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{sup}{Number of units above the standard deviation or average bar on the graph}
 
@@ -85,6 +87,10 @@ DQL(
 \item{errorbar}{Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE}
 
 \item{posi}{Legend position}
+
+\item{point}{Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").}
+
+\item{angle.label}{label angle}
 }
 \value{
 The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.

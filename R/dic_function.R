@@ -17,7 +17,7 @@
 #' @param test "parametric" - Parametric test or "noparametric" - non-parametric test
 #' @param p.adj Method for adjusting p values for Kruskal-Wallis ("none","holm","hommel", "hochberg", "bonferroni", "BH", "BY", "fdr")
 #' @param geom Graph type (columns, boxes or segments)
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param sup Number of units above the standard deviation or average bar on the graph
 #' @param CV Plotting the coefficient of variation and p-value of Anova (\emph{default} is TRUE)
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
@@ -30,8 +30,11 @@
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param posi Legend position
+#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
+#' @param angle.label label angle
 #' @import ggplot2
 #' @import stats
+#' @import multcompView
 #' @importFrom ScottKnott SK
 #' @importFrom ScottKnott SK.nest
 #' @importFrom crayon green
@@ -67,13 +70,14 @@
 #' @importFrom Hmisc rcorr
 #' @importFrom cowplot plot_grid
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+#' @note Post hoc test in nonparametric is using the criterium Fisher's least significant difference (p-adj="holm").
 #' @references
 #'
 #' Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
 #'
 #' Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 #'
-#' Practical Nonparametrics Statistics. W.J. Conover, 1999
+#' W.J. Conover, Practical Nonparametrics Statistics. 1999
 #'
 #' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
 #'
@@ -90,20 +94,34 @@
 #' library(AgroR)
 #' data(pomegranate)
 #' attach(pomegranate)
+#'
 #' DIC(trat, WL) # tukey
 #' DIC(trat, WL, mcomp = "sk")
 #' DIC(trat, WL, mcomp = "duncan")
+#'
+#' #=============================
+#' # Kruskal-Wallis
+#' #=============================
 #' DIC(trat, WL, test = "noparametric")
+#'
+#' #=============================
+#' # data transformation
+#' #=============================
 #' DIC(trat, WL, transf = 0)
+#'
+#' #=============================
+#' # chart type
+#' #=============================
 #' DIC(trat, WL, geom="point")
 #' DIC(trat, WL, ylab = "Weight loss (%)", xlab="Treatments")
+#'
+#' #=============================
+#' # quantitative factor
+#' #=============================
 #' data("phao")
 #' attach(phao)
 #' DIC(dose,comp,quali=FALSE,grau=2)
 
-######################################################################################
-## Analise de variancia para experimentos em DIC
-######################################################################################
 DIC <- function(trat,
                 response,
                 norm="sw",
@@ -117,7 +135,7 @@ DIC <- function(trat,
                 test="parametric",
                 p.adj="holm",
                 geom="bar",
-                theme=theme_bw(),
+                theme=theme_classic(),
                 sup=NA,
                 CV=TRUE,
                 ylab="Response",
@@ -129,8 +147,11 @@ DIC <- function(trat,
                 dec=3,
                 addmean=TRUE,
                 errorbar=TRUE,
-                posi="top"){
+                posi="top",
+                point="mean_sd",
+                angle.label=0){
   if(is.na(sup==TRUE)){sup=0.1*mean(response)}
+  if(angle.label==0){hjust=0.5}else{hjust=0}
   requireNamespace("gridExtra")
   requireNamespace("nortest")
   requireNamespace("lmtest")
@@ -149,6 +170,10 @@ DIC <- function(trat,
   b = aov(resp ~ trat)
   anava=a
   colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
+  respad=b$residuals/sqrt(a$`Mean Sq`[2])
+  out=respad[respad>3 | respad<(-3)]
+  out=names(out)
+  out=ifelse(length(out)==0,"No discrepant point",out)
   if(norm=="sw"){norm1 = shapiro.test(b$res)}
   if(norm=="li"){norm1=nortest::lillie.test(b$residuals)}
   if(norm=="ad"){norm1=nortest::ad.test(b$residuals)}
@@ -168,10 +193,17 @@ DIC <- function(trat,
     method="Levene's Test (center = median)(F)"
     names(homog1)=c("Df", "F value","p.value")}
   indep = dwtest(b)
-  plot(b$residuals/sqrt(a$`Mean Sq`[2]),
-       ylab = "Standardized Residuals",
-       las = 1,pch = 16,col = "blue")
-  abline(h=c(0,3,-3),lty=c(1,2,2),col="red")
+  resids=b$residuals/sqrt(a$`Mean Sq`[2])
+  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
+  residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+    geom_point(shape=21,color="gray",fill="gray",size=3)+
+    labs(x="",y="Standardized residuals")+
+    geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
+    scale_x_continuous(breaks=1:length(resids))+
+    theme_classic()+theme(axis.text.y = element_text(size=12),
+                          axis.text.x = element_blank())+
+    geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
+  print(residplot)
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Normality of errors")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -184,7 +216,7 @@ DIC <- function(trat,
   message(if(norm1$p.value>0.05){
     black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered normal")}
       else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors do not follow a normal distribution"})
-  cat(green(bold("\n\n-----------------------------------------------------------------\n")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Homogeneity of Variances")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   homoge=data.frame(Method=method,
@@ -196,7 +228,7 @@ DIC <- function(trat,
   message(if(homog1$p.value>0.05){
     black("As the calculated p-value is greater than the 5% significance level,hypothesis H0 is not rejected. Therefore, the variances can be considered homogeneous")}
       else {"As the calculated p-value is less than the 5% significance level, H0 is rejected.Therefore, the variances are not homogeneous"})
-  cat(green(bold("\n\n-----------------------------------------------------------------\n")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Independence from errors")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   indepe=data.frame(Method=paste(indep$method,"(",
@@ -209,10 +241,21 @@ DIC <- function(trat,
   message(if(indep$p.value>0.05){
     black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered independent")}
       else {"As the calculated p-value is less than the 5% significance level, H0 is rejected.Therefore, errors are not independent"})
-  cat(green(bold("\n\n-----------------------------------------------------------------\n")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(green(bold("Additional Information")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(paste("\nCV (%) = ",round(sqrt(a$`Mean Sq`[2])/mean(resp,na.rm=TRUE)*100,2)))
+  cat(paste("\nR-squared = ",round(a$`Mean Sq`[1]/(a$`Mean Sq`[2]+a$`Mean Sq`[1]),2)))
+  cat(paste("\nMean = ",round(mean(response,na.rm=TRUE),4)))
+  cat(paste("\nMedian = ",round(median(response,na.rm=TRUE),4)))
+  cat("\nPossible outliers = ", out)
+  cat("\n")
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Analysis of Variance")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
-  print(anava)
+  anava1=as.matrix(data.frame(anava))
+  colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+  print(anava1,na.print = "")
   cat("\n\n")
   message(if (a$`Pr(>F)`[1]<alpha.f){
     black("As the calculated p-value, it is less than the 5% significance level.The hypothesis H0 of equality of means is rejected. Therefore, at least two treatments differ")}
@@ -245,13 +288,6 @@ DIC <- function(trat,
     }
   else{}
   if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){cat(red("\nWarning!!! Your analysis is not valid, suggests using a non-parametric test"))}else{}
-  cat(green(bold("\n\n-----------------------------------------------------------------\n")))
-  cat(green(bold("Additional Information")))
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  cat(paste("\nCV (%) = ",round(sqrt(a$`Mean Sq`[2])/mean(resp)*100,2)))
-  cat(paste("\nR-squared = ",round(a$`Mean Sq`[1]/(a$`Mean Sq`[2]+a$`Mean Sq`[1]),2)))
-  cat(paste("\nMean = ",round(mean(resp),4)))
-  cat(paste("\nMedian = ",round(median(resp),4)))
   dadosm=data.frame(letra1,
                     media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
                     desvio=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)])
@@ -267,14 +303,13 @@ DIC <- function(trat,
   letra=dadosm$letra
   if(geom=="bar"){grafico=ggplot(dadosm,aes(x=trats,y=media))
     if(fill=="trat"){grafico=grafico+
-      geom_col(aes(fill=trats),color=1)}
-    else{grafico=grafico+
+      geom_col(aes(fill=trats),color=1)}else{grafico=grafico+
       geom_col(aes(fill=trats),fill=fill,color=1)}
   if(errorbar==TRUE){grafico=grafico+
     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                  label=letra),family=family)}
+                  label=letra),family=family,angle=angle.label, hjust=hjust)}
   if(errorbar==FALSE){grafico=grafico+
-    geom_text(aes(y=media+sup,label=letra),family=family)}
+    geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
   if(errorbar==TRUE){grafico=grafico+
     geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                   ymax=media+desvio,color=1),
@@ -283,10 +318,10 @@ DIC <- function(trat,
                                               y=media))
   if(errorbar==TRUE){grafico=grafico+
     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                  label=letra),family=family)}
+                  label=letra),family=family,angle=angle.label, hjust=hjust)}
   if(errorbar==FALSE){grafico=grafico+
     geom_text(aes(y=media+sup,
-                  label=letra),family=family)}
+                  label=letra),family=family,angle=angle.label, hjust=hjust)}
   if(errorbar==TRUE){grafico=grafico+
     geom_errorbar(data=dadosm,
                   aes(ymin=media-desvio,
@@ -322,7 +357,7 @@ DIC <- function(trat,
     geom_text(data=dadosm2,
               aes(y=superior,
                   label=letra),
-              family = family)}
+              family = family,angle=angle.label, hjust=hjust)}
   grafico=grafico+
     theme+
     ylab(ylab)+
@@ -341,13 +376,13 @@ DIC <- function(trat,
   }
   if(quali==FALSE){
   trat=as.numeric(as.character(trat))
-  if(grau==1){graph=polynomial(trat,response, grau = 1,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi)}
-  if(grau==2){graph=polynomial(trat,response, grau = 2,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi)}
-  if(grau==3){graph=polynomial(trat,response, grau = 3,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi)}
+  if(grau==1){graph=polynomial(trat,response, grau = 1,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
+  if(grau==2){graph=polynomial(trat,response, grau = 2,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
+  if(grau==3){graph=polynomial(trat,response, grau = 3,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
   grafico=graph[[1]]
   }}
   if(test=="noparametric"){
-    krusk=kruskal(response,trat,p.adj = p.adj)
+    krusk=kruskal(response,trat,p.adj = p.adj,alpha=alpha.t)
     cat(green(bold("\n\n-----------------------------------------------------------------\n")))
     cat(green(italic("Statistics")))
     cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -381,9 +416,9 @@ DIC <- function(trat,
         geom_col(aes(fill=trats),fill=fill,color=1)}
     if(errorbar==TRUE){grafico=grafico+
       geom_text(aes(y=media+sup+if(sup<0){-std}else{std},
-                    label=letra),family=family)}
+                    label=letra),family=family,angle=angle.label, hjust=hjust)}
     if(errorbar==FALSE){grafico=grafico+
-      geom_text(aes(y=media+sup,label=letra),family=family)}
+      geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
     if(errorbar==TRUE){grafico=grafico+
       geom_errorbar(data=dadosm,aes(ymin=response-std,
                                     ymax=response+std,
@@ -395,11 +430,11 @@ DIC <- function(trat,
     if(errorbar==TRUE){grafico=grafico+
       geom_text(aes(y=media+sup+if(sup<0){-std}else{std},
                     label=letra),
-                family=family)}
+                family=family,angle=angle.label, hjust=hjust)}
     if(errorbar==FALSE){grafico=grafico+
       geom_text(aes(y=media+sup,
                     label=letra),
-                family=family)}
+                family=family,angle=angle.label, hjust=hjust)}
     if(errorbar==TRUE){grafico=grafico+
       geom_errorbar(data=dadosm,
                     aes(ymin=response-std,
@@ -438,7 +473,7 @@ DIC <- function(trat,
       geom_text(data=dadosm2,
                 aes(y=superior,
                     label=letra),
-                family = family)}
+                family = family,angle=angle.label, hjust=hjust)}
     grafico=grafico+theme+
       ylab(ylab)+
       xlab(xlab)+

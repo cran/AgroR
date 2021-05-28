@@ -14,7 +14,7 @@
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
 #' @param geom Graph type (columns or segments (For simple effect only))
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
@@ -30,6 +30,7 @@
 #' @param ylim y-axis limit
 #' @param posi Legend position
 #' @param point Point type for regression ("mean_se","mean_sd","mean" or "all")
+#' @param angle.label label angle
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @import ggplot2
 #' @importFrom crayon green
@@ -48,7 +49,7 @@
 #'
 #' Practical Nonparametrics Statistics. W.J. Conover, 1999
 #'
-#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #' @export
@@ -72,7 +73,7 @@ PSUBDBC=function(f1,
                  grau=NA,
                  transf=1,
                  geom="bar",
-                 theme=theme_bw(),
+                 theme=theme_classic(),
                  ylab="Response",
                  xlab="",
                  color="rainbow",
@@ -87,7 +88,9 @@ PSUBDBC=function(f1,
                  fill="lightblue",
                  angle=0,
                  family="sans",
-                 posi="right"){
+                 posi="right",
+                 angle.label=0){
+  if(angle.label==0){hjust=0.5}else{hjust=0}
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("gridExtra")
@@ -118,14 +121,20 @@ PSUBDBC=function(f1,
   # -----------------------------
   # Analise de variancia
   # -----------------------------
-  mod=aov(resp~Fator1*Fator2+Error(bloco:Fator1)+bloco)
-  a=summary(mod)
-  parcela=data.frame(a$`Error: bloco:Fator1`[[1]])
-  subparcela=data.frame(a$`Error: Within`[[1]])
-  anova=rbind(parcela,subparcela)
-  anova=round(anova,6)
-  anova[c(3,6),4:5]=""
-  colnames(anova)=c("GL","SQ","QM","Fcal","p-value")
+
+  mod=aov(resp~Fator1*Fator2+Fator1:bloco+bloco)
+  anova=summary(mod)[[1]]
+  anova=anova[c(1,3,5,2,4,6),]
+  anova$`F value`[1]=anova$`Mean Sq`[1]/anova$`Mean Sq`[3]
+  anova$`F value`[2]=anova$`Mean Sq`[2]/anova$`Mean Sq`[3]
+  anova$`F value`[3]=NA
+  anova$`Pr(>F)`[3]=NA
+  anova$`Pr(>F)`[1]=1-pf(anova[1,4],anova[1,1],anova[3,1])
+  anova$`Pr(>F)`[2]=1-pf(anova[2,4],anova[2,1],anova[3,1])
+  anova1=anova
+  anova=data.frame(anova)
+  colnames(anova)=colnames(anova1)
+  rownames(anova)=c("F1","Block","Error A", "F2", "F1 x F2", "Error B")
   tab=anova
 
   # -----------------------------
@@ -206,7 +215,8 @@ PSUBDBC=function(f1,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Analysis of Variance")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
-  print(anova)
+  anova$`Pr(>F)`=ifelse(anova$`Pr(>F)`>0.001,round(anova$`Pr(>F)`,3),"p<0.001")
+  print(as.matrix(anova),na.print="",quote = FALSE)
 
   if(transf==1 && norm1$p.value<0.05 |  transf==1 &&homog1$p.value<0.05){
     message("\n Your analysis is not valid, suggests using a try to transform the data\n")}else{}
@@ -229,13 +239,16 @@ PSUBDBC=function(f1,
       if(quali[i]==TRUE){
         ## Tukey
         if(mcomp=="tukey"){
-          letra <- HSD.test(resp, fat[, i],num(tab[3*i,1]), num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
+          letra <- HSD.test(resp, fat[, i],num(tab[3*i,1]),
+                            num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
         if(mcomp=="duncan"){
-          letra <- duncan.test(resp, fat[, i],num(tab[3*i,1]), num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
+          letra <- duncan.test(resp, fat[, i],num(tab[3*i,1]),
+                               num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
         if(mcomp=="lsd"){
-          letra <- LSD.test(resp, fat[, i],num(tab[3*i,1]), num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
+          letra <- LSD.test(resp, fat[, i],num(tab[3*i,1]),
+                            num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
         if(mcomp=="sk"){
           dados=data.frame(Fator1,Fator2,bloco)
@@ -282,10 +295,10 @@ PSUBDBC=function(f1,
         if(errorbar==TRUE){grafico=grafico+
           geom_text(aes(y=media+sup+
                           if(sup<0){-desvio}else{desvio},
-                        label=dadosm$letra),family=family)}
+                        label=letra),family=family,angle=angle.label, hjust=hjust)}
         if(errorbar==FALSE){grafico=grafico+
           geom_text(aes(y=media+sup,
-                        label=letra),family=family)}
+                        label=letra),family=family,angle=angle.label, hjust=hjust)}
         if(errorbar==TRUE){grafico=grafico+
           geom_errorbar(data=dadosm,
                         aes(ymin=media-desvio,
@@ -319,10 +332,10 @@ PSUBDBC=function(f1,
         if(errorbar==TRUE){grafico=grafico+
           geom_text(aes(y=media+sup+
                           if(sup<0){-desvio}else{desvio},
-                        label=letra),family=family)}
+                        label=letra),family=family,angle=angle.label, hjust=hjust)}
         if(errorbar==FALSE){grafico=grafico+
           geom_text(aes(y=media+sup,label=letra),
-                    family=family)}
+                    family=family,angle=angle.label, hjust=hjust)}
         if(errorbar==TRUE){grafico=grafico+
           geom_errorbar(data=dadosm,
                         aes(ymin=media-desvio,
@@ -345,7 +358,7 @@ PSUBDBC=function(f1,
 
       # # Regression
       if(quali[i]==FALSE){dose=as.numeric(as.character(as.vector(unlist(fat[i]))))
-        grafico=polynomial(dose, resp, grau = grau, ylab=ylab, xlab=xlab, posi=posi,
+        grafico=polynomial(dose, resp, grau = grau, ylab=ylab, xlab=xlab, posi=posi,point=point,
               theme=theme, textsize=textsize, family=family)
         grafico=grafico[[1]]}
       graficos[[i]]=grafico
@@ -356,17 +369,22 @@ PSUBDBC=function(f1,
       cat(green(bold("-----------------------------------------------------------------\n")))
       cat("Isolated factors 1 not significant")
       cat(green(bold("\n-----------------------------------------------------------------\n")))
-      print(cbind(tapply(resp,fator1,mean, na.rm=TRUE)))}
+      d1=data.frame(tapply(response,fator1,mean, na.rm=TRUE))
+      colnames(d1)="Mean"
+      print(d1)}
     if(as.numeric(tab[4,5])>=alpha.f && as.numeric(tab[1,5])<alpha.f){
       cat(green(bold("-----------------------------------------------------------------\n")))
       cat("Isolated factors 2 not significant")
       cat(green(bold("\n-----------------------------------------------------------------\n")))
-      print(cbind(tapply(resp,fator2,mean, na.rm=TRUE)))}
+      d1=data.frame(tapply(response,fator2,mean, na.rm=TRUE))
+      colnames(d1)="Mean"
+      print(d1)
+      }
     if(as.numeric(tab[1,5])>=alpha.f && as.numeric(tab[4,5])>=alpha.f){
       cat(green(bold("-----------------------------------------------------------------\n")))
       cat("Isolated factors not significant")
       cat(green(bold("\n-----------------------------------------------------------------\n")))
-      print(tapply(resp,list(fator1,fator2),mean, na.rm=TRUE))}
+      print(tapply(response,list(fator1,fator2),mean, na.rm=TRUE))}
   }
 
   #-------------------------------------
@@ -629,10 +647,10 @@ PSUBDBC=function(f1,
           geom_text(aes(y=media+sup+
                           if(sup<0){-desvio}else{desvio},
                         label=numero),
-                    position = position_dodge(width=0.9))}
+                    position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)}
         if(errorbar==FALSE){colint=colint+
           geom_text(aes(y=media+sup,label=numero),
-                    position = position_dodge(width=0.9))}
+                    position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)}
         colint=colint+theme(text=element_text(size=12),
                             legend.position = posi,
                             axis.text = element_text(size=12,

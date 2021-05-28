@@ -4,7 +4,7 @@
 \alias{desc2fat}
 \title{Descriptive: Descriptive analysis (Two factors)}
 \usage{
-desc2fat(f1, f2, response, ylab = "Response", theme = theme_bw())
+desc2fat(f1, f2, response, ylab = "Response", theme = theme_classic())
 }
 \arguments{
 \item{f1}{Numeric or complex vector with factor 1 levels}
@@ -15,7 +15,7 @@ desc2fat(f1, f2, response, ylab = "Response", theme = theme_bw())
 
 \item{ylab}{Variable response name (Accepts the \emph{expression}() function)}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 }
 \value{
 The function returns exploratory measures of position and dispersion, such as mean, median, maximum, minimum, coefficient of variation, etc ...

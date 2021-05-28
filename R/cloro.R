@@ -16,7 +16,7 @@
 #'   \item{\code{f1}}{Categorical vector with factor 1}
 #'   \item{\code{f2}}{Categorical vector with factor 2}
 #'   \item{\code{bloco}}{Categorical vector with block}
-#'   \item{\code{resp}}{Numeric vector}
+#'   \item{\code{resp}}{Numeric vector with number nodules}
 #'   }
 #' @keywords datasets
 #' @seealso \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}

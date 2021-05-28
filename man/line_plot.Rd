@@ -11,7 +11,8 @@ line_plot(
   errorbar = "sd",
   ylab = "Response",
   xlab = "Time",
-  legend.position = "right"
+  legend.position = "right",
+  theme = theme_classic()
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ line_plot(
 \item{xlab}{x axis title}
 
 \item{legend.position}{Legend position}
+
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 }
 \value{
 Returns a line chart with error bars

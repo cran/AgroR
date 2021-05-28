@@ -9,6 +9,7 @@
 #' @param response Numerical vector containing the response of the experiment.
 #' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
+#' @param names.fat Allows labeling the factors 1, 2 and 3.
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
 #' @param xlab treatments name (Accepts the \emph{expression}() function)
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
@@ -24,9 +25,10 @@
 #' @param textsize Font size
 #' @param dec Number of cells
 #' @param family Font family
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
+#' @param angle.label label angle
 #' @return The analysis of variance table, the Shapiro-Wilk error normality test, the Bartlett homogeneity test of variances, the Durbin-Watson error independence test, multiple comparison test (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.For significant triple interaction only, no graph is returned.
 #' @note The function does not perform multiple regression in the case of two or more quantitative factors. The bars of the column and segment graphs are standard deviation.
 #' @references
@@ -63,6 +65,7 @@ FAT3DIC=function(f1,
                  f3,
                  response,
                  quali=c(TRUE,TRUE,TRUE),
+                 names.fat=c("F1","F2","F3"),
                  mcomp='tukey',
                  alpha.t=0.05,
                  alpha.f=0.05,
@@ -74,19 +77,21 @@ FAT3DIC=function(f1,
                  sup=NA,
                  grau=NA,
                  fill="lightblue",
-                 theme=theme_bw(),
+                 theme=theme_classic(),
                  angulo=0,
                  family="sans",
                  addmean=TRUE,
                  errorbar=TRUE,
                  dec=3,
                  geom="bar",
-                 textsize=12) {
+                 textsize=12,
+                 angle.label=0) {
   if(is.na(sup==TRUE)){sup=0.2*mean(response)}
+  if(angle.label==0){hjust=0.5}else{hjust=0}
   fator1=f1
   fator2=f2
   fator3=f3
-  fac.names=c('F1','F2','F3')
+  fac.names=names.fat
   requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
@@ -94,18 +99,12 @@ FAT3DIC=function(f1,
   requireNamespace("nortest")
   requireNamespace("lmtest")
 
-  # ================================
-  # Transformacao de dados
-  # ================================
   if(transf=="1"){resp=response}else{resp=(response^transf-1)/transf}
   if(transf=="0"){resp=log(response)}
   if(transf=="0.5"){resp=sqrt(response)}
   if(transf=="-0.5"){resp=1/sqrt(response)}
   if(transf=="-1"){resp=1/response}
 
-  # =================================
-  ## Reconstruindo vetores
-  # =================================
   fatores<-data.frame(fator1,fator2,fator3)
   Fator1<-factor(fator1,levels=unique(fator1));
   Fator2<-factor(fator2,levels=unique(fator2));
@@ -114,17 +113,27 @@ FAT3DIC=function(f1,
   J<-(length(resp))/(nv1*nv2*nv3)
   lf1<-levels(Fator1); lf2<-levels(Fator2); lf3<-levels(Fator3)
 
-  # =================================
-  ## Anova
-  # =================================
   anava<-aov(resp~Fator1*Fator2*Fator3)
   anavaF3<-anova(anava)
   anovaF3=anavaF3
   colnames(anovaF3)=c("GL","SQ","QM","Fcal","p-value")
+  respad=anava$residuals/sqrt(anavaF3$`Mean Sq`[8])
+  out=respad[respad>3 | respad<(-3)]
+  out=names(out)
+  out=ifelse(length(out)==0,"No discrepant point",out)
 
-  # =================================
-  ## Saída inicial
-  # =================================
+  resids=anava$residuals/sqrt(anavaF3$`Mean Sq`[8])
+  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
+  residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+    geom_point(shape=21,color="gray",fill="gray",size=3)+
+    labs(x="",y="Standardized residuals")+
+    geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
+    scale_x_continuous(breaks=1:length(resids))+
+    theme_classic()+theme(axis.text.y = element_text(size=12),
+                          axis.text.x = element_blank())+
+    geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
+  print(residplot)
+
   #Teste de normalidade
   norm1<-shapiro.test(anava$residuals)
   cat(green(bold("\n------------------------------------------\n")))
@@ -135,7 +144,6 @@ FAT3DIC=function(f1,
     black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered normal")}
       else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors do not follow a normal distribution"})
 
-  # Teste de homogeneidade das variâncias
   homog1=bartlett.test(anava$residuals~paste(Fator1,Fator2,Fator3))
   cat(green(bold("\n------------------------------------------\n")))
   cat(green(bold("Homogeneity of Variances")))
@@ -145,7 +153,6 @@ FAT3DIC=function(f1,
     black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, the variances can be considered homogeneous")}
       else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, the variances are not homogeneous"})
 
-  # Independencia dos erros
   indep=dwtest(anava)
   cat(green(bold("\n------------------------------------------\n")))
   cat(green(bold("Independence from errors")))
@@ -154,12 +161,22 @@ FAT3DIC=function(f1,
   message(if(indep$p.value>0.05){
     black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered independent")}
       else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors are not independent"})
-  cat("\n\n")
-
+  cat("\n")
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(green(bold("Additional Information")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(paste("\nCV (%) = ",round(sqrt(anavaF3$`Mean Sq`[8])/mean(resp,na.rm=TRUE)*100,2)))
+  cat(paste("\nMean = ",round(mean(response,na.rm=TRUE),4)))
+  cat(paste("\nMedian = ",round(median(response,na.rm=TRUE),4)))
+  cat("\nPossible outliers = ", out)
+  cat("\n")
   cat(green(bold("\n------------------------------------------\n")))
   cat(green(italic("Analysis of Variance")))
   cat(green(bold("\n------------------------------------------\n")))
-  print(anovaF3)
+  anava1=as.matrix(data.frame(anovaF3))
+  colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+  print(anava1,na.print = "")
+  cat("\n")
 
   if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 &&homog1$p.value<0.05){
     message("\n Your analysis is not valid, suggests using a non-parametric test and try to transform the data\n")}else{}
@@ -167,9 +184,6 @@ FAT3DIC=function(f1,
     message("\n Your analysis is not valid, suggests using the function FATDIC.art\n")}else{}
   message(if(transf !=1){blue("\nNOTE: resp = transformed means; respO = averages without transforming\n")})
 
-  ################################################################################################
-  # Efeitos simples
-  ################################################################################################
   if(anavaF3[4,5]>alpha.f && anavaF3[5,5]>alpha.f && anavaF3[6,5]>alpha.f && anavaF3[7,5]>alpha.f) {
     graficos=list(1,2,3)
     cat(green(bold("\n------------------------------------------\n")))
@@ -178,7 +192,6 @@ FAT3DIC=function(f1,
     fatores<-data.frame('fator 1'=fator1,'fator 2' = fator2,'fator 3' = fator3)
 
     for(i in 1:3){
-      # Comparação múltipla
       if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
         cat(green(bold("\n------------------------------------------\n")))
         cat(fac.names[i])
@@ -227,9 +240,9 @@ FAT3DIC=function(f1,
         if(errorbar==TRUE){grafico=grafico+
           geom_text(aes(y=media+sup+
                           if(sup<0){-desvio}else{desvio},
-                        label=letra),family=family)}
+                        label=letra),family=family,angle=angle.label, hjust=hjust)}
         if(errorbar==FALSE){grafico=grafico+
-          geom_text(aes(y=media+sup,label=letra),family=family)}
+          geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
         if(errorbar==TRUE){grafico=grafico+
           geom_errorbar(data=dadosm,
                         aes(ymin=media-desvio,
@@ -257,9 +270,9 @@ FAT3DIC=function(f1,
           geom_point(aes(color=Tratamentos),color=fill,size=4)}
         if(errorbar==TRUE){grafico=grafico+
           geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                        label=letra),family=family)}
+                        label=letra),family=family,angle=angle.label, hjust=hjust)}
         if(errorbar==FALSE){grafico=grafico+
-          geom_text(aes(y=media+sup,label=letra),family=family)}
+          geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
         if(errorbar==TRUE){grafico=grafico+
           geom_errorbar(data=dadosm,
                         aes(ymin=media-desvio,
@@ -296,15 +309,11 @@ FAT3DIC=function(f1,
     }
   }
 
-  #####################################################################
-  #Interacao Fator1*Fator2      +     Fator3
-  #####################################################################
   if(anavaF3[7,5]>alpha.f && anavaF3[4,5]<=alpha.f){
     cat(green(bold("\n------------------------------------------\n")))
     cat(green(bold("Interaction",paste(fac.names[1],'*',fac.names[2],sep='')," significant: unfolding the interaction")))
     cat(green(bold("\n------------------------------------------\n")))
 
-    #Desdobramento de FATOR 1 dentro do niveis de FATOR 2
     cat(green(bold("\n------------------------------------------\n")))
     cat("Analyzing ", fac.names[1], ' inside of each level of ', fac.names[2])
     cat(green(bold("\n------------------------------------------\n")))
@@ -320,15 +329,7 @@ FAT3DIC=function(f1,
     des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
     print(des1a)
 
-    #==========================================================
-    # Teste de comparação múltipla
-    #==========================================================
-
     if(quali[1]==TRUE & quali[2]==TRUE){
-
-      #-------------------------------------
-      # Teste de Tukey
-      #-------------------------------------
 
       if (mcomp == "tukey"){
         tukeygrafico=c()
@@ -422,14 +423,7 @@ FAT3DIC=function(f1,
       des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
       print(des1a)
 
-      #==========================================================
-      # Teste de comparação múltipla
-      #==========================================================
       if(quali[1]==TRUE & quali[2]==TRUE){
-
-        #-------------------------------------
-        # Teste de Tukey
-        #-------------------------------------
         if (mcomp == "tukey"){
           tukeygrafico1=c()
           for (i in 1:nv1) {
@@ -483,9 +477,6 @@ FAT3DIC=function(f1,
           letra1=unlist(skgrafico1)
           letra1=toupper(letra1)}}
 
-      # -----------------------------
-      # Gráfico de colunas
-      #------------------------------
       if(quali[1] & quali[2]==TRUE){
           f1=rep(levels(Fator1),e=length(levels(Fator2)))
           f2=rep(unique(as.character(Fator2)),length(levels(Fator2)))
@@ -516,14 +507,13 @@ FAT3DIC=function(f1,
                           width=0.3,position = position_dodge(width=0.9))+
             geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                           label=numero),
-                      position = position_dodge(width=0.9))+
+                      position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
             theme(text=element_text(size=12),
                   axis.text = element_text(size=12,color="black"),
                   axis.title = element_text(size=12,color="black"))
           colint1=colint
           print(colint)
 
-          # adicionei aqui
           letras=paste(graph$letra,
                        graph$letra1,
                        sep="")
@@ -558,11 +548,9 @@ FAT3DIC=function(f1,
         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command"))
         }
 
-      #Checar o Fator3
       if(anavaF3[5,5]>alpha.f && anavaF3[6,5]>alpha.f) {
         i<-3
         {
-          #Para os fatores QUALITATIVOS, teste de Tukey
           if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
             cat(green(bold("\n------------------------------------------\n")))
             cat(green(italic('Analyzing the simple effects of the factor ',fac.names[3])))
@@ -610,9 +598,9 @@ FAT3DIC=function(f1,
             if(errorbar==TRUE){grafico=grafico+
               geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                             label=letra),
-                        family=family)}
+                        family=family,angle=angle.label, hjust=hjust)}
             if(errorbar==FALSE){grafico=grafico+
-              geom_text(aes(y=media+sup,label=letra),family=family)}
+              geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
             if(errorbar==TRUE){grafico=grafico+
               geom_errorbar(data=dadosm,
                             aes(ymin=media-desvio,
@@ -628,7 +616,6 @@ FAT3DIC=function(f1,
             print(grafico1)}
             }
 
-          #Para os fatores QUANTITATIVOS, regressao
           if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
             cat(green(bold("\n------------------------------------------\n")))
             cat('Analyzing the simple effects of the factor ',fac.names[3])
@@ -641,9 +628,6 @@ FAT3DIC=function(f1,
       }
     }
 
-  #####################################################################################################
-  #Interacao Fator1*Fator3       + fator2
-  #####################################################################################################
   if(anavaF3[7,5]>alpha.f && anavaF3[5,5]<=alpha.f){
       cat(green(bold("\n------------------------------------------\n")))
       cat(green(bold("Interaction",paste(fac.names[1],'*',fac.names[3],sep='')," significant: unfolding the interaction")))
@@ -664,10 +648,6 @@ FAT3DIC=function(f1,
       des1<-summary(des,split=list('Fator3:Fator1'=l))[[1]]
       des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
       print(des1a)
-
-      #==========================================================
-      # Teste de comparação múltipla
-      #==========================================================
 
       if(quali[1]==TRUE & quali[3]==TRUE){
         if (mcomp == "tukey"){
@@ -742,8 +722,6 @@ FAT3DIC=function(f1,
           datag=datag[order(datag$ordem),]
           letra=datag$letra}}
 
-        # Desdobramento de F3 dentro de F2
-
         cat(green(bold("\n------------------------------------------\n")))
         cat("Analyzing ", fac.names[3], " inside of the level of ",fac.names[1])
         cat(green(bold("\n------------------------------------------\n")))
@@ -760,9 +738,6 @@ FAT3DIC=function(f1,
         des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
         print(des1a)
 
-        #==========================================================
-        # Teste de comparação múltipla
-        #==========================================================
         if(quali[1]==TRUE & quali[3]==TRUE){
           if (mcomp == "tukey"){
             tukeygrafico1=c()
@@ -815,9 +790,6 @@ FAT3DIC=function(f1,
             letra1=unlist(skgrafico1)
             letra1=toupper(letra1)}}
 
-        # -----------------------------
-        # Gráfico de colunas
-        #------------------------------
         if(quali[1] & quali[3]==TRUE){
             f1=rep(levels(Fator1),e=length(levels(Fator3)))
             f3=rep(unique(as.character(Fator3)),length(levels(Fator1)))
@@ -847,14 +819,13 @@ FAT3DIC=function(f1,
                             width=0.3,position = position_dodge(width=0.9))+
               geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                             label=numero),
-                        position = position_dodge(width=0.9))+
+                        position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
               theme(text=element_text(size=12),
                     axis.text = element_text(size=12,color="black"),
                     axis.title = element_text(size=12,color="black"))
             colint2=colint
             print(colint)
 
-            # adiconei aqui
             letras=paste(graph$letra,graph$letra1,sep="")
             matriz=data.frame(t(matrix(paste(format(graph$media,digits = dec),letras),ncol = length(levels(Fator1)))))
             rownames(matriz)=levels(Fator1)
@@ -893,7 +864,6 @@ FAT3DIC=function(f1,
 
           i<-2
           {
-            #Para os fatores QUALITATIVOS, teste de Tukey
             if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
               cat(green(bold("\n------------------------------------------\n")))
               cat(green(italic('Analyzing the simple effects of the factor ',fac.names[2])))
@@ -941,9 +911,9 @@ FAT3DIC=function(f1,
                 geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
               if(errorbar==TRUE){grafico=grafico+
                 geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                              label=letra),family=family)}
+                              label=letra),family=family,angle=angle.label, hjust=hjust)}
               if(errorbar==FALSE){grafico=grafico+
-                geom_text(aes(y=media+sup,label=letra),family=family)}
+                geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
               if(errorbar==TRUE){grafico=grafico+
                 geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                               ymax=media+desvio,color=1),
@@ -958,7 +928,6 @@ FAT3DIC=function(f1,
               print(grafico2)}
             }
 
-            #Para os fatores QUANTITATIVOS, regressao
             if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
               cat(green(bold("\n------------------------------------------\n")))
               cat('Analyzing the simple effects of the factor ',fac.names[2])
@@ -974,17 +943,10 @@ FAT3DIC=function(f1,
         }
         }
 
-  ######################################################################################################################
-  #Interacao Fator2*Fator3     + fator1
-  ######################################################################################################################
   if(anavaF3[7,5]>alpha.f && anavaF3[6,5]<=alpha.f){
     cat(green(bold("\n------------------------------------------\n")))
       cat(green(bold("\nInteraction",paste(fac.names[2],'*',fac.names[3],sep='')," significant: unfolding the interaction\n")))
       cat(green(bold("\n------------------------------------------\n")))
-
-      ###########################################################
-      #Desdobramento de FATOR 2 dentro do niveis de FATOR 3
-      ###########################################################
       cat(green(bold("\n------------------------------------------\n")))
       cat("Analyzing ", fac.names[2], ' inside of each level of ', fac.names[3])
       cat(green(bold("\n------------------------------------------\n")))
@@ -1003,9 +965,6 @@ FAT3DIC=function(f1,
 
       cat(green(bold("\n------------------------------------------\n")))
 
-      #==========================================================
-      # Teste de comparação múltipla
-      #==========================================================
       if(quali[2]==TRUE & quali[3]==TRUE){
         if (mcomp == "tukey"){
           tukeygrafico=c()
@@ -1078,9 +1037,6 @@ FAT3DIC=function(f1,
           datag=datag[order(datag$ordem),]
           letra=datag$letra}}
 
-      ############################################################
-      # Desdobramento de F3 dentro de F2
-      ############################################################
       cat(green(bold("\n------------------------------------------\n")))
         cat("Analyzing ", fac.names[3], " inside of the level of ",fac.names[2])
         cat(green(bold("\n------------------------------------------\n")))
@@ -1097,15 +1053,9 @@ FAT3DIC=function(f1,
         des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
         print(des1a)
 
-        #==========================================================
-        # Teste de comparação múltipla
-        #==========================================================
-
         if(quali[2]==TRUE & quali[3]==TRUE){
 
-          ## Teste de Tukey
-
-          if (mcomp == "tukey"){
+         if (mcomp == "tukey"){
             tukeygrafico1=c()
             for (i in 1:nv2) {
               trati=fatores[, 3][Fator2 == lf2[i]]
@@ -1155,9 +1105,6 @@ FAT3DIC=function(f1,
             letra1=unlist(skgrafico1)
             letra1=toupper(letra1)}}
 
-        # -----------------------------
-        # Gráfico de colunas
-        #------------------------------
         if(quali[2] & quali[3]==TRUE){
             f2=rep(levels(Fator2),e=length(levels(Fator3)))
             f3=rep(unique(as.character(Fator3)),length(levels(Fator2)))
@@ -1186,15 +1133,14 @@ FAT3DIC=function(f1,
                             width=0.3,position = position_dodge(width=0.9))+
               geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                             label=numero),
-                        position = position_dodge(width=0.9))+
+                        position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
               theme(text=element_text(size=12),
                     axis.text = element_text(size=12,color="black"),
                     axis.title = element_text(size=12,color="black"))
             colint3=colint
             print(colint)
 
-            # adicionei aqui
-            letras=paste(graph$letra,graph$letra1,sep="")
+           letras=paste(graph$letra,graph$letra1,sep="")
             matriz=data.frame(t(matrix(paste(format(graph$media,digits = dec),letras),ncol = length(levels(Fator2)))))
             rownames(matriz)=levels(Fator2)
             colnames(matriz)=levels(Fator3)
@@ -1226,13 +1172,9 @@ FAT3DIC=function(f1,
           cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command"))
           }
 
-        #Checar o Fator1
         if(anavaF3[4,5]>alpha.f && anavaF3[5,5]>alpha.f) {
-
-
           i<-1
           {
-            #Para os fatores QUALITATIVOS, teste de Tukey
             if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
               cat(green(bold("\n------------------------------------------\n")))
               cat(green(italic('Analyzing the simple effects of the factor ',fac.names[2])))
@@ -1280,9 +1222,9 @@ FAT3DIC=function(f1,
                 geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
               if(errorbar==TRUE){grafico=grafico+
                 geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                              label=letra),family=family)}
+                              label=letra),family=family,angle=angle.label, hjust=hjust)}
               if(errorbar==FALSE){grafico=grafico+
-                geom_text(aes(y=media+sup,label=letra),family=family)}
+                geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
               if(errorbar==TRUE){grafico=grafico+
                 geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                               ymax=media+desvio,color=1),
@@ -1298,7 +1240,6 @@ FAT3DIC=function(f1,
 
             }
 
-            #Para os fatores QUANTITATIVOS, regressao
             if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
               cat(green(bold("\n------------------------------------------\n")))
               cat('Analyzing the simple effects of the factor ',fac.names[2])
@@ -1313,18 +1254,10 @@ FAT3DIC=function(f1,
         }
       }
 
-  #########################################################################################################################
-  #Para interacao tripla significativa, desdobramento
-  #########################################################################################################################
   if(anavaF3[7,5]<=alpha.f){
     cat(green(bold("\n------------------------------------------\n")))
       cat(green(bold("Interaction",paste(fac.names[1],'*',fac.names[2],'*',fac.names[3],sep='')," significant: unfolding the interaction")))
       cat(green(bold("\n------------------------------------------\n")))
-
-      #===================================================================
-      #Desdobramento de FATOR 1 dentro do niveis de FATOR 2 e do FATOR3
-      #===================================================================
-
       cat(green(bold("\n------------------------------------------\n")))
       cat("Analyzing ", fac.names[1], ' inside of each level of ', fac.names[2], 'and',fac.names[3])
       cat(green(bold("\n------------------------------------------\n")))
@@ -1403,10 +1336,6 @@ FAT3DIC=function(f1,
 
       cat('\n\n')
 
-      #===================================================================
-      #Desdobramento de FATOR 2 dentro do niveis de FATOR 1 e FATOR 3
-      #===================================================================
-
       cat(green(bold("\n------------------------------------------\n")))
       cat("Analyzing ", fac.names[2], ' inside of each level of ', fac.names[1], 'and',fac.names[3])
       cat(green(bold("\n------------------------------------------\n")))
@@ -1473,8 +1402,6 @@ FAT3DIC=function(f1,
                                                      fatores[,2][Fator1==lf1[i]  & fatores[,3]==lf3[j]],mean, na.rm=TRUE)[rownames(sk)]}
             print(sk)}
             }
-          # else{cat('\n\n',fac.names[2],' within the combination of levels ',lf1[k],' of  ',fac.names[1],' and ',lf3[j],' of  ',fac.names[3])
-          #   reg.poly(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]], an[8,1], an[8,2], nv2-1, SQ[ii])}
           }
       }
 

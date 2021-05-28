@@ -9,11 +9,11 @@
 #' @param response Numerical vector containing the response of the experiment.
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
-#' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)
+#' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD ("lsd"), Scott-Knott ("sk"), Duncan ("duncan") and Kruskal-Wallis ("kw"))
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab treatments name (Accepts the \emph{expression}() function)
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param error Add error bar
 #' @param sup Number of units above the standard deviation or average bar on the graph
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
@@ -21,11 +21,12 @@
 #' @param labelsize Font size of the labels
 #' @param family Font family
 #' @param dec Number of cells
-#' @param geom Graph type (columns, boxes or segments)
+#' @param geom Graph type (columns - "bar" or segments "point")
 #' @param legend Legend title
 #' @param posi Legend position
 #' @param ylim y-axis scale
 #' @param xnumeric Declare x as numeric (\emph{default} is FALSE)
+#' @param p.adj Method for adjusting p values for Kruskal-Wallis ("none","holm","hommel", "hochberg", "bonferroni", "BH", "BY", "fdr")
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @keywords dict
 #' @keywords Experimental
@@ -56,10 +57,11 @@ DICT=function(trat,
               alpha.f=0.05,
               alpha.t=0.05,
               mcomp="tukey",
-              theme=theme_bw(),
-              geom="point",
+              theme=theme_classic(),
+              geom="bar",
               xlab="Independent",
               ylab="Response",
+              p.adj="holm",
               dec=3,
               fill="gray",
               error=TRUE,
@@ -91,9 +93,11 @@ if(mcomp=="tukey"){
   homog=c()
   indepg=c()
   anovag=c()
+  cv=c()
   for(i in 1:length(levels(time))){
   mod=aov(resp~trat, data=dados[dados$time==levels(dados$time)[i],])
   anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+  cv[[i]]=sqrt(anova(mod)$`Mean Sq`[2])/mean(mod$model$resp)*100
   norm=shapiro.test(mod$residuals)
   homo=with(dados[dados$time==levels(dados$time)[i],], bartlett.test(mod$residuals~trat))
   indep=dwtest(mod)
@@ -111,7 +115,9 @@ nor=unlist(normg)
 hom=unlist(homog)
 ind=unlist(indepg)
 an=unlist(anovag)
-press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+cv=unlist(cv)
+press=data.frame(an,nor,hom,ind,cv)
+colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
 
 if(mcomp=="lsd"){
   lsdg=c()
@@ -120,9 +126,11 @@ if(mcomp=="lsd"){
   homog=c()
   indepg=c()
   anovag=c()
+  cv=c()
   for(i in 1:length(levels(time))){
     mod=aov(resp~trat, data=dados[dados$time==levels(dados$time)[i],])
     anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+    cv[[i]]=sqrt(anova(mod)$`Mean Sq`[2])/mean(mod$model$resp)*100
     lsd=LSD.test(mod,"trat",alpha = alpha.t)
     lsd$groups=lsd$groups[unique(as.character(trat)),2]
     if(anova(mod)$`Pr(>F)`[1]>alpha.f){lsd$groups=c("ns",rep(" ",length(unique(trat))-1))}
@@ -140,7 +148,9 @@ if(mcomp=="lsd"){
   hom=unlist(homog)
   ind=unlist(indepg)
   an=unlist(anovag)
-  press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+  cv=unlist(cv)
+  press=data.frame(an,nor,hom,ind,cv)
+  colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
 
 if(mcomp=="duncan"){
   duncang=c()
@@ -149,9 +159,11 @@ if(mcomp=="duncan"){
   homog=c()
   indepg=c()
   anovag=c()
+  cv=c()
   for(i in 1:length(levels(time))){
     mod=aov(resp~trat, data=dados[dados$time==levels(dados$time)[i],])
     anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+    cv[[i]]=sqrt(anova(mod)$`Mean Sq`[2])/mean(mod$model$resp)*100
     duncan=duncan.test(mod,"trat",alpha = alpha.t)
     duncan$groups=duncan$groups[unique(as.character(trat)),2]
     if(anova(mod)$`Pr(>F)`[1]>alpha.f){duncan$groups=c("ns",rep(" ",length(unique(trat))-1))}
@@ -169,7 +181,9 @@ if(mcomp=="duncan"){
   hom=unlist(homog)
   ind=unlist(indepg)
   an=unlist(anovag)
-  press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+  cv=unlist(cv)
+  press=data.frame(an,nor,hom,ind,cv)
+  colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
 
 if(mcomp=="sk"){
 scott=c()
@@ -177,9 +191,11 @@ normg=c()
 homog=c()
 indepg=c()
 anovag=c()
+cv=c()
 for(i in 1:length(levels(time))){
   mod=aov(resp~trat, data=dados[dados$time==levels(dados$time)[i],])
   anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+  cv[[i]]=sqrt(anova(mod)$`Mean Sq`[2])/mean(mod$model$resp)*100
   norm=shapiro.test(mod$residuals)
   homo=with(dados[dados$time==levels(dados$time)[i],], bartlett.test(mod$residuals~trat))
   indep=dwtest(mod)
@@ -199,7 +215,41 @@ nor=unlist(normg)
 hom=unlist(homog)
 ind=unlist(indepg)
 an=unlist(anovag)
-press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+cv=unlist(cv)
+press=data.frame(an,nor,hom,ind,cv)
+colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
+if(mcomp=="kw"){
+  kwg=c()
+  ordem=c()
+  normg=c()
+  homog=c()
+  indepg=c()
+  anovag=c()
+  for(i in 1:length(levels(time))){
+    data=dados[dados$time==levels(dados$time)[i],]
+    mod=with(data,kruskal(resp,trat,p.adj = p.adj,alpha = alpha.t))
+    anovag[[i]]=mod$statistics$p.chisq
+    norm=""
+    homo=""
+    indep=""
+    kw=mod
+    kw$groups=kw$groups[unique(as.character(trat)),2]
+    if(mod$statistics$p.chisq>alpha.f){kw$groups=c("ns",
+                                                   rep(" ",length(unique(trat))-1))}
+    normg[[i]]=norm
+    homog[[i]]=homo
+    indepg[[i]]=indep
+    kwg[[i]]=as.character(kw$groups)
+    ordem[[i]]=rownames(kw$groups)
+  }
+  m=unlist(kwg)
+  nor=unlist(normg)
+  hom=unlist(homog)
+  ind=unlist(indepg)
+  an=unlist(anovag)
+  press=data.frame(an)
+  colnames(press)=c("p-value Kruskal")}
+
 
 cat(green(bold("\n-----------------------------------------------------------------\n")))
 cat(green(bold("ANOVA and assumptions")))

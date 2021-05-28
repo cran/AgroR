@@ -10,11 +10,11 @@
 #' @param response Numerical vector containing the response of the experiment.
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
-#' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)
+#' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD ("lsd"), Scott-Knott ("sk"), Duncan ("duncan") and Friedman ("fd"))
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param error Add error bar
 #' @param sup Number of units above the standard deviation or average bar on the graph
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
@@ -22,7 +22,7 @@
 #' @param labelsize Font size of the labels
 #' @param family Font family
 #' @param dec Number of cells
-#' @param geom Graph type (columns, boxes or segments)
+#' @param geom Graph type (columns - "bar" or segments "point")
 #' @param legend Legend title
 #' @param posi Legend position
 #' @param ylim y-axis scale
@@ -49,7 +49,16 @@
 #' @examples
 #' data(simulate2)
 #' attach(simulate2)
+#'
+#' #===================================
+#' # default
+#' #===================================
 #' DBCT(trat, bloco, tempo, resp)
+#'
+#' #===================================
+#' # segment chart
+#' #===================================
+#' DBCT(trat, bloco, tempo, resp, geom="point")
 
 DBCT=function(trat,
               block,
@@ -57,8 +66,8 @@ DBCT=function(trat,
               response,
               alpha.f=0.05,
               alpha.t=0.05,
-              theme=theme_bw(),
-              geom="point",
+              theme=theme_classic(),
+              geom="bar",
               fill="gray",
               ylab="Response",
               xlab="Independent",
@@ -92,9 +101,11 @@ DBCT=function(trat,
     homog=c()
     indepg=c()
     anovag=c()
+    cv=c()
     for(i in 1:length(levels(time))){
       mod=aov(resp~trat+block, data=dados[dados$time==levels(dados$time)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+      cv[[i]]=sqrt(anova(mod)$`Mean Sq`[3])/mean(mod$model$resp)*100
       tukey=HSD.test(mod,"trat",alpha = alpha.t)
       tukey$groups=tukey$groups[unique(as.character(trat)),2]
       if(anova(mod)$`Pr(>F)`[1]>alpha.f){tukey$groups=c("ns",rep(" ",length(unique(trat))-1))}
@@ -112,7 +123,9 @@ DBCT=function(trat,
     hom=unlist(homog)
     ind=unlist(indepg)
     an=unlist(anovag)
-    press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+    cv=unlist(cv)
+    press=data.frame(an,nor,hom,ind,cv)
+    colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
 
   if(mcomp=="lsd"){
     lsdg=c()
@@ -121,9 +134,11 @@ DBCT=function(trat,
     homog=c()
     indepg=c()
     anovag=c()
+    cv=c()
     for(i in 1:length(levels(time))){
       mod=aov(resp~trat+block, data=dados[dados$time==levels(dados$time)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+      cv[[i]]=sqrt(anova(mod)$`Mean Sq`[3])/mean(mod$model$resp)*100
       lsd=LSD.test(mod,"trat",alpha = alpha.t)
       lsd$groups=lsd$groups[unique(as.character(trat)),2]
       if(anova(mod)$`Pr(>F)`[1]>alpha.f){lsd$groups=c("ns",rep(" ",length(unique(trat))-1))}
@@ -141,7 +156,9 @@ DBCT=function(trat,
     hom=unlist(homog)
     ind=unlist(indepg)
     an=unlist(anovag)
-    press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+    cv=unlist(cv)
+    press=data.frame(an,nor,hom,ind,cv)
+    colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
 
   if(mcomp=="duncan"){
     duncang=c()
@@ -150,9 +167,11 @@ DBCT=function(trat,
     homog=c()
     indepg=c()
     anovag=c()
+    cv=c()
     for(i in 1:length(levels(time))){
       mod=aov(resp~trat+block, data=dados[dados$time==levels(dados$time)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+      cv[[i]]=sqrt(anova(mod)$`Mean Sq`[3])/mean(mod$model$resp)*100
       duncan=duncan.test(mod,"trat",alpha = alpha.t)
       duncan$groups=duncan$groups[unique(as.character(trat)),2]
       if(anova(mod)$`Pr(>F)`[1]>alpha.f){duncan$groups=c("ns",rep(" ",length(unique(trat))-1))}
@@ -170,7 +189,9 @@ DBCT=function(trat,
     hom=unlist(homog)
     ind=unlist(indepg)
     an=unlist(anovag)
-    press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+    cv=unlist(cv)
+    press=data.frame(an,nor,hom,ind,cv)
+    colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
 
 
   if(mcomp=="sk"){
@@ -179,10 +200,11 @@ DBCT=function(trat,
     homog=c()
     indepg=c()
     anovag=c()
+    cv=c()
     for(i in 1:length(levels(time))){
-
       mod=aov(resp~trat+block, data=dados[dados$time==levels(dados$time)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
+      cv[[i]]=sqrt(anova(mod)$`Mean Sq`[3])/mean(mod$model$resp)*100
       letra=SK(mod,"trat",sig.level = alpha.t)
       data=data.frame(sk=letters[letra$groups])
       rownames(data)=rownames(letra$m.inf)
@@ -201,8 +223,25 @@ DBCT=function(trat,
     hom=unlist(homog)
     ind=unlist(indepg)
     an=unlist(anovag)
-    press=data.frame(an,nor,hom,ind);colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson")}
+    cv=unlist(cv)
+    press=data.frame(an,nor,hom,ind,cv)
+    colnames(press)=c("p-value ANOVA","Shapiro-Wilk","Bartlett","Durbin-Watson","CV (%)")}
 
+  if(mcomp=="fd"){
+    fdg=c()
+    ordem=c()
+    anovag=c()
+    for(i in 1:length(levels(time))){
+      fd=friedman(block,trat,resp,alpha=alpha.t)
+      anovag[[i]]=mod$statistics$p.chisq
+      fd$groups=fd$groups[unique(as.character(trat)),2]
+      if(anova(mod)$`Pr(>F)`[1]>alpha.f){fd$groups=c("ns",rep(" ",length(unique(trat))-1))}
+      fdg[[i]]=as.character(duncan$groups)
+      ordem[[i]]=rownames(fd$groups)
+    }
+    m=unlist(fdg)
+    an=unlist(anovag)
+    press=data.frame(fd);colnames(press)=c("p-value Chisq Friedman")}
 
 
   cat(green(bold("\n-----------------------------------------------------------------\n")))

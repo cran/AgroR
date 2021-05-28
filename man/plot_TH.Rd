@@ -32,7 +32,7 @@ plot_TH(
   sc = 2.5,
   angle = 0,
   legend.position = "bottom",
-  theme = theme_bw()
+  theme = theme_classic()
 )
 }
 \arguments{

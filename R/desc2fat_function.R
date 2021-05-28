@@ -7,7 +7,7 @@
 #' @param f1 Numeric or complex vector with factor 1 levels
 #' @param f2 Numeric or complex vector with factor 2 levels
 #' @param response Numerical vector containing the response of the experiment.
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @keywords Descriptive
 #' @keywords Experimental
@@ -27,7 +27,7 @@ desc2fat=function(f1,
                   f2,
                   response,
                   ylab="Response",
-                  theme=theme_bw()){
+                  theme=theme_classic()){
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("gridExtra")
@@ -73,7 +73,7 @@ desc2fat=function(f1,
   dados=data.frame(f1,response)
   grafico=ggplot(dados,aes(x=f1,y=response))+
     geom_boxplot(aes(fill=f1, group=f1),show.legend = F)+
-    ylab(ylab)+theme_bw()
+    ylab(ylab)+theme
   grafico=grafico+
     theme(text = element_text(size=12,color="black"),
           axis.title = element_text(size=12,color="black"),

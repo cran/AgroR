@@ -17,7 +17,7 @@
 #' @param transf Applies data transformation (default is 1; for log consider 0)
 #' @param test "parametric" - Parametric test or "noparametric" - non-parametric test
 #' @param geom graph type (columns, boxes or segments)
-#' @param theme ggplot2 theme (\emph{default} is theme_bw())
+#' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param sup Number of units above the standard deviation or average bar on the graph
 #' @param CV Plotting the coefficient of variation and p-value of Anova (\emph{default} is TRUE)
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
@@ -31,6 +31,8 @@
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param posi Legend position
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
+#' @param angle.label label angle
 #' @keywords DBC
 #' @keywords Experimental
 #' @import ggplot2
@@ -62,7 +64,15 @@
 #' library(AgroR)
 #' data(laranja)
 #' attach(laranja)
-#' DBC(trat, bloco, resp)
+#' data("laranja")
+#' attach(laranja)
+#' DBC(trat, bloco, resp,
+#'      mcomp = "sk",angle=45,
+#'      ylab = "Number of fruits/plants")
+#'
+#' #=============================
+#' # Friedman test
+#' #=============================
 #' DBC(trat, bloco, resp, test="noparametric")
 
 DBC=function(trat,
@@ -78,7 +88,7 @@ DBC=function(trat,
              test="parametric",
              grau=1,
              geom="bar",
-             theme=theme_bw(),
+             theme=theme_classic(),
              sup=NA,
              CV=TRUE,
              ylab="response",
@@ -90,9 +100,11 @@ DBC=function(trat,
              dec=3,
              addmean=TRUE,
              errorbar=TRUE,
-             posi="top")
+             posi="top",
+             point="mean_sd",
+             angle.label=0)
   {if(is.na(sup==TRUE)){sup=0.2*mean(response, na.rm=TRUE)}
-
+  if(angle.label==0){hjust=0.5}else{hjust=0}
   if(test=="parametric"){
     requireNamespace("ScottKnott")
     requireNamespace("crayon")
@@ -111,6 +123,11 @@ DBC=function(trat,
   b = aov(resp ~ trat + bloco)
   anava=a
   colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
+  respad=b$residuals/sqrt(a$`Mean Sq`[3])
+  out=respad[respad>3 | respad<(-3)]
+  out=names(out)
+  out=ifelse(length(out)==0,"No discrepant point",out)
+
   if(norm=="sw"){norm1 = shapiro.test(b$res)}
   if(norm=="li"){norm1=lillie.test(b$residuals)}
   if(norm=="ad"){norm1=ad.test(b$residuals)}
@@ -131,10 +148,18 @@ DBC=function(trat,
     names(homog1)=c("Df", "F value","p.value")}
 
   indep = dwtest(b)
-  plot(b$residuals/sqrt(a$`Mean Sq`[3]),
-       ylab = "Standardized Residuals",
-       las = 1, pch = 16, col = "blue")
-  abline(h=c(0,3,-3),lty=c(1,2,2),col="red")
+  resids=b$residuals/sqrt(a$`Mean Sq`[3])
+  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
+  residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+    geom_point(shape=21,color="gray",fill="gray",size=3)+
+    labs(x="",y="Standardized residuals")+
+    geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
+    scale_x_continuous(breaks=1:length(resids))+
+    theme_classic()+
+    theme(axis.text.y = element_text(size=12),
+          axis.text.x = element_blank())+
+    geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
+  print(residplot)
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Normality of errors")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -147,7 +172,7 @@ DBC=function(trat,
   message(if(norm1$p.value>0.05){
     black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered normal")}
     else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors do not follow a normal distribution"})
-  cat(green(bold("\n\n-----------------------------------------------------------------\n")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Homogeneity of Variances")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   homoge=data.frame(Method=method,
@@ -159,7 +184,7 @@ DBC=function(trat,
   message(if(homog1$p.value>0.05){
     black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, the variances can be considered homogeneous")}
     else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, the variances are not homogeneous"})
-  cat(green(bold("\n\n-----------------------------------------------------------------\n")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Independence from errors")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   indepe=data.frame(Method=paste(indep$method,"(",
@@ -172,15 +197,26 @@ DBC=function(trat,
   message(black(if(indep$p.value>0.05){
     black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered independent")}
     else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors are not independent"}))
-  cat(green(bold("\n\n-----------------------------------------------------------------\n")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(green(bold("Additional Information")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(paste("\nCV (%) = ",round(sqrt(a$`Mean Sq`[3])/mean(resp,na.rm=TRUE)*100,2)))
+  cat(paste("\nR-squared = ",round(a$`Mean Sq`[1]/(a$`Mean Sq`[3]+a$`Mean Sq`[2]+a$`Mean Sq`[1]),2)))
+  cat(paste("\nMean = ",round(mean(response,na.rm=TRUE),4)))
+  cat(paste("\nMedian = ",round(median(response,na.rm=TRUE),4)))
+  cat("\nPossible outliers = ", out)
+  cat("\n")
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Analysis of Variance")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
-  print(anava)
-  cat("\n\n")
+  anava1=as.matrix(data.frame(anava))
+  colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+  print(anava1,na.print = "")
+  cat("\n")
   message(if (a$`Pr(>F)`[1]<alpha.f){
     black("As the calculated p-value, it is less than the 5% significance level. The hypothesis H0 of equality of means is rejected. Therefore, at least two treatments differ")}
       else {"As the calculated p-value is greater than the 5% significance level, H0 is not rejected"})
-  cat(green(bold("\n\n-----------------------------------------------------------------\n")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
   if(quali==TRUE){cat(green(bold("Multiple Comparison Test")))}else{cat(green(bold("Regression")))}
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   if(quali==TRUE){
@@ -206,13 +242,6 @@ DBC=function(trat,
     message("\nYour analysis is not valid, suggests using a non-parametric \ntest and try to transform the data")}
   else{}
   if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){cat(red("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric \ntest"))}else{}
-  cat(green(bold("\n\n-----------------------------------------------------------------\n")))
-  cat(green(bold("Additional Information")))
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  cat(paste("\nCV (%) = ",round(sqrt(a$`Mean Sq`[3])/mean(resp)*100,2)))
-  cat(paste("\nR-squared = ",round(a$`Mean Sq`[1]/(a$`Mean Sq`[3]+a$`Mean Sq`[2]+a$`Mean Sq`[1]),2)))
-  cat(paste("\nMean = ",round(mean(resp),4)))
-  cat(paste("\nMedian = ",round(median(resp),4)))
   dadosm=data.frame(letra1,
                     media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
                     desvio=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)])
@@ -234,10 +263,10 @@ DBC=function(trat,
                                 fill=fill,color=1)}
   if(errorbar==TRUE){grafico=grafico+
     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},label=letra),
-              family=family)}
+              family=family,angle=angle.label, hjust=hjust)}
   if(errorbar==FALSE){grafico=grafico+
     geom_text(aes(y=media+sup,label=letra),
-              family=family)}
+              family=family,angle=angle.label, hjust=hjust)}
   if(errorbar==TRUE){grafico=grafico+
     geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                   ymax=media+desvio,color=1),
@@ -246,9 +275,9 @@ DBC=function(trat,
                                               y=media))
   if(errorbar==TRUE){grafico=grafico+
     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},label=letra),
-              family=family)}
+              family=family,angle=angle.label, hjust=hjust)}
   if(errorbar==FALSE){grafico=grafico+
-    geom_text(aes(y=media+sup,label=letra),family=family)}
+    geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
   if(errorbar==TRUE){grafico=grafico+
     geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                   ymax=media+desvio,color=1),
@@ -282,7 +311,7 @@ DBC=function(trat,
     geom_boxplot(aes(fill=trats),fill=fill)}
   grafico=grafico+
     geom_text(data=dadosm2,aes(y=superior,label=letra),
-              family=family)}
+              family=family,angle=angle.label, hjust=hjust)}
   grafico=grafico+theme+
     ylab(ylab)+
     xlab(xlab)+
@@ -297,13 +326,13 @@ DBC=function(trat,
   }
   if(quali==FALSE){
     trat=as.numeric(as.character(trat))
-    if(grau==1){graph=polynomial(trat,response, grau = 1,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi)}
-    if(grau==2){graph=polynomial(trat,response, grau = 2,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi)}
-    if(grau==3){graph=polynomial(trat,response, grau = 3,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi)}
+    if(grau==1){graph=polynomial(trat,response, grau = 1,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
+    if(grau==2){graph=polynomial(trat,response, grau = 2,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
+    if(grau==3){graph=polynomial(trat,response, grau = 3,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
     grafico=graph[[1]]
   }}
   if(test=="noparametric"){
-    fried=friedman(bloco,trat,response)
+    fried=friedman(bloco,trat,response,alpha=alpha.t)
     cat(green(bold("\n\n-----------------------------------------------------------------\n")))
     cat(green(italic("Statistics")))
     cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -339,9 +368,9 @@ DBC=function(trat,
       geom_col(aes(fill=trats),fill=fill,color=1)}
     if(errorbar==TRUE){grafico=grafico+
       geom_text(aes(y=media+sup+if(sup<0){-std}else{std},label=letra),
-                family=family)}
+                family=family,angle=angle.label, hjust=hjust)}
     if(errorbar==FALSE){grafico=grafico+
-      geom_text(aes(y=media+sup,label=letra),family=family)}
+      geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
     if(errorbar==TRUE){grafico=grafico+
       geom_errorbar(aes(ymin=response-std,
                         ymax=response+std),
@@ -351,9 +380,9 @@ DBC=function(trat,
                                          y=response))
     if(errorbar==TRUE){grafico=grafico+
       geom_text(aes(y=media+sup+if(sup<0){-std}else{std},label=letra),
-                family=family)}
+                family=family,angle=angle.label, hjust=hjust)}
     if(errorbar==FALSE){grafico=grafico+
-      geom_text(aes(y=media+sup,label=letra),family=family)}
+      geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
     if(errorbar==TRUE){grafico=grafico+
       geom_errorbar(aes(ymin=response-std,
                         ymax=response+std),
@@ -386,7 +415,7 @@ DBC=function(trat,
     grafico=grafico+
       geom_text(data=dadosm2,
                 aes(y=superior,
-                    label=letra),family=family)}
+                    label=letra),family=family,angle=angle.label, hjust=hjust)}
 
     grafico=grafico+theme+
       ylab(ylab)+

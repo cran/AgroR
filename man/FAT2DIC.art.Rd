@@ -13,7 +13,7 @@ FAT2DIC.art(
   xlab = " ",
   ylab = "Sum of posts",
   legend.title = "Factor",
-  theme = theme_bw()
+  theme = theme_classic()
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ FAT2DIC.art(
 
 \item{legend.title}{Legend title name}
 
-\item{theme}{ggplot2 theme (\emph{default} is theme_bw())}
+\item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 }
 \value{
 The function returns the Anova of aligned ranks, the multiple comparison test and the interaction graph.
