@@ -88,7 +88,7 @@ DIC(
 
 \item{posi}{Legend position}
 
-\item{point}{Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").}
+\item{point}{Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se"). Only for quali=F.}
 
 \item{angle.label}{label angle}
 }
@@ -102,6 +102,8 @@ Statistical analysis of experiments conducted in a completely randomized and bal
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 
 Post hoc test in nonparametric is using the criterium Fisher's least significant difference (p-adj="holm").
+
+CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
 }
 \examples{
 library(AgroR)
@@ -142,7 +144,7 @@ Multiple comparisons theory and methods. Departament of statistics the Ohio Stat
 
 W.J. Conover, Practical Nonparametrics Statistics. 1999
 
-Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 
 Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 

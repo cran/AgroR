@@ -1,5 +1,5 @@
 #' Analysis: DIC experiments in split-plot
-#' @description analysis of an experiment conducted in a completely randomized design in a split-plot scheme using fixed effects analysis of variance.
+#' @description Analysis of an experiment conducted in a completely randomized design in a split-plot scheme using fixed effects analysis of variance.
 #' @author Gabriel Danilo Shimizu, \email{shimizu@uel.br}
 #' @author Leandro Simoes Azeredo Goncalves
 #' @author Rodrigo Yudi Palhaci Marubayashi
@@ -23,7 +23,6 @@
 #' @param angle x-axis scale text rotation
 #' @param family Font family (\emph{default} is sans)
 #' @param color When the columns are different colors (Set fill-in argument as "trat")
-#' @param color1 Color of groups for regression
 #' @param legend Legend title name
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
@@ -82,7 +81,6 @@ PSUBDIC=function(f1,
                  angle=0,
                  family="sans",
                  color="rainbow",
-                 color1=NA,
                  legend="Legend",
                  errorbar=TRUE,
                  addmean=TRUE,
@@ -107,6 +105,8 @@ PSUBDIC=function(f1,
     if(transf=="-1"){resp=1/response}
     fator1=f1
     fator2=f2
+    fator1a=fator1
+    fator2a=fator2
     bloco=block
     fac = c("F1", "F2")
     cont <- c(1, 3)
@@ -116,7 +116,9 @@ PSUBDIC=function(f1,
     bloco <- factor(block)
     nv1 <- length(summary(Fator1))
     nv2 <- length(summary(Fator2))
-    num=function(x){as.numeric(as.character(x))}
+    lf1 <- levels(Fator1)
+    lf2 <- levels(Fator2)
+    num=function(x){as.numeric(x)}
     sup=0.1*mean(response)
     graph=data.frame(Fator1,Fator2,resp)
     # -----------------------------
@@ -134,16 +136,6 @@ PSUBDIC=function(f1,
     colnames(anova)=colnames(anova1)
     rownames(anova)=c("F1","Error A", "F2", "F1 x F2", "Error B")
     tab=anova
-
-    # mod=aov(resp~Fator1*Fator2+Error(bloco:Fator1))
-    # a=summary(mod)
-    # parcela=data.frame(a$`Error: bloco:Fator1`[[1]])
-    # subparcela=data.frame(a$`Error: Within`[[1]])
-    # anova=rbind(parcela,subparcela)
-    # anova=round(anova,6)
-    # anova[c(2,5),4:5]=""
-    # colnames(anova)=c("Df","SQ","QM","Fcal","p-value")
-    # tab=anova
 
     # -----------------------------
     # Pressupostos
@@ -235,6 +227,7 @@ PSUBDIC=function(f1,
     ##########################################################################
     fat <- data.frame(`fator 1`=fator1,
                       `fator 2`=fator2)
+    fata <- data.frame(`fator 1`=fator1a, `fator 2`=fator2a)
     #------------------------------------
     # Fatores isolados
     #------------------------------------
@@ -289,7 +282,7 @@ PSUBDIC=function(f1,
                 dadosm=data.frame(letra1,
                                   desvio=tapply(response, c(fat[i]), sd, na.rm=TRUE)[rownames(letra1)])
                 dadosm$media=tapply(response, c(fat[i]), mean, na.rm=TRUE)[rownames(letra1)]
-                dadosm$Tratamentos=factor(rownames(dadosm),levels = ordem)
+                dadosm$trats=factor(rownames(dadosm),levels = ordem)
                 dadosm$limite=dadosm$media+dadosm$desvio
                 lim.y=dadosm$limite[which.max(abs(dadosm$limite))]
                 if(is.na(ylim[1])==TRUE && lim.y<0){ylim=c(1.5*lim.y,0)}
@@ -299,16 +292,16 @@ PSUBDIC=function(f1,
                 if(addmean==FALSE){dadosm$letra=dadosm$groups}
                 media=dadosm$media
                 desvio=dadosm$desvio
-                Tratamentos=dadosm$Tratamentos
+                trats=dadosm$trats
                 letra=dadosm$letra
 
                 if(geom=="bar"){grafico=ggplot(dadosm,
-                                               aes(x=Tratamentos,
+                                               aes(x=trats,
                                                    y=media))
                 if(fill=="trat"){grafico=grafico+
-                    geom_col(aes(fill=Tratamentos),color=1)}
+                    geom_col(aes(fill=trats),color=1)}
                 else{grafico=grafico+
-                    geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
+                    geom_col(aes(fill=trats),fill=fill,color=1)}
                 grafico=grafico+
                     theme+ylim(ylim)+
                     ylab(ylab)+
@@ -336,12 +329,12 @@ PSUBDIC=function(f1,
                 # grafico de segmentos
                 # ================================
                 if(geom=="point"){grafico=ggplot(dadosm,
-                                                 aes(x=Tratamentos,
+                                                 aes(x=trats,
                                                      y=media))
                 if(fill=="trat"){grafico=grafico+
-                    geom_point(aes(color=Tratamentos),size=4)}
+                    geom_point(aes(color=trats),size=4)}
                 else{grafico=grafico+
-                    geom_point(aes(color=Tratamentos),
+                    geom_point(aes(color=trats),
                                color=fill,size=4)}
                 grafico=grafico+
                     theme+ylim(ylim)+
@@ -373,7 +366,10 @@ PSUBDIC=function(f1,
             }
 
             # # Regression
-            if(quali[i]==FALSE){dose=as.numeric(as.character(as.vector(unlist(fat[i]))))
+            if(quali[i]==FALSE){
+                # dose=as.numeric(as.character(as.vector(unlist(fat[i]))))
+                dose=as.vector(unlist(fata[i]))
+
             grafico=polynomial(dose,resp,grau = grau,ylab=ylab,xlab=xlab,point=point,
                           theme=theme,posi=posi,textsize=textsize, se=errorbar,
                           family=family)
@@ -467,9 +463,6 @@ PSUBDIC=function(f1,
             duncangrafico=c()
             ordem=c()
             for (i in 1:nv2) {
-                cat("\n------------------------------------------------------------------------\n")
-                cat(fac[1], "inside of the level", fac[2], l2[i])
-                cat("\n------------------------------------------------------------------------\n")
                 duncan=duncan.test(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
                 colnames(duncan$groups)=c("resp","groups")
                 if(transf !="1"){duncan$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(duncan$groups)]}
@@ -484,9 +477,6 @@ PSUBDIC=function(f1,
         lsdgrafico=c()
         ordem=c()
         for (i in 1:nv2) {
-            cat("\n------------------------------------------------------------------------\n")
-            cat(fac[1], "inside of the level", fac[2], l2[i])
-            cat("\n------------------------------------------------------------------------\n")
             lsd=LSD.test(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
             colnames(lsd$groups)=c("resp","groups")
             if(transf !="1"){lsd$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(lsd$groups)]}
@@ -501,7 +491,6 @@ PSUBDIC=function(f1,
                 sk1=c()
                 ordem=c()
                 for (i in 1:nv2) {
-                    cat("\n\n", fac[1], " inside of the level ",l2[i], " of ", fac[2],"\n")
                     data=data.frame(resp,
                                     bloco=as.factor(bloco),
                                     fator1=factor(fator1,levels = unique(fator1)),
@@ -706,35 +695,321 @@ PSUBDIC=function(f1,
             }
         if(quali[1]==FALSE  && color=="gray"| quali[2]==FALSE && color=="gray"){
             if(quali[2]==FALSE){
-                fator2=as.numeric(as.character(fator2))
-                grafico=polynomial2(fator2,resp,fator1, grau = grau,
-                                    color=color1,ylab=ylab,xlab=xlab,
+                if (mcomp == "tukey"){
+                    for (i in 1:nv2) {
+                        tukey=HSD.test(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
+                        colnames(tukey$groups)=c("resp","groups")
+                        if(transf !="1"){tukey$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(tukey$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(tukey$groups)
+                        }}
+                if (mcomp == "duncan"){
+                    for (i in 1:nv2) {
+                        duncan=duncan.test(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
+                        colnames(duncan$groups)=c("resp","groups")
+                        if(transf !="1"){duncan$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(duncan$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(duncan$groups)
+
+                        }
+                    }
+                if (mcomp == "lsd"){
+                    for (i in 1:nv2) {
+                        lsd=LSD.test(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
+                        colnames(lsd$groups)=c("resp","groups")
+                        if(transf !="1"){lsd$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(lsd$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(lsd$groups)
+                    }}
+                if(mcomp=="sk"){
+                    for (i in 1:nv2) {
+                        data=data.frame(resp,
+                                        bloco=as.factor(bloco),
+                                        fator1=factor(fator1,levels = unique(fator1)),
+                                        fator2=factor(fator2,levels = unique(fator2)))
+                        sk=SK.nest(x=data,
+                                   y=resp,
+                                   model="y~fator2*fator1+Error(bloco/fator1)",
+                                   which="fator2:fator1",sig.level=alpha.t, fl1=i,
+                                   error = "Within")
+                        d1=data.frame(sk$m.inf[,1],LETTERS[sk$groups])[paste(l2[i],"/",unique(data$fator1), sep=""),]
+                        colnames(d1)=c("media","grupo")
+                        trati=fat[, 1][fator2 == l2[i]]
+                        if(transf !="1"){d1$respo=sort(tapply(response[fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE), decreasing = T)}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(d1)
+
+                        }
+                    }
+            }
+            if(quali[2]==FALSE){
+                fator2a=fator2a#as.numeric(as.character(fator2))
+                grafico=polynomial2(fator2a,
+                                    resp,
+                                    fator1,
+                                    grau = grau,
+                                    ylab=ylab,
+                                    xlab=xlab,
                                     theme=theme,
-                                    point=point,posi=posi,ylim=ylim,
-                                    textsize=textsize, se=errorbar, family=family)}
-            if(quali[2]==TRUE){
-                fator1=as.numeric(as.character(fator1))
-                grafico=polynomial2(fator1,resp,fator2, grau = grau,
-                                    color=color1,ylab=ylab,xlab=xlab,
+                                    point=point,
+                                    posi=posi,
+                                    ylim=ylim,
+                                    textsize=textsize,
+                                    family=family)
+                if(quali[1]==FALSE & quali[2]==FALSE){
+                    graf=list(grafico,NA)}
+                }
+            if(quali[1]==FALSE){
+                if (mcomp == "tukey"){
+                    for (i in 1:nv1) {
+                        tukey=HSD.test(resp[fat[, 1] == l1[i]],
+                                       fat[,2][fat[, 1] == l1[i]],
+                                       num(tab.f2f1[nv1 +1, 1]),
+                                       num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
+                        colnames(tukey$groups)=c("resp","groups")
+                        if(transf !="1"){tukey$groups$respo=tapply(response[Fator1 == l1[i]],fat[,2][fat[, 1] == l1[i]],mean, na.rm=TRUE)[rownames(tukey$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(tukey$groups)
+
+                        }
+                    }
+                if (mcomp == "duncan"){
+                    for (i in 1:nv1) {
+                        duncan=duncan.test(resp[fat[, 1] == l1[i]],
+                                           fat[,2][fat[, 1] == l1[i]],
+                                           num(tab.f2f1[nv1 +1, 1]),
+                                           num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
+                        colnames(duncan$groups)=c("resp","groups")
+                        if(transf !="1"){duncan$groups$respo=tapply(response[Fator1 == l1[i]],fat[,2][fat[, 1] == l1[i]],mean, na.rm=TRUE)[rownames(duncan$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(duncan$groups)
+
+                        }
+                    }
+                if (mcomp == "lsd"){
+                    for (i in 1:nv1) {
+                        lsd=LSD.test(resp[fat[, 1] == l1[i]],
+                                     fat[,2][fat[, 1] == l1[i]],
+                                     num(tab.f2f1[nv1 +1, 1]),
+                                     num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
+                        colnames(lsd$groups)=c("resp","groups")
+                        if(transf !="1"){lsd$groups$respo=tapply(response[Fator1 == l1[i]],fat[,2][fat[, 1] == l1[i]],mean, na.rm=TRUE)[rownames(lsd$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(lsd$groups)
+
+                        }
+                    }
+                if(mcomp=="sk"){
+                    for (i in 1:nv1) {
+                        data=data.frame(fator1=factor(fator1,levels = unique(fator1)),
+                                        fator2=factor(fator2,levels = unique(fator2)),bloco)
+                        sk=SK.nest(x=data,
+                                   y=resp,
+                                   model="y~fator1*fator2+Error(bloco/fator1)",
+                                   which="fator1:fator2",sig.level=alpha.t, fl1=i,
+                                   error = "Within")
+                        d1=data.frame(sk$m.inf[,1],letters[sk$groups])[paste(l1[i],"/",unique(data$fator2), sep=""),]
+                        colnames(d1)=c("media","grupo")
+                        trati=fat[, 2][Fator1 == l1[i]]
+                        if(transf !="1"){d1$respo=sort(tapply(response[fator1 == l1[i]],fat[,2][fat[, 1] == l1[i]],mean, na.rm=TRUE), decreasing = T)}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(d1)
+                        }
+                    }
+            }
+            if(quali[1]==FALSE){
+                fator1a=fator1a#as.numeric(as.character(fator1))
+                grafico=polynomial2(fator1a,
+                                    resp,
+                                    fator2,
+                                    grau = grau,
+                                    ylab=ylab,
+                                    xlab=xlab,
                                     theme=theme,
-                                    point=point,posi=posi,ylim=ylim,
-                                    textsize=textsize, se=errorbar,  family=family)}
+                                    point=point,
+                                    posi=posi,
+                                    ylim=ylim,
+                                    textsize=textsize,
+                                    family=family)
+                if(quali[1]==FALSE & quali[2]==FALSE){
+                    graf[[2]]=grafico
+                    grafico=graf}
+                }
         }
         if(quali[1]==FALSE && color=="rainbow"| quali[2]==FALSE && color=="rainbow"){
-            if(quali[2]==F){
-                fator2=as.numeric(as.character(fator2))
-                grafico=polynomial2_color(fator2,resp,fator1, grau = grau,
-                                          color=color1,ylab=ylab,xlab=xlab,
+            if(quali[2]==FALSE){
+                if (mcomp == "tukey"){
+                    for (i in 1:nv2) {
+                        tukey=HSD.test(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
+                        colnames(tukey$groups)=c("resp","groups")
+                        if(transf !="1"){tukey$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(tukey$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(tukey$groups)
+                    }}
+                if (mcomp == "duncan"){
+                    for (i in 1:nv2) {
+                        duncan=duncan.test(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
+                        colnames(duncan$groups)=c("resp","groups")
+                        if(transf !="1"){duncan$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(duncan$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(duncan$groups)
+
+                    }
+                }
+                if (mcomp == "lsd"){
+                    for (i in 1:nv2) {
+                        lsd=LSD.test(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
+                        colnames(lsd$groups)=c("resp","groups")
+                        if(transf !="1"){lsd$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(lsd$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(lsd$groups)
+                    }}
+                if(mcomp=="sk"){
+                    for (i in 1:nv2) {
+                        data=data.frame(resp,
+                                        bloco=as.factor(bloco),
+                                        fator1=factor(fator1,levels = unique(fator1)),
+                                        fator2=factor(fator2,levels = unique(fator2)))
+                        sk=SK.nest(x=data,
+                                   y=resp,
+                                   model="y~fator2*fator1+Error(bloco/fator1)",
+                                   which="fator2:fator1",sig.level=alpha.t, fl1=i,
+                                   error = "Within")
+                        d1=data.frame(sk$m.inf[,1],LETTERS[sk$groups])[paste(l2[i],"/",unique(data$fator1), sep=""),]
+                        colnames(d1)=c("media","grupo")
+                        trati=fat[, 1][fator2 == l2[i]]
+                        if(transf !="1"){d1$respo=sort(tapply(response[fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE), decreasing = T)}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(d1)
+
+                    }
+                }
+            }
+            if(quali[2]==FALSE){
+                fator2a=fator2a#as.numeric(as.character(fator2))
+                grafico=polynomial2_color(fator2a,
+                                          resp,
+                                          fator1,
+                                          grau = grau,
+                                          ylab=ylab,
+                                          xlab=xlab,
                                           theme=theme,
-                                          point=point, posi=posi,ylim=ylim,
-                                          textsize=textsize, se=errorbar, family=family)}
-            if(quali[2]==TRUE){
-                fator1=as.numeric(as.character(fator1))
-                grafico=polynomial2_color(fator1,resp,fator2, grau = grau,
-                                          color=color1,ylab=ylab,xlab=xlab,
+                                          point=point,
+                                          posi=posi,
+                                          ylim=ylim,
+                                          textsize=textsize,
+                                          family=family)
+            if(quali[1]==FALSE & quali[2]==FALSE){
+                    graf=list(grafico,NA)}
+            }
+            if(quali[1]==FALSE){
+                if (mcomp == "tukey"){
+                    for (i in 1:nv1) {
+                        tukey=HSD.test(resp[fat[, 1] == l1[i]],
+                                       fat[,2][fat[, 1] == l1[i]],
+                                       num(tab.f2f1[nv1 +1, 1]),
+                                       num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
+                        colnames(tukey$groups)=c("resp","groups")
+                        if(transf !="1"){tukey$groups$respo=tapply(response[Fator1 == l1[i]],fat[,2][fat[, 1] == l1[i]],mean, na.rm=TRUE)[rownames(tukey$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(tukey$groups)
+
+                    }
+                }
+                if (mcomp == "duncan"){
+                    for (i in 1:nv1) {
+                        duncan=duncan.test(resp[fat[, 1] == l1[i]],
+                                           fat[,2][fat[, 1] == l1[i]],
+                                           num(tab.f2f1[nv1 +1, 1]),
+                                           num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
+                        colnames(duncan$groups)=c("resp","groups")
+                        if(transf !="1"){duncan$groups$respo=tapply(response[Fator1 == l1[i]],fat[,2][fat[, 1] == l1[i]],mean, na.rm=TRUE)[rownames(duncan$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(duncan$groups)
+
+                    }
+                }
+                if (mcomp == "lsd"){
+                    for (i in 1:nv1) {
+                        lsd=LSD.test(resp[fat[, 1] == l1[i]],
+                                     fat[,2][fat[, 1] == l1[i]],
+                                     num(tab.f2f1[nv1 +1, 1]),
+                                     num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
+                        colnames(lsd$groups)=c("resp","groups")
+                        if(transf !="1"){lsd$groups$respo=tapply(response[Fator1 == l1[i]],fat[,2][fat[, 1] == l1[i]],mean, na.rm=TRUE)[rownames(lsd$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(lsd$groups)
+
+                    }
+                }
+                if(mcomp=="sk"){
+                    for (i in 1:nv1) {
+                        data=data.frame(fator1=factor(fator1,levels = unique(fator1)),
+                                        fator2=factor(fator2,levels = unique(fator2)),bloco)
+                        sk=SK.nest(x=data,
+                                   y=resp,
+                                   model="y~fator1*fator2+Error(bloco/fator1)",
+                                   which="fator1:fator2",sig.level=alpha.t, fl1=i,
+                                   error = "Within")
+                        d1=data.frame(sk$m.inf[,1],letters[sk$groups])[paste(l1[i],"/",unique(data$fator2), sep=""),]
+                        colnames(d1)=c("media","grupo")
+                        trati=fat[, 2][Fator1 == l1[i]]
+                        if(transf !="1"){d1$respo=sort(tapply(response[fator1 == l1[i]],fat[,2][fat[, 1] == l1[i]],mean, na.rm=TRUE), decreasing = T)}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(d1)
+                    }
+                }
+            }
+            if(quali[1]==FALSE){
+                fator1a=fator1a#as.numeric(as.character(fator1))
+                grafico=polynomial2_color(fator1a,
+                                          resp,
+                                          fator2,
+                                          grau = grau,
+                                          ylab=ylab,
+                                          xlab=xlab,
                                           theme=theme,
-                                          point=point,posi=posi,ylim=ylim,
-                                          textsize=textsize, se=errorbar,  family=family)}
+                                          point=point,
+                                          posi=posi,
+                                          ylim=ylim,
+                                          textsize=textsize,
+                                          family=family)
+                if(quali[1]==FALSE & quali[2]==FALSE){
+                    graf[[2]]=grafico
+                    grafico=graf}
+            }
         }
         colints=grafico
     }

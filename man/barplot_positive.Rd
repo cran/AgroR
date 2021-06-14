@@ -29,6 +29,9 @@ The function returns a column chart with two positive sides
 \description{
 Column chart with two variables that assume a positive response and represented by opposite sides, such as dry mass of the area and dry mass of the root
 }
+\note{
+When there is only an effect of the isolated factor in the case of factorial or subdivided plots, it is possible to use the barplot_positive function.
+}
 \examples{
 data("passiflora")
 attach(passiflora)

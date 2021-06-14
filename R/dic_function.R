@@ -30,7 +30,7 @@
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param posi Legend position
-#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
+#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se"). Only for quali=F.
 #' @param angle.label label angle
 #' @import ggplot2
 #' @import stats
@@ -71,6 +71,7 @@
 #' @importFrom cowplot plot_grid
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @note Post hoc test in nonparametric is using the criterium Fisher's least significant difference (p-adj="holm").
+#' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
 #' @references
 #'
 #' Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
@@ -79,7 +80,7 @@
 #'
 #' W.J. Conover, Practical Nonparametrics Statistics. 1999
 #'
-#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #'
@@ -164,6 +165,7 @@ DIC <- function(trat,
   if(transf=="0.5"){resp=sqrt(response)}
   if(transf=="-0.5"){resp=1/sqrt(response)}
   if(transf=="-1"){resp=1/response}
+  trat1=trat
   trat=as.factor(trat)
   a = anova(aov(resp ~ trat))
   aa = summary(aov(resp ~ trat))
@@ -288,9 +290,15 @@ DIC <- function(trat,
     }
   else{}
   if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){cat(red("\nWarning!!! Your analysis is not valid, suggests using a non-parametric test"))}else{}
+  if(point=="mean_sd"){
   dadosm=data.frame(letra1,
                     media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
-                    desvio=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)])
+                    desvio=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)])}
+  if(point=="mean_se"){
+  dadosm=data.frame(letra1,
+                    media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
+                    desvio=tapply(response, trat, sd, na.rm=TRUE)/sqrt(tapply(response, trat, length))[rownames(letra1)])}
+
   dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
   dadosm$limite=dadosm$media+dadosm$desvio
   dadosm=dadosm[unique(as.character(trat)),]
@@ -375,7 +383,8 @@ DIC <- function(trat,
   grafico=as.list(grafico)
   }
   if(quali==FALSE){
-  trat=as.numeric(as.character(trat))
+  trat=trat1
+  # trat=as.numeric(as.character(trat))
   if(grau==1){graph=polynomial(trat,response, grau = 1,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
   if(grau==2){graph=polynomial(trat,response, grau = 2,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
   if(grau==3){graph=polynomial(trat,response, grau = 3,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
@@ -400,7 +409,9 @@ DIC <- function(trat,
     dadosm=data.frame(krusk$means,krusk$groups[rownames(krusk$means),])
     dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
     dadosm$media=tapply(response,trat,mean, na.rm=TRUE)[rownames(krusk$means)]
-    dadosm$std=tapply(response,trat,sd, na.rm=TRUE)[rownames(krusk$means)]
+    if(point=="mean_sd"){dadosm$std=tapply(response,trat,sd, na.rm=TRUE)[rownames(krusk$means)]}
+    if(point=="mean_se"){dadosm$std=tapply(response, trat, sd, na.rm=TRUE)/
+      sqrt(tapply(response, trat, length))[rownames(krusk$means)]}
     if(addmean==TRUE){dadosm$letra=paste(format(dadosm$response,digits = dec),dadosm$groups)}
     if(addmean==FALSE){dadosm$letra=dadosm$groups}
     trats=dadosm$trats

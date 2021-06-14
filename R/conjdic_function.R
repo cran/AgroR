@@ -43,7 +43,7 @@
 #'
 #' Practical Nonparametrics Statistics. W.J. Conover, 1999
 #'
-#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #' @export
@@ -85,13 +85,14 @@ conjdic=function(trat,
   if(transf=="0.5"){resp=sqrt(response)}
   if(transf=="-0.5"){resp=1/sqrt(response)}
   if(transf=="-1"){resp=1/response}
-  tratamento=as.factor(trat)
+  tratnum=trat
+  tratamento=factor(trat,levels = unique(trat))
   bloco=as.factor(repet)
   local=as.factor(local)
   a = anova(aov(resp ~ local + tratamento + local:tratamento))[c(3:4), ]
   b = summary(aov(resp ~ local + local:bloco + tratamento + Error(local/tratamento)))
   c = aov(resp ~ local + local:bloco + tratamento + local:tratamento)
-  dados=data.frame(resp,response,tratamento,local,bloco)
+  dados=data.frame(resp,response,tratamento,local,bloco,tratnum)
   anova=c()
   tukey=c()
   graficos=list()
@@ -158,7 +159,7 @@ conjdic=function(trat,
   datas[4,2]=datas[4,3]*datas[4,1]
 
 
-  d=aov(resp~tratamento*local+bloco)
+  d=aov(resp~tratamento*local+bloco/local)
   if(norm=="sw"){norm1 = shapiro.test(d$res)}
   if(norm=="li"){norm1=nortest::lillie.test(d$residuals)}
   if(norm=="ad"){norm1=nortest::ad.test(d$residuals)}
@@ -235,8 +236,8 @@ conjdic=function(trat,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
 
   if(a$`Pr(>F)`[1] < alpha.f | qmresmedio > 7){
+    if(a$`Pr(>F)`[1] < alpha.f && quali==TRUE | qmresmedio > 7 && quali==TRUE){
     for(i in 1:length(levels(local))){
-      if(a$`Pr(>F)`[1] < alpha.f && quali==TRUE | qmresmedio > 7 && quali==TRUE){
         anova[[i]]=anova(aov(resp~tratamento, data=dados[dados$local==levels(dados$local)[i],]))
         qm=anova[[i]]$`Mean Sq`[2]
         qmres[i,]=c(qm)
@@ -253,8 +254,8 @@ conjdic=function(trat,
           if(mcomp=="sk"){
             anova=anova(aov1)
             data=dados[dados$local==levels(dados$local)[i],]
-            tukey[[i]]=sk_triple(resp,tratamento,anova$Df[2],anova$`Sum Sq`[2],alpha = alpha.t)
-            comp=sk_triple(resp,tratamento,anova$Df[2],anova$`Sum Sq`[2],alpha = alpha.t)}
+            tukey[[i]]=sk_triple(data$resp,data$tratamento,anova$Df[2],anova$`Sum Sq`[2],alpha = alpha.t)
+            comp=sk_triple(data$resp,data$tratamento,anova$Df[2],anova$`Sum Sq`[2],alpha = alpha.t)}
 
           if(transf=="1"){}else{tukey[[i]]$respo=with(dados[dados$local==levels(dados$local)[i],],
                                                       tapply(response, tratamento,
@@ -266,30 +267,35 @@ conjdic=function(trat,
                                        tapply(response, tratamento, mean, na.rm=TRUE))[rownames(comp)],
                             desvio=with(dados[dados$local==levels(dados$local)[i],],
                                         tapply(response, tratamento, sd, na.rm=TRUE))[rownames(comp)])
-          dadosm$Tratamentos=rownames(dadosm)
+          dadosm$trats=factor(rownames(dadosm),unique(trat))
           dadosm$limite=dadosm$media+dadosm$desvio
           dadosm$letra=paste(format(dadosm$media,digits = dec),dadosm$groups)
+          dadosm=dadosm[unique(as.character(trat)),]
+          media=dadosm$media
+          desvio=dadosm$desvio
+          limite=dadosm$limite
+          trats=dadosm$trats
+          letra=dadosm$letra
           grafico=ggplot(dadosm,
-                         aes(x=dadosm$Tratamentos,
-                             y=dadosm$media))+
-            geom_col(aes(fill=dadosm$Tratamentos),fill=fill,color=1)+
+                         aes(x=trats,
+                             y=media))+
+            geom_col(aes(fill=trats),fill=fill,color=1)+
             theme_classic()+
             ylab(ylab)+
-            xlab(xlab)+ylim(0,1.5*max(dadosm$limite))+
-            geom_errorbar(aes(ymin=dadosm$media-dadosm$desvio,
-                              ymax=dadosm$media+dadosm$desvio),
+            xlab(xlab)+ylim(0,1.5*max(limite))+
+            geom_errorbar(aes(ymin=media-desvio,
+                              ymax=media+desvio),
                           color="black",width=0.3)+
-            geom_text(aes(y=dadosm$media+dadosm$desvio+sup,
-                          label=dadosm$letra))+
+            geom_text(aes(y=media+desvio+sup,
+                          label=letra))+
             theme(text = element_text(size=textsize,color="black", family = family),
                   axis.title = element_text(size=textsize,color="black", family = family),
                   axis.text = element_text(size=textsize,color="black", family = family),
-                  legend.position = "none")
-          print(tukey)}
-        }
+                  legend.position = "none")}}
+      print(tukey)}
       if(a$`Pr(>F)`[1] < alpha.f && quali==FALSE | qmresmedio > 7 && quali==FALSE){
         data=dados[dados$local==levels(dados$local)[i],]
-        dose1=as.numeric(as.character(data$tratamento))
+        dose1=tratnum#as.numeric(as.character(data$tratamento))
         resp=data$response
         grafico=polynomial(dose1,
                            resp,grau = grau,
@@ -299,8 +305,9 @@ conjdic=function(trat,
                            xlab=xlab,
                            theme=theme,
                            posi="top",
-                           se=errorbar)}
+                           se=errorbar)
       graficos[[i]]=grafico}
+    print(graficos)
     }
 
   if(a$`Pr(>F)`[1] > alpha.f && qmresmedio < 7){
@@ -332,21 +339,21 @@ conjdic=function(trat,
     dadosm=data.frame(tukeyjuntos,
                       media=tapply(response, tratamento, mean, na.rm=TRUE)[rownames(tukeyjuntos)],
                       desvio=tapply(response, tratamento, sd, na.rm=TRUE)[rownames(tukeyjuntos)])
-    dadosm$Tratamentos=rownames(dadosm)
+    dadosm$trats=factor(rownames(dadosm),unique(trat))
     dadosm$limite=dadosm$media+dadosm$desvio
     dadosm$letra=paste(format(dadosm$media,digits = dec),dadosm$groups)
+    dadosm=dadosm[unique(as.character(trat)),]
     media=dadosm$media
     desvio=dadosm$desvio
     limite=dadosm$limite
-    Tratamentos=dadosm$Tratamentos
+    trats=dadosm$trats
     letra=dadosm$letra
 
     grafico1=ggplot(dadosm,
-                    aes(x=Tratamentos,y=media))
+                    aes(x=trats,y=media))
     if(fill=="trat"){grafico1=grafico1+
-      geom_col(aes(fill=Tratamentos),color=1)}
-    else{grafico1=grafico1+
-      geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
+      geom_col(aes(fill=trats),color=1)}else{grafico1=grafico1+
+      geom_col(aes(fill=trats),fill=fill,color=1)}
     if(errorbar==TRUE){grafico1=grafico1+
       geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                     label=letra),family=family)}
@@ -371,7 +378,7 @@ conjdic=function(trat,
     print(grafico1)
     graficos=list(grafico1)
     }
-    if(quali==FALSE){grafico1=polynomial(as.numeric(as.character(tratamento)),
+    if(quali==FALSE){grafico1=polynomial(tratnum,#as.numeric(as.character(tratamento)),
                            response,grau = grau,
                            textsize=textsize,
                            family=family,

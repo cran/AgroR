@@ -22,7 +22,6 @@ PSUBDBC(
   ylab = "Response",
   xlab = "",
   color = "rainbow",
-  color1 = NA,
   textsize = 12,
   dec = 3,
   legend = "Legend",
@@ -71,8 +70,6 @@ PSUBDBC(
 \item{xlab}{Treatments name (Accepts the \emph{expression}() function)}
 
 \item{color}{When the columns are different colors (Set fill-in argument as "trat")}
-
-\item{color1}{Color of groups for regression}
 
 \item{textsize}{Font size (\emph{default} is 12)}
 

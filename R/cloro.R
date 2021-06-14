@@ -19,9 +19,9 @@
 #'   \item{\code{resp}}{Numeric vector with number nodules}
 #'   }
 #' @keywords datasets
-#' @seealso \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}
+#' @seealso \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}, \link{phao}, \link{passiflora}, \link{aristolochia}
 #'
-#' @references Rony Kauling Tonelli. Efeito do uso de dicloroisocianurato de sódio sobre a nodulação em raizes de soja. 2016. Trabalho de Conclusão de Curso. (Graduação em Agronomia) - Universidade Estadual de Londrina.
+#' @references Rony Kauling Tonelli. Efeito do uso de dicloroisocianurato de sodio sobre a nodulacao em raizes de soja. 2016. Trabalho de Conclusao de Curso. (Graduacao em Agronomia) - Universidade Estadual de Londrina.
 #'
 #' @examples
 #' data(cloro)

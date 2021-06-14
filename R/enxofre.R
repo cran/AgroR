@@ -19,7 +19,7 @@
 #'   \item{\code{resp}}{Numeric vector}
 #'   }
 #' @keywords datasets
-#' @seealso \link{cloro}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}
+#' @seealso \link{cloro}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}, \link{phao}, \link{passiflora}, \link{aristolochia}
 #' @examples
 #' data(enxofre)
 "enxofre"

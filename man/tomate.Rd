@@ -32,6 +32,6 @@ data(tomate)
 attach(tomate)
 }
 \seealso{
-\link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{weather}
+\link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{weather}, \link{aristolochia}, \link{phao}, \link{passiflora}
 }
 \keyword{datasets}

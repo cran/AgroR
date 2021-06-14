@@ -22,7 +22,7 @@
 #'   \item{\code{colunas}}{Categorical vector with columns}
 #'   \item{\code{resp}}{Numeric vector}
 #'   }
-#' @seealso \link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}
+#' @seealso \link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}, \link{phao}, \link{passiflora}, \link{aristolochia}
 #' @keywords datasets
 #'
 #' @examples

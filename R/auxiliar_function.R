@@ -1261,7 +1261,7 @@ sk_triple<-function(y, trt, DFerror, SSerror, alpha = 0.05, group = TRUE, main =
       }
     }
   }
-  names(resultado) <- c("Groups","Tratamentos","Medias")
+  names(resultado) <- c("groups","Tratamentos","Means")
   resultado1=resultado[,c(3,1)]
   rownames(resultado1)=resultado$Tratamentos
   final=list(resultado1)[[1]]

@@ -8,6 +8,7 @@
 #'
 #' Campbell, C. L., & Madden, L. V. (1990). Introduction to plant disease epidemiology. John Wiley & Sons.
 #'
+#' @seealso \link{transf}, \link{sketch}
 #' @examples
 #'
 #' #=======================================

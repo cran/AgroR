@@ -21,7 +21,7 @@
 #'   \item{\code{resp}}{Numeric vector}
 #'   }
 #' @keywords datasets
-#' @seealso \link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{weather}
+#' @seealso \link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{weather}, \link{aristolochia}, \link{phao}, \link{passiflora}
 #' @examples
 #' data(tomate)
 #' attach(tomate)

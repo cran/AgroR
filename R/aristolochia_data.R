@@ -17,6 +17,7 @@
 #'   \item{\code{resp}}{Numeric vector with response}
 #'   }
 #' @keywords datasets
+#' @seealso \link{cloro}, \link{laranja}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{passiflora}, \link{phao}, \link{porco}, \link{pomegranate}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}
 #' @examples
 #' data(aristolochia)
 "aristolochia"

@@ -20,7 +20,7 @@
 #'
 #' @keywords datasets
 #'
-#' @seealso \link{cloro}, \link{enxofre}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}
+#' @seealso \link{cloro}, \link{enxofre}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}, \link{phao}, \link{passiflora}, \link{aristolochia}
 #'
 #' @references Planejamento e Analise Estatistica de Experimentos Agronomicos (2013) - Decio Barbin - pg. 72
 #'

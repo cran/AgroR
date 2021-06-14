@@ -31,6 +31,7 @@
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param posi Legend position
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+#' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
 #' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
 #' @param angle.label label angle
 #' @keywords DBC
@@ -51,7 +52,7 @@
 #'
 #' Practical Nonparametrics Statistics. W.J. Conover, 1999
 #'
-#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #'
@@ -63,8 +64,6 @@
 #' @examples
 #' library(AgroR)
 #' data(laranja)
-#' attach(laranja)
-#' data("laranja")
 #' attach(laranja)
 #' DBC(trat, bloco, resp,
 #'      mcomp = "sk",angle=45,
@@ -242,9 +241,14 @@ DBC=function(trat,
     message("\nYour analysis is not valid, suggests using a non-parametric \ntest and try to transform the data")}
   else{}
   if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){cat(red("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric \ntest"))}else{}
-  dadosm=data.frame(letra1,
-                    media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
-                    desvio=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)])
+  if(point=="mean_sd"){
+    dadosm=data.frame(letra1,
+                      media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
+                      desvio=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)])}
+  if(point=="mean_se"){
+    dadosm=data.frame(letra1,
+                      media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
+                      desvio=tapply(response, trat, sd, na.rm=TRUE)/sqrt(tapply(response, trat, length))[rownames(letra1)])}
   dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
   dadosm$limite=dadosm$media+dadosm$desvio
   dadosm=dadosm[unique(as.character(trat)),]
@@ -350,7 +354,11 @@ DBC=function(trat,
     dadosm=data.frame(fried$means,fried$groups[rownames(fried$means),])
     dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
     dadosm$media=tapply(response,trat,mean, na.rm=TRUE)[rownames(fried$means)]
-    dadosm$std=tapply(response,trat,sd, na.rm=TRUE)[rownames(fried$means)]
+
+    if(point=="mean_sd"){dadosm$std=tapply(response,trat,sd, na.rm=TRUE)[rownames(fried$means)]}
+    if(point=="mean_se"){dadosm$std=tapply(response,trat,sd, na.rm=TRUE)/
+      sqrt(tapply(response,trat,length))[rownames(fried$means)]}
+
     dadosm$limite=dadosm$response+dadosm$std
     dadosm$letra=paste(format(dadosm$response,digits = dec),dadosm$groups)
     if(addmean==TRUE){dadosm$letra=paste(format(dadosm$response,digits = dec),dadosm$groups)}

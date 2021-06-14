@@ -4,16 +4,12 @@
 \alias{sk_graph}
 \title{Graph: Scott-Knott graphics}
 \usage{
-sk_graph(model, dec = 3, horiz = TRUE, transf = FALSE)
+sk_graph(model, horiz = TRUE)
 }
 \arguments{
 \item{model}{DIC, DBC or DQL object}
 
-\item{dec}{Number of cells}
-
 \item{horiz}{Horizontal Column (\emph{default} is TRUE)}
-
-\item{transf}{If the data has been transformed (\emph{default} is FALSE)}
 }
 \value{
 Returns a bar chart with columns separated by color according to the Scott-Knott test
@@ -27,7 +23,7 @@ attach(laranja)
 a=DBC(trat, bloco, resp,
      mcomp = "sk",angle=45,
      ylab = "Number of fruits/plants")
-sk_graph(a,dec = 0,horiz = FALSE)
+sk_graph(a,horiz = FALSE)
 }
 \seealso{
 \link{radargraph}, \link{barplot_positive}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}

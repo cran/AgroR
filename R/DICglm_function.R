@@ -43,8 +43,11 @@
 #' #=============================
 #' # Use the DIC.glm function
 #' #=============================
-#' resp=resp/2
-#' DIC.glm(trat, cbind(resp,50-resp), glm.family="binomial")
+#'
+#' resp=resp/4 # ttotal germinated seeds
+#'
+#' # the value 25 is the total of seeds in the repetition
+#' DIC.glm(trat, cbind(resp,25-resp), glm.family="binomial")
 
 DIC.glm=function(trat,
                  response,

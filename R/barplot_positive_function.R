@@ -9,6 +9,7 @@
 #' @param fill_color Bar fill color
 #' @seealso \link{radargraph}, \link{sk_graph}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}
 #' @return The function returns a column chart with two positive sides
+#' @note When there is only an effect of the isolated factor in the case of factorial or subdivided plots, it is possible to use the barplot_positive function.
 #' @export
 #' @examples
 #' data("passiflora")

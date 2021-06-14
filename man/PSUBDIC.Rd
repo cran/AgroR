@@ -25,7 +25,6 @@ PSUBDIC(
   angle = 0,
   family = "sans",
   color = "rainbow",
-  color1 = NA,
   legend = "Legend",
   errorbar = TRUE,
   addmean = TRUE,
@@ -78,8 +77,6 @@ PSUBDIC(
 
 \item{color}{When the columns are different colors (Set fill-in argument as "trat")}
 
-\item{color1}{Color of groups for regression}
-
 \item{legend}{Legend title name}
 
 \item{errorbar}{Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE}
@@ -102,7 +99,7 @@ PSUBDIC(
 The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 }
 \description{
-analysis of an experiment conducted in a completely randomized design in a split-plot scheme using fixed effects analysis of variance.
+Analysis of an experiment conducted in a completely randomized design in a split-plot scheme using fixed effects analysis of variance.
 }
 \note{
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.

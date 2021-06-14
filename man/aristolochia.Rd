@@ -25,4 +25,7 @@ design with four replications of 25 seeds each.
 \examples{
 data(aristolochia)
 }
+\seealso{
+\link{cloro}, \link{laranja}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{passiflora}, \link{phao}, \link{porco}, \link{pomegranate}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}
+}
 \keyword{datasets}

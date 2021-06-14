@@ -20,7 +20,8 @@ polynomial(
   family = "sans",
   pointsize = 4.5,
   decimal = ".",
-  width.bar = NA
+  width.bar = NA,
+  n = NA
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ polynomial(
 \item{decimal}{Decimal separate}
 
 \item{width.bar}{width of the error bars of a regression graph.}
+
+\item{n}{Number of decimal places for regression equations}
 }
 \value{
 Returns linear, quadratic or cubic regression analysis.
@@ -68,7 +71,7 @@ attach(phao)
 polynomial(dose,comp, grau = 2)
 }
 \seealso{
-\link{polynomial2}
+\link{polynomial2}, \link{polynomial2_color}
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

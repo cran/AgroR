@@ -45,7 +45,7 @@
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.
 #' @keywords DIC
 #' @keywords Factorial
-#' @seealso \link{FAT2DIC.art}
+#' @seealso \link{FAT2DIC.art}, \link{FAT2DIC.ad}
 #' @references
 #'
 #' Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
@@ -54,7 +54,7 @@
 #'
 #' Practical Nonparametrics Statistics. W.J. Conover, 1999
 #'
-#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #'
@@ -106,6 +106,9 @@ FAT2DIC=function(f1,
   requireNamespace("lmtest")
   fator1=f1
   fator2=f2
+  fator1a=fator1
+  fator2a=fator2
+
   # ================================
   # Transformacao de dados
   # ================================
@@ -156,12 +159,14 @@ FAT2DIC=function(f1,
     names(homog1)=c("Df", "F value","p.value")}
 
   indep = dwtest(b)
-  resids=b$residuals/sqrt(a$`Mean Sq`[5])
+  resids=b$residuals/sqrt(a$`Mean Sq`[4])
   Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
-  residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+  residplot=ggplot(data=data.frame(resids,Ids),
+                   aes(y=resids,x=1:length(resids)))+
     geom_point(shape=21,color="gray",fill="gray",size=3)+
     labs(x="",y="Standardized residuals")+
-    geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
+    geom_text(x=1:length(resids),label=1:length(resids),
+              color=Ids,size=4)+
     scale_x_continuous(breaks=1:length(resids))+
     theme_classic()+theme(axis.text.y = element_text(size=12),
                           axis.text.x = element_blank())+
@@ -240,6 +245,7 @@ FAT2DIC=function(f1,
     cat(green(bold("No significant interaction")))
     cat(green(bold("\n-----------------------------------------------------------------\n")))
     fatores <- data.frame(Fator1 = factor(fator1), Fator2 = factor(fator2))
+    fatoresa <- data.frame(Fator1 = fator1a, Fator2 = fator2a)
     graficos=list(1,2)
 
     for (i in 1:2) {if (a$`Pr(>F)`[i] <= alpha.f)
@@ -270,7 +276,7 @@ FAT2DIC=function(f1,
         dadosm=data.frame(letra1[ordem,],
                           media=tapply(response, c(fatores[i]), mean, na.rm=TRUE)[ordem],
                           desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[ordem])
-        dadosm$Tratamentos=factor(rownames(dadosm),levels = ordem)
+        dadosm$trats=factor(rownames(dadosm),levels = ordem)
         dadosm$limite=dadosm$media+dadosm$desvio
         lim.y=dadosm$limite[which.max(abs(dadosm$limite))]
         if(is.na(ylim[1])==TRUE && lim.y<0){ylim=c(1.5*lim.y,0)}
@@ -279,15 +285,15 @@ FAT2DIC=function(f1,
         if(addmean==FALSE){dadosm$letra=dadosm$groups}
         media=dadosm$media
         desvio=dadosm$desvio
-        Tratamentos=dadosm$Tratamentos
+        trats=dadosm$trats
         letra=dadosm$letra
         if(geom=="bar"){grafico=ggplot(dadosm,
-                                       aes(x=Tratamentos,
+                                       aes(x=trats,
                                            y=media))
         if(fill=="trat"){grafico=grafico+
-          geom_col(aes(fill=Tratamentos),color=1)}
+          geom_col(aes(fill=trats),color=1)}
         else{grafico=grafico+
-          geom_col(aes(fill=Tratamentos),
+          geom_col(aes(fill=trats),
                    fill=fill,color=1)}
         grafico=grafico+theme+ylab(ylab)+xlab(xlab)+ylim(ylim)
         if(errorbar==TRUE){grafico=grafico+
@@ -313,12 +319,12 @@ FAT2DIC=function(f1,
         # grafico de pontos
         # ================================
         if(geom=="point"){grafico=ggplot(dadosm,
-                                         aes(x=Tratamentos,
+                                         aes(x=trats,
                                              y=media))
         if(fill=="trat"){grafico=grafico+
-          geom_point(aes(color=Tratamentos),size=5)}
+          geom_point(aes(color=trats),size=5)}
         else{grafico=grafico+
-          geom_point(aes(color=Tratamentos),fill="gray",pch=21,color="black",size=5)}
+          geom_point(aes(color=trats),fill="gray",pch=21,color="black",size=5)}
         grafico=grafico+theme+ylab(ylab)+xlab(xlab)+ylim(ylim)
         if(errorbar==TRUE){grafico=grafico+
           geom_text(aes(y=media+sup+
@@ -348,7 +354,8 @@ FAT2DIC=function(f1,
 
       # Regression
       if(quali[i]==FALSE){
-        dose=as.numeric(as.character(as.vector(unlist(fatores[i]))))
+        # dose=as.numeric(as.character(as.vector(unlist(fatores[i]))))
+        dose=as.vector(unlist(fatoresa[i]))
         grafico=polynomial(dose,
                            response,
                            grau = grau,
@@ -357,7 +364,6 @@ FAT2DIC=function(f1,
                            posi=posi,
                            theme=theme,
                            textsize=textsize,
-                           se=errorbar,
                            point=point,
                            family=family)
         grafico=grafico[[1]]}
@@ -588,8 +594,68 @@ FAT2DIC=function(f1,
 
       if(quali[1]==FALSE && color=="gray"| quali[2]==FALSE && color=="gray"){
         if(quali[2]==FALSE){
-          Fator2=as.numeric(as.character(Fator2))
-          grafico=polynomial2(Fator2,response,Fator1,
+          if (mcomp == "tukey"){
+          for (i in 1:nv2) {
+            trati=fatores[, 1][Fator2 == lf2[i]]
+            respi=resp[Fator2 == lf2[i]]
+            tukey=HSD.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+            if(transf !="1"){tukey$groups$respo=tapply(response[Fator2 == lf2[i]],trati,
+                                                       mean, na.rm=TRUE)[rownames(tukey$groups)]}
+            cat("\n----------------------\n")
+            cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+            cat("\n----------------------\n")
+            print(tukey$groups)
+            }}
+          if (mcomp == "duncan"){
+            for (i in 1:nv2) {
+              trati=fatores[, 1][Fator2 == lf2[i]]
+              respi=resp[Fator2 == lf2[i]]
+              duncan=duncan.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){duncan$groups$respo=tapply(response[Fator2 == lf2[i]],
+                                                          trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+              cat("\n----------------------\n")
+              print(duncan$groups)}}
+          if (mcomp == "lsd"){
+            for (i in 1:nv2) {
+              trati=fatores[, 1][Fator2 == lf2[i]]
+              respi=resp[Fator2 == lf2[i]]
+              lsd=LSD.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){lsd$groups$respo=tapply(response[Fator2 == lf2[i]],trati,
+                                                       mean, na.rm=TRUE)[rownames(lsd$groups)]}
+
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+              cat("\n----------------------\n")
+              print(lsd$groups)}
+          }
+          if(mcomp=="sk"){
+            for (i in 1:nv2) {
+              data=data.frame(resp,fator1=factor(fator1,levels = unique(fator1)),
+                              fator2=factor(fator2,levels = unique(fator2)))
+              sk=SK.nest(x=data,
+                         y=resp,
+                         model="y~fator2*fator1",
+                         which="fator2:fator1",
+                         fl1=i,
+                         sig.level = alpha.t)
+              d1=data.frame(sk$m.inf[,1],LETTERS[sk$groups])[paste(lf2[i],"/",unique(data$fator1), sep=""),]
+              colnames(d1)=c("media","grupo")
+              trati=fatores[, 1][Fator2 == lf2[i]]
+              if(transf !="1"){d1$respo=sort(tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE), decreasing = T)}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+              cat("\n----------------------\n")
+              print(d1)
+            }
+          }
+        }
+        if(quali[2]==FALSE){
+          Fator2a=fator2a#as.numeric(as.character(Fator2))
+          grafico=polynomial2(Fator2a,
+                              response,
+                              Fator1,
                               grau = grau,
                               ylab=ylab,
                               xlab=xlab,
@@ -597,12 +663,67 @@ FAT2DIC=function(f1,
                               posi=posi,
                               point=point,
                               textsize=textsize,
-                              se=errorbar,
                               family=family,
-                              ylim=ylim)}
-        if(quali[2]==TRUE){
-          Fator1=as.numeric(as.character(Fator1))
-          grafico=polynomial2(Fator1,
+                              ylim=ylim)
+          if(quali[1]==FALSE & quali[2]==FALSE){
+            graf=list(grafico,NA)}
+          }
+        if(quali[1]==FALSE){
+          if (mcomp == "tukey"){
+            for (i in 1:nv1) {
+              trati=fatores[, 2][Fator1 == lf1[i]]
+              respi=resp[Fator1 == lf1[i]]
+              tukey=HSD.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){tukey$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+              cat("\n----------------------\n")
+              print(tukey$groups)
+            }}
+          if (mcomp == "duncan"){
+            for (i in 1:nv1) {
+              trati=fatores[, 2][Fator1 == lf1[i]]
+              respi=resp[Fator1 == lf1[i]]
+              duncan=duncan.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){duncan$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+              cat("\n----------------------\n")
+              print(duncan$groups)}}
+          if (mcomp == "lsd"){
+            for (i in 1:nv1) {
+              trati=fatores[, 2][Fator1 == lf1[i]]
+              respi=resp[Fator1 == lf1[i]]
+              lsd=LSD.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){lsd$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
+              lsdgrafico1[[i]]=lsd$groups[as.character(unique(trati)),2]
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+              cat("\n----------------------\n")
+            print(lsd$groups)}}
+          if(mcomp=="sk"){
+            for (i in 1:nv1) {
+              data=data.frame(resp,fator1=factor(fator1,levels = unique(fator1)),
+                              fator2=factor(fator2,levels = unique(fator2)))
+              sk=SK.nest(x=data,
+                         y=resp,
+                         model="y~fator1*fator2",
+                         which="fator1:fator2",
+                         fl1=i,sig.level = alpha.t)
+              d1=data.frame(sk$m.inf[,1],letters[sk$groups])[paste(lf1[i],"/",unique(data$fator2), sep=""),]
+              colnames(d1)=c("media","grupo")
+              trati=fatores[, 2][Fator1 == lf1[i]]
+              if(transf !="1"){d1$respo=sort(tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE), decreasing = T)}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+              cat("\n----------------------\n")
+              print(d1)
+            }
+          }
+        }
+        if(quali[1]==FALSE){
+          Fator1a=fator1a#as.numeric(as.character(Fator1))
+          grafico=polynomial2(Fator1a,
                               response,
                               Fator2,
                               grau = grau,
@@ -612,13 +733,74 @@ FAT2DIC=function(f1,
                               posi=posi,
                               point=point,
                               textsize=textsize,
-                              se=errorbar,
                               family=family,
-                              ylim=ylim)}
+                              ylim=ylim)
+          if(quali[1]==FALSE & quali[2]==FALSE){
+            graf[[2]]=grafico
+            grafico=graf}
+                    }
       }
       if(quali[1]==FALSE && color=="rainbow"| quali[2]==FALSE && color=="rainbow"){
         if(quali[2]==FALSE){
-          Fator2=as.numeric(as.character(Fator2))
+          if (mcomp == "tukey"){
+            for (i in 1:nv2) {
+              trati=fatores[, 1][Fator2 == lf2[i]]
+              respi=resp[Fator2 == lf2[i]]
+              tukey=HSD.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){tukey$groups$respo=tapply(response[Fator2 == lf2[i]],trati,
+                                                         mean, na.rm=TRUE)[rownames(tukey$groups)]}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+              cat("\n----------------------\n")
+              print(tukey$groups)
+            }}
+          if (mcomp == "duncan"){
+            for (i in 1:nv2) {
+              trati=fatores[, 1][Fator2 == lf2[i]]
+              respi=resp[Fator2 == lf2[i]]
+              duncan=duncan.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){duncan$groups$respo=tapply(response[Fator2 == lf2[i]],
+                                                          trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+              cat("\n----------------------\n")
+              print(duncan$groups)}}
+          if (mcomp == "lsd"){
+            for (i in 1:nv2) {
+              trati=fatores[, 1][Fator2 == lf2[i]]
+              respi=resp[Fator2 == lf2[i]]
+              lsd=LSD.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){lsd$groups$respo=tapply(response[Fator2 == lf2[i]],trati,
+                                                       mean, na.rm=TRUE)[rownames(lsd$groups)]}
+
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+              cat("\n----------------------\n")
+              print(lsd$groups)}
+          }
+          if(mcomp=="sk"){
+            for (i in 1:nv2) {
+              data=data.frame(resp,fator1=factor(fator1,levels = unique(fator1)),
+                              fator2=factor(fator2,levels = unique(fator2)))
+              sk=SK.nest(x=data,
+                         y=resp,
+                         model="y~fator2*fator1",
+                         which="fator2:fator1",
+                         fl1=i,
+                         sig.level = alpha.t)
+              d1=data.frame(sk$m.inf[,1],LETTERS[sk$groups])[paste(lf2[i],"/",unique(data$fator1), sep=""),]
+              colnames(d1)=c("media","grupo")
+              trati=fatores[, 1][Fator2 == lf2[i]]
+              if(transf !="1"){d1$respo=sort(tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE), decreasing = T)}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+              cat("\n----------------------\n")
+              print(d1)
+            }
+          }
+        }
+        if(quali[2]==FALSE){
+          Fator2=fator2a#as.numeric(as.character(Fator2))
           grafico=polynomial2_color(Fator2,
                                     response,
                                     Fator1,
@@ -629,12 +811,67 @@ FAT2DIC=function(f1,
                                     posi=posi,
                                     point=point,
                                     textsize=textsize,
-                                    se=errorbar,
                                     family=family,
-                                    ylim=ylim)}
-        if(quali[2]==TRUE){
-          Fator1=as.numeric(as.character(Fator1))
-          grafico=polynomial2_color(Fator1,
+                                    ylim=ylim)
+          if(quali[1]==FALSE & quali[2]==FALSE){
+            graf=list(grafico,NA)}
+        }
+        if(quali[1]==FALSE){
+          if (mcomp == "tukey"){
+            for (i in 1:nv1) {
+              trati=fatores[, 2][Fator1 == lf1[i]]
+              respi=resp[Fator1 == lf1[i]]
+              tukey=HSD.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){tukey$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+              cat("\n----------------------\n")
+              print(tukey$groups)
+            }}
+          if (mcomp == "duncan"){
+            for (i in 1:nv1) {
+              trati=fatores[, 2][Fator1 == lf1[i]]
+              respi=resp[Fator1 == lf1[i]]
+              duncan=duncan.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){duncan$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+              cat("\n----------------------\n")
+              print(duncan$groups)}}
+          if (mcomp == "lsd"){
+            for (i in 1:nv1) {
+              trati=fatores[, 2][Fator1 == lf1[i]]
+              respi=resp[Fator1 == lf1[i]]
+              lsd=LSD.test(respi,trati,a$Df[4],a$`Mean Sq`[4],alpha.t)
+              if(transf !="1"){lsd$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
+              lsdgrafico1[[i]]=lsd$groups[as.character(unique(trati)),2]
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+              cat("\n----------------------\n")
+              print(lsd$groups)}}
+          if(mcomp=="sk"){
+            for (i in 1:nv1) {
+              data=data.frame(resp,fator1=factor(fator1,levels = unique(fator1)),
+                              fator2=factor(fator2,levels = unique(fator2)))
+              sk=SK.nest(x=data,
+                         y=resp,
+                         model="y~fator1*fator2",
+                         which="fator1:fator2",
+                         fl1=i,sig.level = alpha.t)
+              d1=data.frame(sk$m.inf[,1],letters[sk$groups])[paste(lf1[i],"/",unique(data$fator2), sep=""),]
+              colnames(d1)=c("media","grupo")
+              trati=fatores[, 2][Fator1 == lf1[i]]
+              if(transf !="1"){d1$respo=sort(tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE), decreasing = T)}
+              cat("\n----------------------\n")
+              cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+              cat("\n----------------------\n")
+              print(d1)
+            }
+          }
+        }
+        if(quali[1]==FALSE){
+          Fator1a=fator1a#as.numeric(as.character(Fator1))
+          grafico=polynomial2_color(Fator1a,
                                     response,
                                     Fator2,
                                     grau = grau,
@@ -644,9 +881,12 @@ FAT2DIC=function(f1,
                                     posi=posi,
                                     point=point,
                                     textsize=textsize,
-                                    se=errorbar,
                                     family=family,
-                                    ylim=ylim)}
+                                    ylim=ylim)
+          if(quali[1]==FALSE & quali[2]==FALSE){
+            graf[[2]]=grafico
+            grafico=graf}
+        }
       }
       # -----------------------------
       # Gráfico de colunas

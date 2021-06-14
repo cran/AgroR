@@ -27,26 +27,27 @@ radargraph=function(model,
   ylab=a[[1]]$labels$y
   xlab=a[[1]]$labels$x
   trats=data$trats
-  if(transf==FALSE){
-    data$resp=data$resp
-    resp=data$resp}
-  if(transf==TRUE){
-    data$resp=data$respo
-    resp=data$respo}
+  media=data$media
+  # if(transf==FALSE){
+  #   data$resp=data$resp
+  #   resp=data$resp}
+  # if(transf==TRUE){
+  #   data$resp=data$respo
+  #   resp=data$respo}
   letra=data$letra
   groups=data$groups
-  data$id=id=c(1:length(data$resp))
+  data$id=id=c(1:length(data$media))
   label_data = data
   number_of_bar = nrow(data)
   angle =  90 - 360 * (label_data$id-0.5)/number_of_bar
   label_data$hjust=hjust=ifelse( angle < -90, 1, 0)
   label_data$angle=ifelse(angle < -90, angle+180, angle)
   limite=label_data$limite
-  graph=ggplot(data, aes(x=as.factor(id), y=resp))+
+  graph=ggplot(data, aes(x=trats, y=media))+
     geom_bar(aes(fill=groups),
              stat="identity",
              color="black",show.legend = FALSE)
-  if(is.na(ylim)==TRUE){graph=graph+ylim(-min(resp),1.2*max(resp))}
+  if(is.na(ylim)==TRUE){graph=graph+ylim(-min(media),1.2*max(media))}
   if(is.na(ylim)==FALSE){graph=graph+ylim(ylim)}
   graph=graph+theme_minimal() +
     theme(axis.text = element_blank(),

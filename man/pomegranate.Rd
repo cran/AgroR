@@ -29,6 +29,6 @@ sodium hypochlorite; T6: Internal + External sodium hypochlorite
 data(pomegranate)
 }
 \seealso{
-\link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}
+\link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}, \link{phao}, \link{passiflora}
 }
 \keyword{datasets}

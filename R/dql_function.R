@@ -33,6 +33,7 @@
 #' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
 #' @param angle.label label angle
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+#' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
 #' @keywords DQL
 #' @keywords Experimental
 #' @import ggplot2
@@ -48,7 +49,7 @@
 #'
 #' Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 #'
-#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #'
@@ -249,13 +250,14 @@ DQL=function(trat,
 
   if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 &&homog1$p.value<0.05){
     message("\n \nWarning!!! Your analysis is not valid, suggests using a try to transform the data")}else{}
-  # if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){
-  #   message("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric \ntest (DQL.art)")}else{}
-  dadosm=data.frame(letra1,
-                    media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
-                    desvio=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)],
-                    erro=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)]/
-                      sqrt(length(response[levels(trat)])))
+  if(point=="mean_sd"){
+    dadosm=data.frame(letra1,
+                      media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
+                      desvio=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)])}
+  if(point=="mean_se"){
+    dadosm=data.frame(letra1,
+                      media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
+                      desvio=tapply(response, trat, sd, na.rm=TRUE)/sqrt(tapply(response, trat, length))[rownames(letra1)])}
   dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
   dadosm$limite=dadosm$media+dadosm$desvio
   dadosm=dadosm[unique(as.character(trat)),]
@@ -265,7 +267,6 @@ DQL=function(trat,
   limite=dadosm$limite
   media=dadosm$media
   desvio=dadosm$desvio
-  erro=dadosm$erro
   letra=dadosm$letra
 
   if(geom=="bar"){grafico=ggplot(dadosm,

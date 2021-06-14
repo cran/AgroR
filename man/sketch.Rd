@@ -27,6 +27,7 @@ Experimental sketching function
 }
 \note{
 The sketches have only a rectangular shape, and the blocks (in the case of randomized blocks) can be in line or in a column.
+Mendiburu, F., & de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
 }
 \examples{
 Trat=paste("Treatments",1:6)

@@ -111,7 +111,7 @@ Multiple comparisons theory and methods. Departament of statistics the Ohio Stat
 
 Practical Nonparametrics Statistics. W.J. Conover, 1999
 
-Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 
 Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 

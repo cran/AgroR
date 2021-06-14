@@ -20,7 +20,10 @@ polynomial2(
   textsize = 12,
   ylim = NA,
   family = "sans",
-  width.bar = NA
+  width.bar = NA,
+  pointsize = 3,
+  separate = c("(\\"", "\\")"),
+  n = NA
 )
 }
 \arguments{
@@ -55,6 +58,12 @@ polynomial2(
 \item{family}{Font family (\emph{default} is sans)}
 
 \item{width.bar}{width of the error bars of a regression graph.}
+
+\item{pointsize}{Point size (\emph{default} is 4)}
+
+\item{separate}{Separation between treatment and equation (\emph{default} is c("(\"","\")"))}
+
+\item{n}{Number of decimal places for regression equations}
 }
 \value{
 Returns two or more linear, quadratic or cubic regression analyzes.
@@ -71,7 +80,7 @@ trat=rep(c("A","B","C"),e=12)
 polynomial2(dose, resp, trat, grau=c(1,2,3))
 }
 \seealso{
-\link{polynomial}
+\link{polynomial}, \link{polynomial2_color}
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

@@ -19,7 +19,7 @@
 #'   \item{\code{AT}}{Numeric vector titratable acidity}
 #'   \item{\code{ratio}}{Numeric vector with ratio (SS/AT)}
 #'   }
-#' @seealso \link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}
+#' @seealso \link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}, \link{phao}, \link{passiflora}
 #'
 #' @keywords datasets
 #'

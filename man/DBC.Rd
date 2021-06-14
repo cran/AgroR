@@ -100,12 +100,12 @@ This is a function of the AgroR package for statistical analysis of experiments 
 }
 \note{
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+
+CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
 }
 \examples{
 library(AgroR)
 data(laranja)
-attach(laranja)
-data("laranja")
 attach(laranja)
 DBC(trat, bloco, resp,
      mcomp = "sk",angle=45,
@@ -123,7 +123,7 @@ Multiple comparisons theory and methods. Departament of statistics the Ohio Stat
 
 Practical Nonparametrics Statistics. W.J. Conover, 1999
 
-Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 
 Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 

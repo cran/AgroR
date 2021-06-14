@@ -23,6 +23,6 @@ data(simulate1)
 attach(simulate1)
 }
 \seealso{
-\link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}
+\link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}, \link{phao}, \link{passiflora}, \link{aristolochia}
 }
 \keyword{datasets}

@@ -45,6 +45,9 @@ DIC(trat,resp)
 \references{
 Campbell, C. L., & Madden, L. V. (1990). Introduction to plant disease epidemiology. John Wiley & Sons.
 }
+\seealso{
+\link{transf}, \link{sketch}
+}
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}
 }

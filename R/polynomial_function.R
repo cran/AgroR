@@ -19,10 +19,11 @@
 #' @param se Adds confidence interval (\emph{default} is FALSE)
 #' @param width.bar width of the error bars of a regression graph.
 #' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").
+#' @param n Number of decimal places for regression equations
 #' @return Returns linear, quadratic or cubic regression analysis.
 #' @keywords Regression
 #' @keywords Experimental
-#' @seealso \link{polynomial2}
+#' @seealso \link{polynomial2}, \link{polynomial2_color}
 #' @export
 #' @examples
 #' data("phao")
@@ -45,7 +46,8 @@ polynomial=function(trat,
                family="sans",
                pointsize=4.5,
                decimal=".",
-               width.bar=NA)
+               width.bar=NA,
+               n=NA)
 {requireNamespace("ggplot2")
   if(is.na(width.bar)==TRUE){width.bar=0.1*mean(trat)}
   if(is.na(grau)==TRUE){grau=1}
@@ -100,36 +102,48 @@ polynomial=function(trat,
   if(grau=="1"){r2=round(summary(modm)$r.squared, 2)}
   if(grau=="2"){r2=round(summary(mod1m)$r.squared, 2)}
   if(grau=="3"){r2=round(summary(mod2m)$r.squared, 2)}
-  if(grau=="1"){s1=s <- sprintf("y == %e %s %e*x ~~~~~ italic(R^2) == %0.2f",
-                                coef(moda)[1],
-                                ifelse(coef(moda)[2] >= 0, "+", "-"),
-                                abs(coef(moda)[2]),
+  if(grau=="1"){
+    if(is.na(n)==FALSE){coef1=round(coef(moda)[1],n)}else{coef1=coef(moda)[1]}
+    if(is.na(n)==FALSE){coef2=round(coef(moda)[2],n)}else{coef2=coef(moda)[2]}
+    s1=s <- sprintf("y == %e %s %e*x ~~~~~ italic(R^2) == %0.2f",
+                                coef1,
+                                ifelse(coef2 >= 0, "+", "-"),
+                                abs(coef2),
                                 r2)}
-  if(grau=="2"){s2=s <- sprintf("y == %e %s %e * x %s %e * x^2 ~~~~~ italic(R^2) ==  %0.2f",
-                                coef(mod1a)[1],
-                                ifelse(coef(mod1a)[2] >= 0, "+", "-"),
-                                abs(coef(mod1a)[2]),
-                                ifelse(coef(mod1a)[3] >= 0, "+", "-"),
-                                abs(coef(mod1a)[3]),
+  if(grau=="2"){
+    if(is.na(n)==FALSE){coef1=round(coef(mod1a)[1],n)}else{coef1=coef(mod1a)[1]}
+    if(is.na(n)==FALSE){coef2=round(coef(mod1a)[2],n)}else{coef2=coef(mod1a)[2]}
+    if(is.na(n)==FALSE){coef3=round(coef(mod1a)[3],n)}else{coef3=coef(mod1a)[3]}
+    s2=s <- sprintf("y == %e %s %e * x %s %e * x^2 ~~~~~ italic(R^2) ==  %0.2f",
+                                coef1,
+                                ifelse(coef2 >= 0, "+", "-"),
+                                abs(coef2),
+                                ifelse(coef3 >= 0, "+", "-"),
+                                abs(coef3),
                                 r2)}
-  if(grau=="3"){s3=s <- sprintf("y == %e %s %e * x %s %e * x^2 %s %0.e * x^3 ~~~~~ italic(R^2) == %0.2f",
-                                coef(mod2a)[1],
-                                ifelse(coef(mod2a)[2] >= 0, "+", "-"),
-                                abs(coef(mod2a)[2]),
-                                ifelse(coef(mod2a)[3] >= 0, "+", "-"),
-                                abs(coef(mod2a)[3]),
-                                ifelse(coef(mod2a)[4] >= 0, "+", "-"),
-                                abs(coef(mod2a)[4]),
+  if(grau=="3"){
+    if(is.na(n)==FALSE){coef1=round(coef(mod2a)[1],n)}else{coef1=coef(mod2a)[1]}
+    if(is.na(n)==FALSE){coef2=round(coef(mod2a)[2],n)}else{coef2=coef(mod2a)[2]}
+    if(is.na(n)==FALSE){coef3=round(coef(mod2a)[3],n)}else{coef3=coef(mod2a)[3]}
+    if(is.na(n)==FALSE){coef4=round(coef(mod2a)[4],n)}else{coef4=coef(mod2a)[4]}
+    s3=s <- sprintf("y == %e %s %e * x %s %e * x^2 %s %0.e * x^3 ~~~~~ italic(R^2) == %0.2f",
+                                coef1,
+                                ifelse(coef2 >= 0, "+", "-"),
+                                abs(coef2),
+                                ifelse(coef3 >= 0, "+", "-"),
+                                abs(coef3),
+                                ifelse(coef4 >= 0, "+", "-"),
+                                abs(coef4),
                                 r2)}
   data1=data.frame(trat,resp)
-  data1=data.frame(trat=as.numeric(as.character(names(media))),
+  data1=data.frame(trat=dose,#as.numeric(as.character(names(media))),
                    resp=media,
                    desvio, erro)
   grafico=ggplot(data1,aes(x=trat,y=resp))
   if(point=="all"){grafico=grafico+
     geom_point(data=dados,
                aes(y=resp,x=trat),shape=21,
-               color="black")}
+               fill=color,color="black")}
   if(point=="mean_sd"){grafico=grafico+
     geom_errorbar(aes(ymin=resp-desvio,ymax=resp+desvio),width=width.bar)}
   if(point=="mean_se"){grafico=grafico+

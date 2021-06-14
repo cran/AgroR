@@ -41,7 +41,7 @@
 #'
 #' Practical Nonparametrics Statistics. W.J. Conover, 1999
 #'
-#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentação em Genética e Melhoramento de Plantas. Editora UFLA.
+#' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #'
@@ -90,6 +90,11 @@ FAT3DBC=function(f1,
     fator1=f1
     fator2=f2
     fator3=f3
+    fator1a=fator1
+    fator2a=fator2
+    fator3a=fator3
+
+
     bloco=block
     fac.names=names.fat
     requireNamespace("ScottKnott")
@@ -307,24 +312,22 @@ FAT3DBC=function(f1,
                 print(grafico)}
             }
 
-            if(quali[i]==TRUE && anavaF3[i,5]>alpha.f) {
+            if(quali[i]==TRUE | quali[i]==FALSE && anavaF3[i,5]>alpha.f) {
+                cat(green(bold("\n------------------------------------------\n")))
                 cat(fac.names[i])
                 cat(green(bold("\n------------------------------------------\n")))
-            #     cat('According to the F test, the means of this factor are statistically equal')
-            # cat(green(bold("\n------------------------------------------")))
                 mean.table<-tapply.stat(response,fatores[,i],mean)
                 colnames(mean.table)<-c('Niveis','Medias')
                 print(mean.table)
-                grafico=NA
-                cat(green(bold("\n------------------------------------------")))}
+                grafico=NA}
 
             # Regressão
             if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
                 cat(fac.names[i])
                 dose=as.numeric(as.character(as.vector(unlist(fatores[,i]))))
                 grafico=polynomial(dose,resp,grau = grau)
-                cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))}
-            cat('\n')
+                cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
+                cat(green(bold("\n------------------------------------------")))}
             graficos[[i]]=grafico
         }
     }
@@ -364,6 +367,7 @@ FAT3DBC=function(f1,
                     respi=resp[Fator2 == lf2[i]]
                     mod=aov(respi~trati)
                     tukey=HSD.test(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                    if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                     tukeygrafico[[i]]=tukey$groups[levels(trati),2]
                     ordem[[i]]=rownames(tukey$groups[levels(trati),])
                     }
@@ -413,7 +417,7 @@ FAT3DBC=function(f1,
                     trati=fatores[, 1][Fator2 == lf2[i]]
                     trati=factor(trati,levels = unique(trati))
                     respi=resp[Fator2 == lf2[i]]
-                    sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                    sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                     if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
                     skgrafico[[i]]=sk[levels(trati),2]
                     ordem[[i]]=rownames(sk[levels(trati),])
@@ -454,6 +458,7 @@ FAT3DBC=function(f1,
                         respi=resp[Fator1 == lf1[i]]
                         mod=aov(respi~trati)
                         tukey=HSD.test(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                         tukeygrafico1[[i]]=tukey$groups[levels(trati),2]
                         }
                     letra1=unlist(tukeygrafico1)
@@ -464,6 +469,7 @@ FAT3DBC=function(f1,
                         trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
                         respi=resp[Fator1 == lf1[i]]
                         duncan=duncan.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){duncan$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
                         duncangrafico1[[i]]=duncan$groups[levels(trati),2]
                         }
                     letra1=unlist(duncangrafico1)
@@ -474,6 +480,7 @@ FAT3DBC=function(f1,
                         trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
                         respi=resp[Fator1 == lf1[i]]
                         lsd=LSD.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){lsd$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
                         lsdgrafico1[[i]]=lsd$groups[levels(trati),2]
                         }
                     letra1=unlist(lsdgrafico1)
@@ -484,7 +491,8 @@ FAT3DBC=function(f1,
                         trati=fatores[, 2][Fator1 == lf1[i]]
                         trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator1 == lf1[i]]
-                        sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
+                        if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
                         skgrafico1[[i]]=sk[levels(trati),2]
                         }
                     letra1=unlist(skgrafico1)
@@ -538,24 +546,113 @@ FAT3DBC=function(f1,
                 }
         if(quali[1]==FALSE | quali[2]==FALSE){
             if(quali[1]==FALSE){
-                Fator1=as.numeric(as.character(Fator1))
-                colint1=polynomial2(Fator1,
+                if (mcomp == "tukey"){
+                    for (i in 1:nv1) {
+                        trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
+                        respi=resp[Fator1 == lf1[i]]
+                        mod=aov(respi~trati)
+                        tukey=HSD.test(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(tukey$groups)}}
+                if (mcomp == "duncan"){
+                    for (i in 1:nv1) {
+                        trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
+                        respi=resp[Fator1 == lf1[i]]
+                        duncan=duncan.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){duncan$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(duncan$groups)}}
+                if (mcomp == "lsd"){
+                    for (i in 1:nv1) {
+                        trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
+                        respi=resp[Fator1 == lf1[i]]
+                        lsd=LSD.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){lsd$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(lsd$groups)}}
+                if (mcomp == "sk"){
+                    for (i in 1:nv1) {
+                        trati=fatores[, 2][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator1 == lf1[i]]
+                        sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
+                        if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F2 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(sk)}}}
+            if(quali[1]==FALSE){
+                Fator1a=fator1a#as.numeric(as.character(Fator1))
+                colint1=polynomial2(Fator1a,
                                     response,
                                     Fator3,
                                     grau = grau,
                                     ylab=ylab,
                                     xlab=xlab,
                                     theme=theme)}
-            if(quali[1]==TRUE){
-                Fator2=as.numeric(as.character(Fator2))
-                colint1=polynomial2(Fator2,
+            if(quali[2]==FALSE){
+                if (mcomp == "tukey"){
+                    for (i in 1:nv2) {
+                        trati=fatores[, 1][Fator2 == lf2[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator2 == lf2[i]]
+                        mod=aov(respi~trati)
+                        tukey=HSD.test(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(tukey$groups)}}
+                if (mcomp == "duncan"){
+                    for (i in 1:nv2) {
+                        trati=fatores[, 1][Fator2 == lf2[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator2 == lf2[i]]
+                        duncan=duncan.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){duncan$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(duncan$groups)}}
+                if (mcomp == "lsd"){
+                    for (i in 1:nv2) {
+                        trati=fatores[, 1][Fator2 == lf2[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator2 == lf2[i]]
+                        lsd=LSD.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){lsd$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(lsd$groups)}}
+                if (mcomp == "sk"){
+                    for (i in 1:nv2) {
+                        trati=fatores[, 1][Fator2 == lf2[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator2 == lf2[i]]
+                        sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
+                        if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf2[i],"of F2")
+                        cat("\n----------------------\n")
+                        print(sk)}}
+                }
+            if(quali[2]==FALSE){
+                Fator2a=fator2a#as.numeric(as.character(Fator2))
+                colint1=polynomial2(Fator2a,
                                     response,
                                     Fator1,
                                     grau = grau,
                                     ylab=ylab,
                                     xlab=xlab,
                                     theme=theme)}
-            cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command"))}
+            cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))}
 
         #Checar o Fator3
         if(anavaF3[6,5]>alpha.f && anavaF3[7,5]>alpha.f) {
@@ -724,7 +821,7 @@ FAT3DBC=function(f1,
                 trati=fatores[, 1][Fator3 == lf3[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator3 == lf3[i]]
-                sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                 skgrafico[[i]]=sk[levels(trati),2]
                 ordem[[i]]=rownames(sk[levels(trati),])
                 }
@@ -805,7 +902,7 @@ FAT3DBC=function(f1,
                         trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator1 == lf1[i]]
                         mod=aov(respi~trati)
-                        sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                        sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                         skgrafico1[[i]]=sk[levels(trati),2]
                         }
                     letra1=unlist(skgrafico1)
@@ -863,24 +960,116 @@ FAT3DBC=function(f1,
         }
         if(quali[1]==FALSE | quali[3]==FALSE){
             if(quali[1]==FALSE){
-                Fator3=as.numeric(as.character(Fator3))
-                colint2=polynomial2(Fator1,
+                if (mcomp == "tukey"){
+                    for (i in 1:nv1) {
+                        trati=fatores[, 3][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator1 == lf1[i]]
+                        mod=aov(respi~trati)
+                        tukey=HSD.test(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F3 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(tukey$groups)}}
+                if (mcomp == "duncan"){
+                    for (i in 1:nv3) {
+                        trati=fatores[, 3][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator1 == lf1[i]]
+                        duncan=duncan.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){duncan$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F3 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(duncan$groups)}}
+                if (mcomp == "lsd"){
+                    for (i in 1:nv3) {
+                        trati=fatores[, 3][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator1 == lf1[i]]
+                        lsd=LSD.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){lsd$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F3 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(lsd$groups)}}
+                if (mcomp == "sk"){
+                    for (i in 1:nv1) {
+                        trati=fatores[, 3][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator1 == lf1[i]]
+                        mod=aov(respi~trati)
+                        sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                        if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F3 within level",lf1[i],"of F1")
+                        cat("\n----------------------\n")
+                        print(sk)}}}
+            if(quali[1]==FALSE){
+                Fator1a=fator1a#as.numeric(as.character(Fator3))
+                colint2=polynomial2(Fator1a,
                                     response,
                                     Fator3,
                                     grau = grau,
                                     ylab=ylab,
                                     xlab=xlab,
                                     theme=theme)}
-            if(quali[1]==TRUE){
-                Fator3=as.numeric(as.character(Fator3))
-                colint2=polynomial2(Fator3,
+            if(quali[3]==FALSE){
+                if (mcomp == "tukey"){
+                    for (i in 1:nv3) {
+                        trati=fatores[, 1][Fator3 == lf3[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator3 == lf3[i]]
+                        tukey=HSD.test(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
+                        if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf3[i],"of F3")
+                        cat("\n----------------------\n")
+                        print(tukey$groups)}}
+                if (mcomp == "duncan"){
+                    for (i in 1:nv3) {
+                        trati=fatores[, 1][Fator3 == lf3[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator3 == lf3[i]]
+                        duncan=duncan.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){duncan$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf3[i],"of F3")
+                        cat("\n----------------------\n")
+                        print(duncan$groups)}}
+                if (mcomp == "lsd"){
+                    for (i in 1:nv3) {
+                        trati=fatores[, 1][Fator3 == lf3[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator3 == lf3[i]]
+                        lsd=LSD.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){lsd$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf3[i],"of F3")
+                        cat("\n----------------------\n")
+                        print(lsd$groups)}}
+                if (mcomp == "sk"){
+                    for (i in 1:nv3) {
+                        trati=fatores[, 1][Fator3 == lf3[i]]
+                        trati=factor(trati,levels = unique(trati))
+                        respi=resp[Fator3 == lf3[i]]
+                        sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
+                        cat("\n----------------------\n")
+                        cat("Multiple comparison of F1 within level",lf3[i],"of F3")
+                        cat("\n----------------------\n")
+                        print(sk)}}}
+            if(quali[3]==FALSE){
+                Fator3a=fator3a#as.numeric(as.character(Fator3))
+                colint2=polynomial2(Fator3a,
                                     response,
                                     Fator1,
                                     grau = grau,
                                     ylab=ylab,
                                     xlab=xlab,
                                     theme=theme)}
-        cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command"))
+        cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))
         }
 
         #Checar o Fator2
@@ -1052,7 +1241,7 @@ FAT3DBC=function(f1,
                     trati=fatores[, 2][Fator3 == lf3[i]]
                     trati=factor(trati,levels = unique(trati))
                     respi=resp[Fator3 == lf3[i]]
-                    sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                    sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                     skgrafico[[i]]=sk[levels(trati),2]
                     ordem[[i]]=rownames(sk[levels(trati),])
                     }
@@ -1125,7 +1314,7 @@ FAT3DBC=function(f1,
                         trati=fatores[, 3][Fator2 == lf2[i]]
                         trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator2 == lf2[i]]
-                        sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                        sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                         skgrafico1[[i]]=sk[levels(trati),2]
                         }
                     letra1=unlist(skgrafico1)
@@ -1176,27 +1365,120 @@ FAT3DBC=function(f1,
                     cat(green(bold("\n------------------------------------------\n")))
                     print(matriz)
                     cat("\n\nAverages followed by the same lowercase letter in the column and \nuppercase in the row do not differ by the",mcomp,"(p<",alpha.t,")")
-                }
+            }
             if(quali[2]==FALSE | quali[3]==FALSE){
                 if(quali[2]==FALSE){
-                    Fator2=as.numeric(as.character(Fator2))
-                    colint3=polynomial2(Fator2,
+                    if (mcomp == "tukey"){
+                        for (i in 1:nv2) {
+                            trati=fatores[, 3][Fator2 == lf2[i]]
+                            trati=factor(trati,levels = unique(trati))
+                            respi=resp[Fator2 == lf2[i]]
+                            mod=aov(respi~trati)
+                            tukey=HSD.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                            if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
+                            cat("\n----------------------\n")
+                            cat("Multiple comparison of F3 within level",lf2[i],"of F2")
+                            cat("\n----------------------\n")
+                            print(tukey$groups)}}
+                    if (mcomp == "duncan"){
+                        for (i in 1:nv2) {
+                            trati=fatores[, 3][Fator2 == lf2[i]]
+                            trati=factor(trati,levels = unique(trati))
+                            respi=resp[Fator2 == lf2[i]]
+                            duncan=duncan.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                            if(transf !="1"){duncan$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
+                            cat("\n----------------------\n")
+                            cat("Multiple comparison of F3 within level",lf2[i],"of F2")
+                            cat("\n----------------------\n")
+                            print(duncan$groups)}}
+                    if (mcomp == "lsd"){
+                        for (i in 1:nv2) {
+                            trati=fatores[, 3][Fator2 == lf2[i]]
+                            trati=factor(trati,levels = unique(trati))
+                            respi=resp[Fator2 == lf2[i]]
+                            lsd=LSD.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                            if(transf !="1"){lsd$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
+                            cat("\n----------------------\n")
+                            cat("Multiple comparison of F3 within level",lf2[i],"of F2")
+                            cat("\n----------------------\n")
+                            print(lsd$groups)}}
+                    if (mcomp == "sk"){
+                        for (i in 1:nv2) {
+                            trati=fatores[, 3][Fator2 == lf2[i]]
+                            trati=factor(trati,levels = unique(trati))
+                            respi=resp[Fator2 == lf2[i]]
+                            sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
+                            if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
+                            cat("\n----------------------\n")
+                            cat("Multiple comparison of F3 within level",lf2[i],"of F2")
+                            cat("\n----------------------\n")
+                            print(sk)}}}
+                if(quali[2]==FALSE){
+                    Fator2a=fator2a#as.numeric(as.character(Fator2))
+                    colint3=polynomial2(Fator2a,
                                         response,
                                         Fator3,
                                         grau = grau,
                                         ylab=ylab,
                                         xlab=xlab,
                                         theme=theme)}
-                if(quali[2]==TRUE){
-                    Fator3=as.numeric(as.character(Fator3))
-                    colint3=polynomial2(Fator3,
+                if(quali[3]==FALSE){
+                    if (mcomp == "tukey"){
+                        for (i in 1:nv3) {
+                            trati=fatores[, 2][Fator3 == lf3[i]]
+                            trati=factor(trati,levels = unique(trati))
+                            respi=resp[Fator3 == lf3[i]]
+                            mod=aov(respi~trati)
+                            tukey=HSD.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                            if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
+                            cat("\n----------------------\n")
+                            cat("Multiple comparison of F2 within level",lf3[i],"of F3")
+                            cat("\n----------------------\n")
+                            print(tukey)}}
+                    if (mcomp == "duncan"){
+                        for (i in 1:nv3) {
+                            trati=fatores[, 2][Fator3 == lf3[i]]
+                            trati=factor(trati,levels = unique(trati))
+                            respi=resp[Fator3 == lf3[i]]
+                            duncan=duncan.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                            if(transf !="1"){duncan$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
+                            cat("\n----------------------\n")
+                            cat("Multiple comparison of F2 within level",lf3[i],"of F3")
+                            cat("\n----------------------\n")
+                            print(duncan)}}
+                    if (mcomp == "lsd"){
+                        for (i in 1:nv3) {
+                            trati=fatores[, 2][Fator3 == lf3[i]]
+                            trati=factor(trati,levels = unique(trati))
+                            respi=resp[Fator3 == lf3[i]]
+                            lsd=LSD.test(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                            if(transf !="1"){lsd$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
+                            cat("\n----------------------\n")
+                            cat("Multiple comparison of F2 within level",lf3[i],"of F3")
+                            cat("\n----------------------\n")
+                            print(lsd)}}
+                    if (mcomp == "sk"){
+                        for (i in 1:nv3) {
+                            trati=fatores[, 2][Fator3 == lf3[i]]
+                            trati=factor(trati,levels = unique(trati))
+                            respi=resp[Fator3 == lf3[i]]
+                            sk=sk_triple(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
+                            if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
+                            cat("\n----------------------\n")
+                            cat("Multiple comparison of F2 within level",lf3[i],"of F3")
+                            cat("\n----------------------\n")
+                            print(sk)}}}
+                if(quali[3]==FALSE){
+                    Fator3a=fator3a#as.numeric(as.character(Fator3))
+                    colint3=polynomial2(Fator3a,
                                         response,
                                         Fator2,
                                         grau = grau,
                                         ylab=ylab,
                                         xlab=xlab,
                                         theme=theme)}
-                cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command"))
+
+                cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))
             }
 
             #Checar o Fator1
@@ -1359,8 +1641,8 @@ FAT3DBC=function(f1,
 
                         sk=sk_triple(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                                     fat1,
-                                    anavaF3[9,1],
-                                    anavaF3[9,3],
+                                    anavaF3$Df[9],
+                                    anavaF3$`Sum Sq`[9],
                                     alpha.t)
                     colnames(sk)=c("resp","letters")
                     sk=sk[as.character(unique(fat1)),]
@@ -1444,8 +1726,8 @@ FAT3DBC=function(f1,
                         levels(fat1)=1:length(levels(fat1))
                         sk=sk_triple(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                                                   fat1,
-                                                  anavaF3[9,1],
-                                                  anavaF3[9,3],
+                                                  anavaF3$`Sum Sq`[9],
+                                                  anavaF3$`Sum Sq`[9],
                                                   alpha.t)
                     colnames(sk)=c("resp","letters")
                     sk=sk[as.character(unique(fat1)),]
@@ -1529,8 +1811,8 @@ FAT3DBC=function(f1,
                         levels(fat1)=1:length(levels(fat1))
                         sk=sk_triple(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                                  fat1,
-                                                 anavaF3[9,1],
-                                                 anavaF3[9,2],
+                                                 anavaF3$Df[9],
+                                                 anavaF3$`Sum Sq`[9],
                                                  alpha.t)
                     colnames(sk)=c("resp","letters")
                     sk=sk[as.character(unique(fat1)),]
@@ -1554,17 +1836,17 @@ FAT3DBC=function(f1,
         if(anavaF3[1,5]<=alpha.f | anavaF3[2,5]<=alpha.f | anavaF3[3,5]<=alpha.f){
         graficos=graficos
         graficos}else{graficos=NA}}
-     if(anavaF3[8,5]>alpha.f && anavaF3[5,5]<=alpha.f){
+    if(anavaF3[8,5]>alpha.f && anavaF3[5,5]<=alpha.f){
          graficos=list(colint1)
          if(anavaF3[6,5]>alpha.f && anavaF3[7,5]>alpha.f && anavaF3[3,5]<=alpha.f){
              graficos=list(colint1,grafico1)}
          graficos}
-     if(anavaF3[8,5]>alpha.f && anavaF3[6,5]<=alpha.f){
+    if(anavaF3[8,5]>alpha.f && anavaF3[6,5]<=alpha.f){
          graficos=list(colint2)
          if(anavaF3[5,5]>alpha.f && anavaF3[7,5]>alpha.f && anavaF3[2,5]<=alpha.f){
              graficos=list(colint2,grafico2)}
          graficos}
-     if(anavaF3[8,5]>alpha.f && anavaF3[7,5]<=alpha.f){
+    if(anavaF3[8,5]>alpha.f && anavaF3[7,5]<=alpha.f){
          graficos=list(colint3)
          if(anavaF3[5,5]>alpha.f && anavaF3[6,5]>alpha.f && anavaF3[1,5]<=alpha.f){
              graficos=list(colint3,grafico3)}}
