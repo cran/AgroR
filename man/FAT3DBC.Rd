@@ -97,6 +97,8 @@ Analysis of an experiment conducted in a randomized block design in a triple fac
 }
 \note{
 The function does not perform multiple regression in the case of two or more quantitative factors. The bars of the column and segment graphs are standard deviation.
+
+In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 }
 \examples{
 library(AgroR)
@@ -105,7 +107,7 @@ attach(enxofre)
 FAT3DBC(f1, f2, f3, bloco, resp)
 }
 \references{
-Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
+Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 
 Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 
@@ -115,9 +117,9 @@ Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e 
 
 Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 
-Ferreira, E. B., Cavalcanti, P. P., & Nogueira, D. A. (2014). ExpDes: an R package for ANOVA and experimental designs. Applied Mathematics, 5(19), 2952.
+Ferreira, E. B., Cavalcanti, P. P., and Nogueira, D. A. (2014). ExpDes: an R package for ANOVA and experimental designs. Applied Mathematics, 5(19), 2952.
 
-Mendiburu, F., & de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
+Mendiburu, F., and de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

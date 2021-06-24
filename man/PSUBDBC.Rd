@@ -93,7 +93,7 @@ PSUBDBC(
 
 \item{posi}{Legend position}
 
-\item{angle.label}{label angle}
+\item{angle.label}{Label angle}
 }
 \value{
 The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
@@ -103,6 +103,8 @@ Analysis of an experiment conducted in a randomized block design in a split-plot
 }
 \note{
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+
+In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 }
 \examples{
 library(AgroR)
@@ -111,7 +113,7 @@ attach(tomate)
 PSUBDBC(parc, subp, bloco, resp)
 }
 \references{
-Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
+Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 
 Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 

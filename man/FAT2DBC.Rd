@@ -111,6 +111,8 @@ Analysis of an experiment conducted in a randomized block design in a double fac
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 
 The function does not perform multiple regression in the case of two quantitative factors.
+
+In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 }
 \examples{
 library(AgroR)
@@ -119,7 +121,7 @@ attach(cloro)
 FAT2DBC(f1, f2, bloco, resp, ylab="Number of nodules", legend = "Stages")
 }
 \references{
-Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
+Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 
 Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 
@@ -129,7 +131,7 @@ Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e 
 
 Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 
-Mendiburu, F., & de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
+Mendiburu, F., and de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
 }
 \seealso{
 \link{FAT2DBC.ad}, \link{FAT2DBC.art}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/coric_function.R
 \name{cor_ic}
 \alias{cor_ic}
-\title{Graph: plot Pearson correlation with interval of confidence}
+\title{Graph: Plot Pearson correlation with interval of confidence}
 \usage{
 cor_ic(
   data,
@@ -27,7 +27,7 @@ cor_ic(
 The function returns a new graphical approach to correlation.
 }
 \description{
-Graph: plot Pearson correlation with interval of confidence
+Graph: Plot Pearson correlation with interval of confidence
 }
 \examples{
 data("pomegranate")

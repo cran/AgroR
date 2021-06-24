@@ -6,7 +6,7 @@
 #' @return Returns a vector with the area values under the curve
 #' @references
 #'
-#' Campbell, C. L., & Madden, L. V. (1990). Introduction to plant disease epidemiology. John Wiley & Sons.
+#' Campbell, C. L., and Madden, L. V. (1990). Introduction to plant disease epidemiology. John Wiley and Sons.
 #'
 #' @seealso \link{transf}, \link{sketch}
 #' @examples

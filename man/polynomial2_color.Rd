@@ -22,6 +22,7 @@ polynomial2_color(
   family = "sans",
   width.bar = NA,
   pointsize = 5,
+  linesize = 0.8,
   separate = c("(\\"", "\\")"),
   n = NA
 )
@@ -60,6 +61,8 @@ polynomial2_color(
 \item{width.bar}{width of the error bars of a regression graph.}
 
 \item{pointsize}{Point size (\emph{default} is 4)}
+
+\item{linesize}{line size (Trendline and Error Bar)}
 
 \item{separate}{Separation between treatment and equation (\emph{default} is c("(\"","\")"))}
 

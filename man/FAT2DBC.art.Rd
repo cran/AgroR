@@ -50,9 +50,9 @@ attach(cloro)
 FAT2DBC.art(f1,f2,bloco,resp)
 }
 \references{
-Wobbrock, J. O., Findlater, L., Gergle, D., & Higgins, J. J. (2011, May). The aligned rank transform for nonparametric factorial analyses using only anova procedures. In Proceedings of the SIGCHI conference on human factors in computing systems (pp. 143-146).
+Wobbrock, J. O., Findlater, L., Gergle, D., Higgins, J. J. (2011, May). The aligned rank transform for nonparametric factorial analyses using only anova procedures. In Proceedings of the SIGCHI conference on human factors in computing systems (pp. 143-146).
 
-Kay, M., & Wobbrock, J. O. (2020). Package ‘ARTool’.
+Kay, M., Wobbrock, J. O. (2020). Package ‘ARTool’.
 }
 \seealso{
 \link{FAT2DBC}

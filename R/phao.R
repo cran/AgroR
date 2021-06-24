@@ -18,7 +18,7 @@
 #'   \item{\code{comp}}{Numeric vector with leaf length}
 #'   }
 #' @seealso \link{pomegranate}, \link{passiflora}, \link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{weather}
-#' @references de Paula, J. C. B., Júnior, W. A. R., Shimizu, G. D., Men, G. B., & de Faria, R. T. (2020). Fertilizante de liberacao controlada no crescimento inicial da orquidea \emph{Phalaenopsis} sp. Revista Cultura Agronomica, 29(2), 289-299.
+#' @references de Paula, J. C. B., Junior, W. A. R., Shimizu, G. D., Men, G. B., & de Faria, R. T. (2020). Fertilizante de liberacao controlada no crescimento inicial da orquidea \emph{Phalaenopsis} sp. Revista Cultura Agronomica, 29(2), 289-299.
 #' @keywords datasets
 #'
 #' @examples

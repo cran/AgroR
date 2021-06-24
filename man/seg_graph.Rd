@@ -2,7 +2,7 @@
 % Please edit documentation in R/seggraph_function.R
 \name{seg_graph}
 \alias{seg_graph}
-\title{Graph: segment graph for one factor}
+\title{Graph: Segment graph for one factor}
 \usage{
 seg_graph(model, fill = "lightblue", horiz = TRUE, pointsize = 4.5)
 }

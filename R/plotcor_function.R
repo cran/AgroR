@@ -1,4 +1,4 @@
-#' Graph: plot correlation
+#' Graph: Plot correlation
 #' @description Correlation analysis function (Pearson or Spearman)
 #' @param x Numeric vector with independent variable
 #' @param y Numeric vector with dependent variable

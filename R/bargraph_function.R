@@ -1,4 +1,4 @@
-#' Graph: bar graph for one factor
+#' Graph: Bar graph for one factor
 #'
 #' @description This is a function of the bar graph for one factor
 #' @author Gabriel Danilo Shimizu, \email{shimizu@uel.br}

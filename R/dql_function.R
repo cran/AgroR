@@ -34,6 +34,7 @@
 #' @param angle.label label angle
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
+#' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 #' @keywords DQL
 #' @keywords Experimental
 #' @import ggplot2
@@ -45,7 +46,7 @@
 #' @import stats
 #' @references
 #'
-#' Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
+#' Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 #'
 #' Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 #'
@@ -53,7 +54,7 @@
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #'
-#' Mendiburu, F., & de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
+#' Mendiburu, F., and de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
 #'
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 #' @seealso \link{DIC}, \link{DBC}

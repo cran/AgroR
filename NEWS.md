@@ -1,3 +1,14 @@
+# AgroR 1.2.1
+
+
+## Minor changes
+
+* Correction of `CV` for `FAT2DIC` and `FAT2DBC`. Before, I was extracting the QM from the interaction by making the QM from the residue. 
+
+* The `transf` function suggestion issue has been fixed.
+
+* The `linesize` argument was implemented in `polynomial`, `polynomial2` and `polynomial2_color`
+
 # AgroR 1.2.0
 
 ## Major changes

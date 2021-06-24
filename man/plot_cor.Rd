@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotcor_function.R
 \name{plot_cor}
 \alias{plot_cor}
-\title{Graph: plot correlation}
+\title{Graph: Plot correlation}
 \usage{
 plot_cor(
   x,

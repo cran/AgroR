@@ -32,6 +32,7 @@
 #' @param posi Legend position
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
+#' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 #' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
 #' @param angle.label label angle
 #' @keywords DBC
@@ -46,7 +47,7 @@
 #' @import stats
 #' @references
 #'
-#' Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
+#' Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 #'
 #' Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 #'
@@ -56,7 +57,7 @@
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #'
-#' Mendiburu, F., & de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
+#' Mendiburu, F., and de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
 #'
 #' @seealso \link{DIC}, \link{DQL}
 #' @export

@@ -86,7 +86,7 @@ FAT2DIC(
 
 \item{angle}{x-axis scale text rotation}
 
-\item{posi}{legend position}
+\item{posi}{Legend position}
 
 \item{family}{Font family}
 
@@ -96,7 +96,7 @@ FAT2DIC(
 
 \item{ylim}{y-axis scale}
 
-\item{angle.label}{label angle}
+\item{angle.label}{Label angle}
 }
 \value{
 The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.
@@ -108,6 +108,8 @@ Analysis of an experiment conducted in a completely randomized design in a doubl
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 
 The function does not perform multiple regression in the case of two quantitative factors.
+
+In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 }
 \examples{
 library(AgroR)

@@ -119,6 +119,8 @@ The ordering of the graph is according to the sequence in which the factor level
 The function does not perform multiple regression in the case of two quantitative factors.
 
 The assumptions of variance analysis disregard additional treatment
+
+In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 }
 \examples{
 library(AgroR)

@@ -82,6 +82,8 @@ Function of the AgroR package for joint analysis of experiments conducted in a r
 }
 \note{
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+
+In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 }
 \examples{
 library(AgroR)
@@ -92,7 +94,7 @@ conjdbc(trat, bloco, exp, resp)
 \references{
 Ferreira, P. V. Estatistica experimental aplicada a agronomia. Edufal, 2018.
 
-Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
+Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 
 Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 

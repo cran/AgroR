@@ -16,7 +16,7 @@
 #' attach(passiflora)
 #' a=DBC(trat,bloco,MSPA)
 #' b=DBC(trat,bloco,MSR)
-#' barplot_positive(a,b,var_name = c("DMAP","DRM"),ylab = "Dry root (g)")
+#' barplot_positive(a, b, var_name = c("DMAP","DRM"), ylab = "Dry root (g)")
 
 barplot_positive=function(a,
                           b,

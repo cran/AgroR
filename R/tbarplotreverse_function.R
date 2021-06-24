@@ -17,6 +17,7 @@
 #' TBARPLOT.reverse(a)
 
 TBARPLOT.reverse=function(plot.t){
+  a=plot.t
   colo=a$plot$fill
   sup=a$plot$sup
   labelsize=a$plot$labelsize

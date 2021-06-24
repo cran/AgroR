@@ -20,6 +20,7 @@
 #' @param posi Legend position
 #' @param width.bar width of the error bars of a regression graph.
 #' @param pointsize Point size (\emph{default} is 4)
+#' @param linesize line size (Trendline and Error Bar)
 #' @param separate Separation between treatment and equation (\emph{default} is c("(\"","\")"))
 #' @param n Number of decimal places for regression equations
 #' @keywords regression
@@ -52,6 +53,7 @@ polynomial2=function(fator1,
                      family="sans",
                      width.bar=NA,
                      pointsize=3,
+                     linesize=0.8,
                      separate=c("(\"","\")"),
                      n=NA){
   if(is.na(width.bar)==TRUE){width.bar=0.05*mean(fator1)}
@@ -70,14 +72,14 @@ polynomial2=function(fator1,
     ylab(ylab)+
     xlab(xlab)
   if(point=="mean_sd"){grafico=grafico+
-    stat_summary(aes(group=fator2),fun = mean,size=0.7,
+    stat_summary(aes(group=fator2),fun = mean,size=linesize,
                  geom = "errorbar",na.rm=TRUE,
                  fun.max = function(x) mean(x) + sd(x),
                  fun.min = function(x) mean(x) - sd(x),width=width.bar)+
     stat_summary(aes(shape=fator2),fun="mean",  geom="point", size=pointsize, na.rm=TRUE)}
   if(point=="mean_se"){grafico=grafico+
     stat_summary(aes(group=fator2),fun.data=mean_se, geom="errorbar",
-                 na.rm=TRUE,width=width.bar,size=0.7)+
+                 na.rm=TRUE,width=width.bar,size=linesize)+
     stat_summary(aes(shape=fator2,group=fator2),fun="mean",  geom="point",na.rm=TRUE,
                  size=pointsize)}
   if(point=="mean"){grafico=grafico+
@@ -105,11 +107,11 @@ polynomial2=function(fator1,
       }
     fats=as.character(unique(Fator2)[i])
     if(adj==1){grafico=grafico+geom_smooth(data = data[fator2==levels(Fator2)[i],],aes(color=unique(fator2),lty=unique(fator2)),
-                                           method="lm", formula = y~x,na.rm=TRUE, se=se,size=0.8, show.legend=FALSE)}
+                                           method="lm", formula = y~x,na.rm=TRUE, se=se,size=linesize, show.legend=FALSE)}
     if(adj==2){grafico=grafico+geom_smooth(data = data[fator2==levels(Fator2)[i],],aes(color=unique(fator2),lty=unique(fator2)),
-                                           method="lm", formula = y~x+I(x^2),na.rm=TRUE, se=se,size=0.8, show.legend=FALSE)}
+                                           method="lm", formula = y~x+I(x^2),na.rm=TRUE, se=se,size=linesize, show.legend=FALSE)}
     if(adj==3){grafico=grafico+geom_smooth(data = data[fator2==levels(Fator2)[i],],aes(color=unique(fator2),lty=unique(fator2)),
-                                           method="lm", formula = y~x+I(x^2)+I(x^3),na.rm=TRUE, se=se,size=0.8, show.legend=FALSE)}
+                                           method="lm", formula = y~x+I(x^2)+I(x^3),na.rm=TRUE, se=se,size=linesize, show.legend=FALSE)}
     m1=tapply(y,x,mean, na.rm=TRUE); x1=tapply(x,x,mean, na.rm=TRUE)
     if(adj==0){r2=0}
     if(adj==1){mod1=lm(m1~x1)

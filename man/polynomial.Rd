@@ -19,6 +19,7 @@ polynomial(
   ylim = NA,
   family = "sans",
   pointsize = 4.5,
+  linesize = 0.8,
   decimal = ".",
   width.bar = NA,
   n = NA
@@ -33,7 +34,7 @@ polynomial(
 
 \item{xlab}{Independent variable name (Accepts the \emph{expression}() function)}
 
-\item{grau}{Degree of the polynomial (1,2 or 3)}
+\item{grau}{Degree of the polynomial (1, 2 or 3)}
 
 \item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
@@ -52,6 +53,8 @@ polynomial(
 \item{family}{Font family}
 
 \item{pointsize}{Point size}
+
+\item{linesize}{line size (Trendline and Error Bar)}
 
 \item{decimal}{Decimal separate}
 

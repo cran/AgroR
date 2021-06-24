@@ -43,7 +43,7 @@ trat=simulate1$trat[simulate1$tempo==1]
 DIC(trat,resp)
 }
 \references{
-Campbell, C. L., & Madden, L. V. (1990). Introduction to plant disease epidemiology. John Wiley & Sons.
+Campbell, C. L., and Madden, L. V. (1990). Introduction to plant disease epidemiology. John Wiley and Sons.
 }
 \seealso{
 \link{transf}, \link{sketch}

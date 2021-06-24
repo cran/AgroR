@@ -29,8 +29,9 @@
 #' @param ylim y-axis limit
 #' @param posi Legend position
 #' @param point Point type for regression ("mean_se","mean_sd","mean" or "all")
-#' @param angle.label label angle
+#' @param angle.label Label angle
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+#' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 #' @import ggplot2
 #' @importFrom crayon green
 #' @importFrom crayon bold
@@ -42,7 +43,7 @@
 #' @keywords split-plot
 #' @references
 #'
-#' Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
+#' Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 #'
 #' Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 #'
@@ -215,6 +216,16 @@ PSUBDBC=function(f1,
       else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, the variances are not homogeneous"})
 
   cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(green(bold("Additional Information")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(paste("\nCV1 (%) = ",round(sqrt(tab$`Mean Sq`[3])/mean(resp,na.rm=TRUE)*100,2)))
+  cat(paste("\nCV2 (%) = ",round(sqrt(tab$`Mean Sq`[6])/mean(resp,na.rm=TRUE)*100,2)))
+  cat(paste("\nMean = ",round(mean(response,na.rm=TRUE),4)))
+  cat(paste("\nMedian = ",round(median(response,na.rm=TRUE),4)))
+  #cat("\nPossible outliers = ", out)
+  cat("\n")
+
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Analysis of Variance")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   anova$`Pr(>F)`=ifelse(anova$`Pr(>F)`>0.001,round(anova$`Pr(>F)`,3),"p<0.001")
@@ -243,26 +254,23 @@ PSUBDBC=function(f1,
         if(mcomp=="tukey"){
           letra <- HSD.test(resp, fat[, i],num(tab[3*i,1]),
                             num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
-          letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
+          letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
+          if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="duncan"){
           letra <- duncan.test(resp, fat[, i],num(tab[3*i,1]),
                                num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
-          letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
+          letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
+          if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="lsd"){
           letra <- LSD.test(resp, fat[, i],num(tab[3*i,1]),
                             num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
-          letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
+          letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
+          if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
+
         if(mcomp=="sk"){
-          dados=data.frame(Fator1,Fator2,bloco)
-          erro=c("bloco:Fator1","Within")
-          fator=c("Fator1","Fator2")
-          sk=SK(dados,
-                resp,
-                model='y ~ Fator1*Fator2+Error(bloco/Fator1)+bloco',
-                which=fator[i],
-                error=erro[i],sig.level=alpha.t)
-          letra1=data.frame(resp=sk$m.inf[,1],groups=letters[sk$groups])
-          #letra1$resp=as.numeric(as.character(letra1$resp))
+          letra1 <- sk_triple(resp, fat[, i],num(tab[3*i,1]),
+                              num(tab[3*i,2]), alpha.t)
+          colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         print(letra1)
         ordem=unique(as.vector(unlist(fat[i])))
@@ -477,35 +485,30 @@ PSUBDBC=function(f1,
         datag=data.frame(letra,ordem=unlist(ordem))
         datag=datag[order(factor(datag$ordem,levels=unique(Fator1))),]
         letra=datag$letra}
-      if(mcomp=="sk"){
-        sk1=c()
+
+      if (mcomp == "sk"){
+        skgrafico=c()
         ordem=c()
         for (i in 1:nv2) {
-          data=data.frame(resp,fator1=factor(fator1,levels = unique(fator1)),
-                          fator2=factor(fator2,levels = unique(fator2)),bloco=bloco)
-          sk=SK.nest(x=data,
-                     y=resp,
-                     model="y~bloco+fator2*fator1+Error(bloco/fator1)",
-                     which="fator2:fator1", fl1=i,sig.level=alpha.t, error="Within")
-          d1=data.frame(sk$m.inf[,1],LETTERS[sk$groups])[paste(l2[i],"/",unique(data$fator1), sep=""),]
-          colnames(d1)=c("media","grupo")
-          sk1[[i]]=d1$grupo
-          ordem[[i]]=rownames(d1)
-          names(sk1)[i]=levels(sk1)[i]
-          trati=fat[, 1][Fator2 == l2[i]]
-          if(transf !="1"){d1$respo=sort(tapply(response[fator2 == l2[i]],trati,mean, na.rm=TRUE), decreasing = T)}
-          }
-        letra=unlist(sk1)
-        ordem=unlist(ordem)
-        ord=unlist(strsplit(as.character(ordem),"/"))
-        ordem=ord[seq(2,length(ord),by=2)]
-        ordem1=ord[-seq(2,length(ord),by=2)]
-        datag=data.frame(letra,ordem,ordem1)
-        rownames(datag)=paste(datag$ordem,datag$ordem1)
-        ordemnovo=expand.grid(unique(fator2),unique(fator1))
-        datag=datag[paste(ordemnovo$Var2,ordemnovo$Var1),]
-        letra=datag$letra
-      }
+          respi=resp[fat[,2]==l2[i]]
+          trati=fat[,1][fat[,2]==l2[i]]
+          # trati=fatores[, 1][Fator2 == lf2[i]]
+          trati=factor(trati,levels = unique(trati))
+          # respi=resp[Fator2 == lf2[i]]
+          sk=sk_triple(respi,trati,
+                       num(tab.f1f2[nv2+1,1]),
+                       num(tab.f1f2[nv2+1,2]),alpha.t)
+          if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
+                                           trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+          skgrafico[[i]]=sk[levels(trati),2]
+          ordem[[i]]=rownames(sk[levels(trati),])
+        }
+        letra=unlist(skgrafico)
+        datag=data.frame(letra,ordem=unlist(ordem))
+        datag$ordem=factor(datag$ordem,levels = unique(datag$ordem))
+        datag=datag[order(datag$ordem),]
+        letra=datag$letra}
+
       }
 
     #-------------------------------------
@@ -582,26 +585,21 @@ PSUBDBC=function(f1,
           }
         letra1=unlist(lsdgrafico1)
         letra1=toupper(letra1)}
-      if(mcomp=="sk"){
-        sk2=c()
-        ordem=c()
+      if (mcomp == "sk"){
+        skgrafico1=c()
         for (i in 1:nv1) {
-          data=data.frame(resp,fator1=factor(fator1,levels = unique(fator1)),
-                          fator2=factor(fator2,levels = unique(fator2)),bloco=bloco)
-          sk=SK.nest(x=data,
-                     y=resp,
-                     model="y~bloco+fator1*fator2+Error(bloco/fator1)",
-                     which="fator1:fator2", fl1=i,sig.level=alpha.t, error="Within")
-          d1=data.frame(sk$m.inf[,1],letters[sk$groups])[paste(l1[i],"/",unique(data$fator2), sep=""),]
-          colnames(d1)=c("media","grupo")
-          sk2[[i]]=d1$grupo
-          names(sk2)[i]=levels(sk2)[i]
-          trati=fat[, 2][Fator1 == l1[i]]
-          if(transf !="1"){d1$respo=sort(tapply(response[Fator1 == l1[i]],trati,mean, na.rm=TRUE),
-                                         decreasing = T)}
-          }
-        letra1=unlist(sk2)
-      }
+          respi=resp[fat[, 1] == l1[i]]
+          trati=fat[,2][fat[, 1] == l1[i]]
+          trati=factor(trati,unique(trati))
+          sk=sk_triple(respi,trati,
+                       num(tab.f2f1[nv1 +1, 1]),
+                       num(tab.f2f1[nv1 + 1, 2]),alpha.t)
+          if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
+                                         mean, na.rm=TRUE)[rownames(sk)]}
+          skgrafico1[[i]]=sk[levels(trati),2]
+        }
+        letra1=unlist(skgrafico1)
+        letra1=toupper(letra1)}
     }
 
 
@@ -712,23 +710,20 @@ PSUBDBC=function(f1,
             print(lsd$groups)
 
           }}
-        if(mcomp=="sk"){
+        if (mcomp == "sk"){
           for (i in 1:nv2) {
-            data=data.frame(resp,fator1=factor(fator1,levels = unique(fator1)),
-                            fator2=factor(fator2,levels = unique(fator2)),bloco=bloco)
-            sk=SK.nest(x=data,
-                       y=resp,
-                       model="y~bloco+fator2*fator1+Error(bloco/fator1)",
-                       which="fator2:fator1", fl1=i,sig.level=alpha.t, error="Within")
-            d1=data.frame(sk$m.inf[,1],LETTERS[sk$groups])[paste(l2[i],"/",unique(data$fator1), sep=""),]
-            colnames(d1)=c("media","grupo")
-            trati=fat[, 1][Fator2 == l2[i]]
-            if(transf !="1"){d1$respo=sort(tapply(response[fator2 == l2[i]],trati,mean, na.rm=TRUE), decreasing = T)}
+            respi=resp[fat[,2]==l2[i]]
+            trati=fat[,1][fat[,2]==l2[i]]
+            trati=factor(trati,levels = unique(trati))
+            sk=sk_triple(respi,trati,
+                         num(tab.f1f2[nv2+1,1]),
+                         num(tab.f1f2[nv2+1,2]),alpha.t)
+            if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
+                                             trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
             cat("\n----------------------\n")
             cat("Multiple comparison of F1 within level",lf2[i],"of F2")
             cat("\n----------------------\n")
-            print(d1)
-                        }}
+            print(sk)}}
       }
       if(quali[2]==FALSE){
         fator2a=fator2a#as.numeric(as.character(fator2))
@@ -787,25 +782,22 @@ PSUBDBC=function(f1,
             print(lsd$groups)
 
             }}
-        if(mcomp=="sk"){
+        if (mcomp == "sk"){
+          skgrafico1=c()
           for (i in 1:nv1) {
-            data=data.frame(resp,fator1=factor(fator1,levels = unique(fator1)),
-                            fator2=factor(fator2,levels = unique(fator2)),bloco=bloco)
-            sk=SK.nest(x=data,
-                       y=resp,
-                       model="y~bloco+fator1*fator2+Error(bloco/fator1)",
-                       which="fator1:fator2", fl1=i,sig.level=alpha.t, error="Within")
-            d1=data.frame(sk$m.inf[,1],letters[sk$groups])[paste(l1[i],"/",unique(data$fator2), sep=""),]
-            colnames(d1)=c("media","grupo")
-            trati=fat[, 2][Fator1 == l1[i]]
-            if(transf !="1"){d1$respo=sort(tapply(response[Fator1 == l1[i]],trati,mean, na.rm=TRUE),
-                                           decreasing = T)}
+            respi=resp[fat[, 1] == l1[i]]
+            trati=fat[,2][fat[, 1] == l1[i]]
+            trati=factor(trati,unique(trati))
+            sk=sk_triple(respi,trati,
+                         num(tab.f2f1[nv1 +1, 1]),
+                         num(tab.f2f1[nv1 + 1, 2]),alpha.t)
+            if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
+                                           mean, na.rm=TRUE)[rownames(sk)]}
             cat("\n----------------------\n")
             cat("Multiple comparison of F2 within level",lf1[i],"of F1")
             cat("\n----------------------\n")
-            print(d1)
-
-            }}
+            print(sk)
+          }}
       }
       if(quali[1]==FALSE){
         fator1a=fator1a#as.numeric(as.character(fator1))
@@ -859,23 +851,22 @@ PSUBDBC=function(f1,
             print(lsd$groups)
 
           }}
-        if(mcomp=="sk"){
+        if (mcomp == "sk"){
           for (i in 1:nv2) {
-            data=data.frame(resp,fator1=factor(fator1,levels = unique(fator1)),
-                            fator2=factor(fator2,levels = unique(fator2)),bloco=bloco)
-            sk=SK.nest(x=data,
-                       y=resp,
-                       model="y~bloco+fator2*fator1+Error(bloco/fator1)",
-                       which="fator2:fator1", fl1=i,sig.level=alpha.t, error="Within")
-            d1=data.frame(sk$m.inf[,1],LETTERS[sk$groups])[paste(l2[i],"/",unique(data$fator1), sep=""),]
-            colnames(d1)=c("media","grupo")
-            trati=fat[, 1][Fator2 == l2[i]]
-            if(transf !="1"){d1$respo=sort(tapply(response[fator2 == l2[i]],trati,mean, na.rm=TRUE), decreasing = T)}
+            respi=resp[fat[,2]==l2[i]]
+            trati=fat[,1][fat[,2]==l2[i]]
+            # trati=fatores[, 1][Fator2 == lf2[i]]
+            trati=factor(trati,levels = unique(trati))
+            # respi=resp[Fator2 == lf2[i]]
+            sk=sk_triple(respi,trati,
+                         num(tab.f1f2[nv2+1,1]),
+                         num(tab.f1f2[nv2+1,2]),alpha.t)
+            if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
+                                             trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
             cat("\n----------------------\n")
             cat("Multiple comparison of F1 within level",lf2[i],"of F2")
             cat("\n----------------------\n")
-            print(d1)
-          }}
+            print(sk)}}
       }
       if(quali[2]==FALSE){
         fator2a=fator2a#as.numeric(as.character(fator2))
@@ -934,24 +925,21 @@ PSUBDBC=function(f1,
             print(lsd$groups)
 
           }}
-        if(mcomp=="sk"){
+        if (mcomp == "sk"){
+          skgrafico1=c()
           for (i in 1:nv1) {
-            data=data.frame(resp,fator1=factor(fator1,levels = unique(fator1)),
-                            fator2=factor(fator2,levels = unique(fator2)),bloco=bloco)
-            sk=SK.nest(x=data,
-                       y=resp,
-                       model="y~bloco+fator1*fator2+Error(bloco/fator1)",
-                       which="fator1:fator2", fl1=i,sig.level=alpha.t, error="Within")
-            d1=data.frame(sk$m.inf[,1],letters[sk$groups])[paste(l1[i],"/",unique(data$fator2), sep=""),]
-            colnames(d1)=c("media","grupo")
-            trati=fat[, 2][Fator1 == l1[i]]
-            if(transf !="1"){d1$respo=sort(tapply(response[Fator1 == l1[i]],trati,mean, na.rm=TRUE),
-                                           decreasing = T)}
+            respi=resp[fat[, 1] == l1[i]]
+            trati=fat[,2][fat[, 1] == l1[i]]
+            trati=factor(trati,unique(trati))
+            sk=sk_triple(respi,trati,
+                         num(tab.f2f1[nv1 +1, 1]),
+                         num(tab.f2f1[nv1 + 1, 2]),alpha.t)
+            if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
+                                           mean, na.rm=TRUE)[rownames(sk)]}
             cat("\n----------------------\n")
             cat("Multiple comparison of F2 within level",lf1[i],"of F1")
             cat("\n----------------------\n")
-            print(d1)
-
+            print(sk)
           }}
       }
       if(quali[1]==FALSE){

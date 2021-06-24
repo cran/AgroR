@@ -7,13 +7,14 @@
 #' @param trat Numerical vector with treatments (Declare as numeric)
 #' @param ylab Dependent variable name (Accepts the \emph{expression}() function)
 #' @param xlab Independent variable name (Accepts the \emph{expression}() function)
-#' @param grau Degree of the polynomial (1,2 or 3)
+#' @param grau Degree of the polynomial (1, 2 or 3)
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param color Graph color (\emph{default} is gray80)
 #' @param posi Legend position
 #' @param textsize Font size
 #' @param family Font family
 #' @param pointsize Point size
+#' @param linesize line size (Trendline and Error Bar)
 #' @param decimal Decimal separate
 #' @param ylim y-axis scale
 #' @param se Adds confidence interval (\emph{default} is FALSE)
@@ -45,6 +46,7 @@ polynomial=function(trat,
                ylim=NA,
                family="sans",
                pointsize=4.5,
+               linesize=0.8,
                decimal=".",
                width.bar=NA,
                n=NA)
@@ -145,9 +147,9 @@ polynomial=function(trat,
                aes(y=resp,x=trat),shape=21,
                fill=color,color="black")}
   if(point=="mean_sd"){grafico=grafico+
-    geom_errorbar(aes(ymin=resp-desvio,ymax=resp+desvio),width=width.bar)}
+    geom_errorbar(aes(ymin=resp-desvio,ymax=resp+desvio),width=width.bar,size=linesize)}
   if(point=="mean_se"){grafico=grafico+
-    geom_errorbar(aes(ymin=resp-erro,ymax=resp+erro),width=width.bar)}
+    geom_errorbar(aes(ymin=resp-erro,ymax=resp+erro),width=width.bar,size=linesize)}
   if(point=="mean"){grafico=grafico}
   grafico=grafico+geom_point(aes(fill=as.factor(rep(1,length(resp)))),na.rm=TRUE,
                size=pointsize,shape=21,
@@ -155,9 +157,9 @@ polynomial=function(trat,
     theme+ylab(ylab)+xlab(xlab)
   if(is.na(ylim)==TRUE){grafico=grafico}else{grafico=grafico+ylim(ylim)}
 
-  if(grau=="1"){grafico=grafico+geom_smooth(method = "lm",se=se, na.rm=TRUE, formula = y~x,size=1,color="black")}
-  if(grau=="2"){grafico=grafico+geom_smooth(method = "lm",se=se, na.rm=TRUE, formula = y~x+I(x^2),size=1,color="black")}
-  if(grau=="3"){grafico=grafico+geom_smooth(method = "lm",se=se, na.rm=TRUE, formula = y~x+I(x^2)+I(x^3),size=1,color="black")}
+  if(grau=="1"){grafico=grafico+geom_smooth(method = "lm",se=se, na.rm=TRUE, formula = y~x,size=linesize,color="black")}
+  if(grau=="2"){grafico=grafico+geom_smooth(method = "lm",se=se, na.rm=TRUE, formula = y~x+I(x^2),size=linesize,color="black")}
+  if(grau=="3"){grafico=grafico+geom_smooth(method = "lm",se=se, na.rm=TRUE, formula = y~x+I(x^2)+I(x^3),size=linesize,color="black")}
   if(grau=="1"){grafico=grafico+
     scale_fill_manual(values=color,label=c(parse(text=s1)),name="")}
   if(grau=="2"){grafico=grafico+

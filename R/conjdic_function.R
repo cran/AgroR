@@ -28,16 +28,15 @@
 #' @param family Font family
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+#' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 #' @return Returns the assumptions of the analysis of variance, the assumption of the joint analysis by means of a QMres ratio matrix, the analysis of variance, the multiple comparison test or regression.
 #' @keywords DIC
 #' @keywords Joint Analysis
 #' @references
 #'
-#' FERREIRA, P. V. Estatistica experimental aplicada a agronomia. Edufal, 2018.
+#' Ferreira, P. V. Estatistica experimental aplicada a agronomia. Edufal, 2018.
 #'
-#' @references
-#'
-#' Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
+#' Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 #'
 #' Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.
 #'

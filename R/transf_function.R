@@ -17,7 +17,7 @@
 #' @return Returns the value of lambda and/or data transformation approximation, according to Box-Cox (1964)
 #' @references
 #'
-#' Box, G. E., & Cox, D. R. (1964). An analysis of transformations. Journal of the Royal Statistical Society: Series B (Methodological), 26(2), 211-243.
+#' Box, G. E., Cox, D. R. (1964). An analysis of transformations. Journal of the Royal Statistical Society: Series B (Methodological), 26(2), 211-243.
 #' @examples
 #' data("pomegranate")
 #' attach(pomegranate)
@@ -74,11 +74,11 @@ transf=function(response,
   cat(lambda=maxvero)
   cat("\n------------------------------------------------\n")
   cat("Suggestion:\n")
-  cat(if(round(maxvero)==1){"Do not transform data"}
-      else{if(round(maxvero)==0.5){"quare root (sqrt(Y))"}
-        else{if(round(maxvero)==-0.5){"1/sqrt(Y)"}
-          else{if(round(maxvero)==-1){"1/Y"}
-            else{if(round(maxvero)==0){"log(Y)"}}}}}
+  cat(if(round(maxvero,2)>0.75 & round(maxvero,2)<1.25){"Do not transform data"}
+      else{if(round(maxvero,2)>0.25 & round(maxvero,2)<=0.75){"square root (sqrt(Y))"}
+        else{if(round(maxvero,2)>-0.75 & round(maxvero,2)<=-0.25){"1/sqrt(Y)"}
+          else{if(round(maxvero,2)>-1.25 & round(maxvero,2)<=-0.75){"1/Y"}
+            else{if(round(maxvero,2)>=-0.25 & round(maxvero,2)<0.25){"log(Y)"}}}}}
   )
   cat("\n\n")
   cat("ou:")

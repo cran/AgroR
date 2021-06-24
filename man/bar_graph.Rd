@@ -2,7 +2,7 @@
 % Please edit documentation in R/bargraph_function.R
 \name{bar_graph}
 \alias{bar_graph}
-\title{Graph: bar graph for one factor}
+\title{Graph: Bar graph for one factor}
 \usage{
 bar_graph(model, fill = "lightblue", horiz = TRUE)
 }
