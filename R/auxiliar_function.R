@@ -1178,6 +1178,95 @@ design.ab <-
 ##=========================================================
 ## Sk
 ##=========================================================
+# sk_triple<-function(y, trt, DFerror, SSerror, alpha = 0.05, group = TRUE, main = NULL)
+# {
+#   sk <- function(medias,s2,dfr,prob){
+#     bo <- 0
+#     si2 <- s2
+#     defr <- dfr
+#     parou <- 1
+#     np <- length(medias) - 1
+#     for (i in 1:np){
+#       g1 <- medias[1:i]
+#       g2 <- medias[(i+1):length(medias)]
+#       B0 <- sum(g1)^2/length(g1) + sum(g2)^2/length(g2) - (sum(g1) + sum(g2))^2/length(c(g1,g2))
+#       if (B0 > bo)
+#       {bo <- B0
+#         parou <- i}
+#     }
+#
+#     g1 <- medias[1:parou]
+#     g2 <- medias[(parou+1):length(medias)]
+#     teste <- c(g1,g2)
+#
+#     sigm2 <- (sum(teste^2) - sum(teste)^2/length(teste) + defr*si2)/(length(teste) + defr)
+#     lamb <- pi*bo/(2*sigm2*(pi-2))
+#     v0 <- length(teste)/(pi-2)
+#     p <- pchisq(lamb,v0,lower.tail = FALSE)
+#
+#     if (p < prob) {
+#       for (i in 1:length(g1)){
+#         cat(names(g1[i]),"\n",file="sk_groups",append=TRUE)}
+#       cat("*","\n",file="sk_groups",append=TRUE)}
+#
+#     if (length(g1)>1){sk(g1,s2,dfr,prob)}
+#     if (length(g2)>1){sk(g2,s2,dfr,prob)}
+#   }
+#
+#   medias <- sort(tapply(y,trt,mean),decreasing=TRUE)
+#   dfr <- DFerror
+#
+#   rep <- tapply(y,trt,length)
+#   s0 <- MSerror <-SSerror/DFerror
+#   s2 <- s0/rep[1]
+#   prob <- alpha
+#   sk(medias,s2,dfr,prob)
+#   f <- names(medias)
+#   names(medias) <- 1:length(medias)
+#   resultado <- data.frame("r"=0,"f"=f,"m"=medias)
+#   if (file.exists("sk_groups") == FALSE) {stop} else{
+#     xx <- read.table("sk_groups")
+#     file.remove("sk_groups")
+#     x <- xx[[1]]
+#     x <- as.vector(x)
+#     z <- 1
+#
+#     for (j in 1:length(x)){
+#       if (x[j] == "*")	{z <- z+1}
+#       for (i in 1:length(resultado$f)){
+#         if (resultado$f[i]==x[j]){
+#           resultado$r[i] <- z;}
+#       }
+#     }
+#
+#   }
+#   letras<-letters
+#   if(length(resultado$r)>26) {
+#     l<-floor(length(resultado$r)/26)
+#     for(i in 1:l) letras<-c(letras,paste(letters,i,sep=''))
+#   }
+#   res <- 1
+#   for (i in 1:(length(resultado$r)-1))
+#   {
+#     if (resultado$r[i] != resultado$r[i+1]){
+#       resultado$r[i] <- letras[res]
+#       res <- res+1
+#       if (i == (length(resultado$r)-1)){
+#         resultado$r[i+1] <- letras[res]}
+#     }
+#     else{
+#       resultado$r[i] <- letras[res]
+#       if (i == (length(resultado$r)-1)){
+#         resultado$r[i+1] <- letras[res]
+#       }
+#     }
+#   }
+#   names(resultado) <- c("groups","Tratamentos","Means")
+#   resultado1=resultado[,c(3,1)]
+#   rownames(resultado1)=resultado$Tratamentos
+#   final=list(resultado1)[[1]]
+# }
+
 sk_triple<-function(y, trt, DFerror, SSerror, alpha = 0.05, group = TRUE, main = NULL)
 {
   sk <- function(medias,s2,dfr,prob){
@@ -1192,7 +1281,7 @@ sk_triple<-function(y, trt, DFerror, SSerror, alpha = 0.05, group = TRUE, main =
       B0 <- sum(g1)^2/length(g1) + sum(g2)^2/length(g2) - (sum(g1) + sum(g2))^2/length(c(g1,g2))
       if (B0 > bo)
       {bo <- B0
-        parou <- i}
+      parou <- i}
     }
 
     g1 <- medias[1:parou]
@@ -1206,13 +1295,15 @@ sk_triple<-function(y, trt, DFerror, SSerror, alpha = 0.05, group = TRUE, main =
 
     if (p < prob) {
       for (i in 1:length(g1)){
-        cat(names(g1[i]),"\n",file="skresult",append=TRUE)}
-      cat("*","\n",file="skresult",append=TRUE)}
+        cat(names(g1[i]),"\n",file="sk_groups",append=TRUE)}
+      cat("*","\n",file="sk_groups",append=TRUE)}
 
     if (length(g1)>1){sk(g1,s2,dfr,prob)}
     if (length(g2)>1){sk(g2,s2,dfr,prob)}
   }
-
+  trt=factor(trt,unique(trt))
+  trt1=trt
+  levels(trt)=paste("T",1:length(levels(trt)),sep = "")
   medias <- sort(tapply(y,trt,mean),decreasing=TRUE)
   dfr <- DFerror
 
@@ -1224,9 +1315,9 @@ sk_triple<-function(y, trt, DFerror, SSerror, alpha = 0.05, group = TRUE, main =
   f <- names(medias)
   names(medias) <- 1:length(medias)
   resultado <- data.frame("r"=0,"f"=f,"m"=medias)
-  if (file.exists("skresult") == FALSE) {stop} else{
-    xx <- read.table("skresult")
-    file.remove("skresult")
+  if (file.exists("sk_groups") == FALSE) {stop} else{
+    xx <- read.table("sk_groups")
+    file.remove("sk_groups")
     x <- xx[[1]]
     x <- as.vector(x)
     z <- 1
@@ -1262,7 +1353,11 @@ sk_triple<-function(y, trt, DFerror, SSerror, alpha = 0.05, group = TRUE, main =
     }
   }
   names(resultado) <- c("groups","Tratamentos","Means")
+
   resultado1=resultado[,c(3,1)]
   rownames(resultado1)=resultado$Tratamentos
   final=list(resultado1)[[1]]
+  final=final[as.character(unique(trt)),]
+  rownames(final)=as.character(unique(trt1))
+  final
 }

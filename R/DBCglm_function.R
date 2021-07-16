@@ -4,7 +4,7 @@
 #' @author Leandro Simoes Azeredo Goncalves
 #' @author Rodrigo Yudi Palhaci Marubayashi
 #' @param trat Numerical or complex vector with treatments
-#' @param block Numerical or complex vector with treatments
+#' @param block Numerical or complex vector with blocks
 #' @param response Numerical vector containing the response of the experiment. Use cbind(resp, n-resp) for binomial or quasibinomial family.
 #' @param glm.family distribution family considered (\emph{default} is binomial)
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{default} is qualitative)

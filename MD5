@@ -1,14 +1,14 @@
-b6fd7fa4d4e14c81def477d14eb4f203 *DESCRIPTION
-e6db5a7140062bc05527cd21aab94b7c *NAMESPACE
-af820e241fbc944d027d16c20af96f17 *NEWS.md
-5db6ad9c03422e5e65a4a4633a37105e *R/DBCglm_function.R
+619745bc11d9f140ed02d747a69b35ca *DESCRIPTION
+36abd87ee67d5ccc812b62aba397f556 *NAMESPACE
+984f9b0c99e43ba131af97b053c241a0 *NEWS.md
+81e77060aa036fcfabdf04272c6d3cc5 *R/DBCglm_function.R
 84ecee6e3853aa170bfe6278a020ce62 *R/DICglm_function.R
 c8913c0d78f4f1618f0672f9ed8afe0a *R/FAT2DBC_function.R
 9c5e78f90e714e236593bbbb576228f1 *R/FAT2DBCad_function.R
 f7367781d46d3a2ae136ef841b8ec649 *R/FAT2DBCart_function.R
 96d1aa8980c09d789970b09da7265e60 *R/FAT2DIC_function.R
 8f97ce080577ea0944b0c6902f586203 *R/FAT2DICad_function.R
-807ec8b8b1cfa285e3b3695affbdd59a *R/FAT2DICart_function.R
+d1cda83f0f04252d2253c92cf8417a37 *R/FAT2DICart_function.R
 c1404fbbe300b4eaa1f6524170a56428 *R/FAT3DBC_function.R
 ccbd89ed8925750841f821b03bd88c65 *R/FAT3DIC_function.R
 f71114884d772296a7ea0e79776f015a *R/PSUBDBC_function.R
@@ -16,9 +16,9 @@ f71114884d772296a7ea0e79776f015a *R/PSUBDBC_function.R
 6a597393b3c25f1ccf34cc7e997f792d *R/PSUBSUB_function.R
 791ae250c52cdfbd7f6abcf693da0064 *R/aac_function.R
 d8344ddc5603f51e727570195559a0e6 *R/aristolochia_data.R
-c1b62c5b453993b2d7e6585dddf16347 *R/auxiliar_function.R
+00f924568d8fbbeb72a82fb287053979 *R/auxiliar_function.R
 4d1454f906272aca646f9c955e9b73f6 *R/bargraph_function.R
-6c192bc53ac3c0a68139352bb08d0230 *R/barplot_positive_function.R
+d47c7d6fd4a274bf430cba8b5105a6ec *R/barplot_positive_function.R
 bc5e575aff2bb1d73156572cc6b0c822 *R/car_function.R
 5b2ad84bcf577141d3a37cfbbe2646f4 *R/cloro.R
 23ccd51fdbfbb205c867dcde1706f92b *R/conjdbc_function.R
@@ -45,6 +45,7 @@ c7e0580dbdbcb19da191b508b49a88c0 *R/logistic_function.R
 1ebcbc021b583faaf09397ea894ec03e *R/mirtilo.R
 dd412f662fe11b512f3d46d4a577e2ff *R/package.R
 09fd03213f0ff1d18fdac2b7ddf98e7e *R/passiflora.R
+4b65abf5275dba523f07fb86390689f9 *R/pca_function.R
 536caf3275d3397fb4adb3c611cda5ce *R/phao.R
 6939b8885ae934bf982982b31bb75de0 *R/plot_TH1_function.R
 dd61503b328c9a9375064d11380aa4af *R/plot_TH_function.R
@@ -89,7 +90,7 @@ daf51b2b4d16003a0b46553024574f8c *data/porco.RData
 315720620d871a1a253246c3465a55a4 *data/weather.RData
 6d926e5ea76fea9cddeaeecea18661a6 *man/AgroR-package.Rd
 dac8e3b878b163105fd0ae039e18f359 *man/DBC.Rd
-c39632e942d9a733dbb2d9778f02f0a9 *man/DBC.glm.Rd
+2c9875687fda8f41c3936ae4cde143f8 *man/DBC.glm.Rd
 1166fc74fb8761bc605c84fdaa7d256d *man/DBCT.Rd
 241156cc03a3bc4208951d8d47d5e5d8 *man/DIC.Rd
 024b3c859358ef6c772be2e77a6072d5 *man/DIC.glm.Rd
@@ -104,6 +105,7 @@ ad0edf1cd3ccfc05db576edcf3461ee8 *man/FAT2DIC.ad.Rd
 34d89775ae904a95072aacbb38ada9e8 *man/FAT2DIC.art.Rd
 4db288e79fa10c18ade6673a367ada89 *man/FAT3DBC.Rd
 24f768ef771d88a2456d4f8fba3df52c *man/FAT3DIC.Rd
+ed48207ac0dbf60baa363f9d3fc9b72c *man/PCA_function.Rd
 ad5fdfba756b3c13fe0c7a6fbccb9c1b *man/PSUBDBC.Rd
 dd8a7dd136c1f5665d2b0f048199a76c *man/PSUBDIC.Rd
 2a6a91ed0759c21e218c65f4c66e9b8d *man/PSUBSUBDBC.Rd
@@ -111,7 +113,7 @@ dd8a7dd136c1f5665d2b0f048199a76c *man/PSUBDIC.Rd
 cf625a59c0fb644bb42f3c1888a3aa0f *man/aacp.Rd
 e2a65bb2f9ddb9797ec3158316fabab8 *man/aristolochia.Rd
 94749dc91bffc375ffef7aa589c1f9d2 *man/bar_graph.Rd
-f07f746c2e662a669b3d88d3b7c93c52 *man/barplot_positive.Rd
+442a4cb7349697f4a4b04dc796f0a24a *man/barplot_positive.Rd
 6baba22f9fc58e00acf53033e949956b *man/cloro.Rd
 080c922b87883bf806f50728a04f4038 *man/conjdbc.Rd
 a66c8ccb4c82fe6998463851e05b0dbf *man/conjdic.Rd

@@ -1,5 +1,12 @@
-# AgroR 1.2.1
+# AgroR 1.2.2
 
+* Scott-Knott's test has been improved. Now composite names can be used in factor vectors.
+
+* Corrigido o bug da função FAT2DIC.art
+
+* `PCA_function` function was implemented
+
+# AgroR 1.2.1
 
 ## Minor changes
 

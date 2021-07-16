@@ -9,6 +9,7 @@ barplot_positive(
   b,
   ylab = "Response",
   var_name = c("Var1", "Var2"),
+  legend.title = "Variable",
   fill_color = c("darkgreen", "brown")
 )
 }
@@ -20,6 +21,8 @@ barplot_positive(
 \item{ylab}{Y axis names}
 
 \item{var_name}{Name of the variable}
+
+\item{legend.title}{Legend title}
 
 \item{fill_color}{Bar fill color}
 }

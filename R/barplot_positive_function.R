@@ -7,6 +7,7 @@
 #' @param ylab Y axis names
 #' @param var_name Name of the variable
 #' @param fill_color Bar fill color
+#' @param legend.title Legend title
 #' @seealso \link{radargraph}, \link{sk_graph}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}
 #' @return The function returns a column chart with two positive sides
 #' @note When there is only an effect of the isolated factor in the case of factorial or subdivided plots, it is possible to use the barplot_positive function.
@@ -22,6 +23,7 @@ barplot_positive=function(a,
                           b,
                           ylab="Response",
                           var_name=c("Var1","Var2"),
+                          legend.title="Variable",
                           fill_color=c("darkgreen",
                                        "brown")){
   requireNamespace("ggplot2")
@@ -60,6 +62,7 @@ barplot_positive=function(a,
     scale_fill_manual(values=fill_color,
                       labels = c(a[[1]]$labels$y,
                                  b[[1]]$labels$y))+
-    labs(fill="Variable")+
+    geom_hline(yintercept=0)+
+    labs(fill=legend.title)+
     theme(axis.text = element_text(size=a[[1]]$theme$axis.text$size,
                                    color = a[[1]]$theme$axis.text$colour))}

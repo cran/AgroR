@@ -32,7 +32,7 @@ DBC.glm(
 \arguments{
 \item{trat}{Numerical or complex vector with treatments}
 
-\item{block}{Numerical or complex vector with treatments}
+\item{block}{Numerical or complex vector with blocks}
 
 \item{response}{Numerical vector containing the response of the experiment. Use cbind(resp, n-resp) for binomial or quasibinomial family.}
 

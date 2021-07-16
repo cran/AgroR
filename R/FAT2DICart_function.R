@@ -61,7 +61,7 @@ FAT2DIC.art=function(f1,
   a1=cld(emmeans(mod1,~fator1),Letters=letters,reversed=decreasing)
   fator1=a1$fator1
   emmean=a1$emmean
-  if(is.na(sup==TRUE)){sup=0.1*mean(mean)}
+  if(is.na(sup==TRUE)){sup=0.1*mean(emmean)}
   lower.CL=a1$lower.CL
   upper.CL=a1$upper.CL
   .group=a1$.group
@@ -87,7 +87,7 @@ FAT2DIC.art=function(f1,
   a2=cld(emmeans(mod1,~fator2),Letters=letters,reversed=decreasing)
   fator2=a2$fator2
   emmean=a2$emmean
-  if(is.na(sup==TRUE)){sup=0.1*mean(mean)}
+  if(is.na(sup==TRUE)){sup=0.1*mean(emmean)}
   lower.CL=a2$lower.CL
   upper.CL=a2$upper.CL
   .group=a2$.group
@@ -127,7 +127,7 @@ FAT2DIC.art=function(f1,
   fator2=tabela$fator2
   fator1=tabela$fator1
   emmean=tabela$emmean
-  if(is.na(sup==TRUE)){sup=0.1*mean(mean)}
+  if(is.na(sup==TRUE)){sup=0.1*mean(emmean)}
   lower=tabela$lower
   upper=tabela$upper
   group1=tabela$group1
@@ -157,3 +157,4 @@ FAT2DIC.art=function(f1,
     labs(y=ylab,x=xlab,fill=legend.title)
   print(grafico)}
 }
+
