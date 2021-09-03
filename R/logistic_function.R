@@ -32,10 +32,9 @@
 #'
 #' @examples
 #' data("emerg")
-#' attach(emerg)
+#' with(emerg, logistic(time, resp,xlab="Time (days)",ylab="Emergence (%)"))
+#' with(emerg, logistic(time, resp,npar="LL.4",xlab="Time (days)",ylab="Emergence (%)"))
 #'
-#' logistic(time, resp)
-
 logistic=function(trat,
                   resp,
                   npar="LL.3",

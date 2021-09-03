@@ -113,7 +113,12 @@ DBC.glm=function(trat,
       inferior=letra$asymp.LCL*100
       grupo=str_trim(letra$.group)
       trat=letra$trat
-      dadosm=data.frame(trat,prob,superior,inferior,grupo)
+
+      desvio=letra$asymp.UCL-letra$prob
+      media=prob
+      trats=trat
+      dadosm=data.frame(trat,prob,superior,inferior,grupo,desvio,
+                        media,trats)
       if(addmean==TRUE){dadosm$letra=paste(format(round(prob,3),digits = dec),
                                            grupo)}
       if(addmean==FALSE){dadosm$letra=grupo}
@@ -208,7 +213,12 @@ DBC.glm=function(trat,
       inferior=letra$asymp.LCL
       grupo=str_trim(letra$.group)
       trat=letra$trat
-      dadosm=data.frame(trat,rate,superior,inferior,grupo)
+      desvio=letra$asymp.UCL-letra$rate
+      media=rate
+      trats=trat
+      dadosm=data.frame(trat,rate,superior,inferior,
+                        grupo,desvio,
+                        media,trats)
       if(addmean==TRUE){dadosm$letra=paste(format(rate,digits = dec),
                                            grupo)}
       if(addmean==FALSE){dadosm$letra=grupo}

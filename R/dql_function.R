@@ -62,8 +62,7 @@
 #' @examples
 #' library(AgroR)
 #' data(porco)
-#' attach(porco)
-#' DQL(trat, linhas, colunas, resp)
+#' with(porco, DQL(trat, linhas, colunas, resp, ylab="Weigth (kg)"))
 
 ######################################################################################
 ## Analise de variancia para experimentos em DQL
@@ -104,11 +103,12 @@ DQL=function(trat,
   requireNamespace("gridExtra")
   requireNamespace("nortest")
   requireNamespace("lmtest")
-  if(transf=="1"){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf=="0"){resp=log(response)}
-  if(transf=="0.5"){resp=sqrt(response)}
-  if(transf=="-0.5"){resp=1/sqrt(response)}
-  if(transf=="-1"){resp=1/response}
+  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
+  if(transf==0){resp=log(response)}
+  if(transf==0.5){resp=sqrt(response)}
+  if(transf==-0.5){resp=1/sqrt(response)}
+  if(transf==-1){resp=1/response}
+  trat1=trat
   trat=as.factor(trat)
   line=as.factor(line)
   column=as.factor(column)
@@ -121,7 +121,7 @@ DQL=function(trat,
   respad=b$residuals/sqrt(a$`Mean Sq`[4])
   out=respad[respad>3 | respad<(-3)]
   out=names(out)
-  out=ifelse(length(out)==0,"No discrepant point",out)
+  out=if(length(out)==0)("No discrepant point")else{out}
 
   ## Normalidade dos erros
   if(norm=="sw"){norm1 = shapiro.test(b$res)}
@@ -137,7 +137,7 @@ DQL=function(trat,
     method=paste("Bartlett test","(",names(statistic),")",sep="")
   }
   if(homog=="levene"){
-    homog1 = leveneTest(b$res~trat)
+    homog1 = leveneTest(b$res~trat)[1,]
     statistic=homog1$`F value`[1]
     phomog=homog1$`Pr(>F)`[1]
     method="Levene's Test (center = median)(F)"
@@ -229,7 +229,7 @@ DQL=function(trat,
   if(mcomp=="sk"){
     letra=SK(b,"trat",sig.level=alpha.t)
     letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-    letra1$resp=as.numeric(as.character(letra1$resp))}
+    letra1$resp=as.numeric(letra1$resp)}
 
   ## Duncan
     if(mcomp=="duncan"){
@@ -349,12 +349,12 @@ DQL=function(trat,
   }
 
   if(quali==FALSE){
-    trat=as.numeric(as.character(trat))
+    trat=trat1
     if(grau==1){graph=polynomial(trat,response, grau = 1,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
     if(grau==2){graph=polynomial(trat,response, grau = 2,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
     if(grau==3){graph=polynomial(trat,response, grau = 3,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
     grafico=graph[[1]]
   }
-  print(grafico)
+  if(quali==TRUE){print(grafico)}
   graficos=list(grafico)#[[1]]
   }

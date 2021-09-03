@@ -24,8 +24,7 @@
 #' @export
 #' @examples
 #' data(cloro)
-#' attach(cloro)
-#' FAT2DIC.art(f1,f2,resp)
+#' with(cloro, FAT2DIC.art(f1,f2,resp))
 
 FAT2DIC.art=function(f1,
                      f2,

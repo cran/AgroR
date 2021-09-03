@@ -23,7 +23,6 @@ Climatic data from 01 November 2019 to 30 June 2020 in the municipality of Londr
 }
 \examples{
 data(weather)
-attach(weather)
 }
 \seealso{
 \link{cloro}, \link{enxofre}, \link{laranja}, \link{mirtilo}, \link{pomegranate}, \link{porco}, \link{sensorial}, \link{simulate1}, \link{simulate2}, \link{simulate3}, \link{tomate}, \link{aristolochia}, \link{phao}, \link{passiflora}

@@ -19,8 +19,7 @@
 #' @examples
 #' library(AgroR)
 #' data(enxofre)
-#' attach(enxofre)
-#' PSUBSUBDBC(f1, f2, f3, bloco, resp)
+#' with(enxofre, PSUBSUBDBC(f1, f2, f3, bloco, resp))
 
 PSUBSUBDBC=function(f1,
                     f2,

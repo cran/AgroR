@@ -64,16 +64,25 @@
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 #' @examples
 #' library(AgroR)
+#'
+#' #=============================
+#' # Example laranja
+#' #=============================
 #' data(laranja)
 #' attach(laranja)
-#' DBC(trat, bloco, resp,
-#'      mcomp = "sk",angle=45,
-#'      ylab = "Number of fruits/plants")
+#' DBC(trat, bloco, resp, mcomp = "sk", angle=45, ylab = "Number of fruits/plants")
 #'
 #' #=============================
 #' # Friedman test
 #' #=============================
-#' DBC(trat, bloco, resp, test="noparametric")
+#' DBC(trat, bloco, resp, test="noparametric", ylab = "Number of fruits/plants")
+#'
+#' #=============================
+#' # Example soybean
+#' #=============================
+#' data(soybean)
+#' with(soybean, DBC(cult, bloc, prod,
+#'                   ylab=expression("Grain yield"~(kg~ha^-1))))
 
 DBC=function(trat,
              block,
@@ -112,11 +121,12 @@ DBC=function(trat,
     requireNamespace("gridExtra")
     requireNamespace("nortest")
     requireNamespace("lmtest")
-  if(transf=="1"){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf=="0"){resp=log(response)}
-  if(transf=="0.5"){resp=sqrt(response)}
-  if(transf=="-0.5"){resp=1/sqrt(response)}
-  if(transf=="-1"){resp=1/response}
+  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
+  if(transf==0){resp=log(response)}
+  if(transf==0.5){resp=sqrt(response)}
+  if(transf==-0.5){resp=1/sqrt(response)}
+  if(transf==-1){resp=1/response}
+  trat1=trat
   trat=as.factor(trat)
   bloco=as.factor(block)
   a = anova(aov(resp ~ trat + bloco))
@@ -126,7 +136,7 @@ DBC=function(trat,
   respad=b$residuals/sqrt(a$`Mean Sq`[3])
   out=respad[respad>3 | respad<(-3)]
   out=names(out)
-  out=ifelse(length(out)==0,"No discrepant point",out)
+  out=if(length(out)==0)("No discrepant point")else{out}
 
   if(norm=="sw"){norm1 = shapiro.test(b$res)}
   if(norm=="li"){norm1=lillie.test(b$residuals)}
@@ -141,7 +151,7 @@ DBC=function(trat,
     method=paste("Bartlett test","(",names(statistic),")",sep="")
   }
   if(homog=="levene"){
-    homog1 = leveneTest(b$res~trat)
+    homog1 = leveneTest(b$res~trat)[1,]
     statistic=homog1$`F value`[1]
     phomog=homog1$`Pr(>F)`[1]
     method="Levene's Test (center = median)(F)"
@@ -194,9 +204,9 @@ DBC=function(trat,
   rownames(indepe)=""
   print(indepe)
   cat("\n")
-  message(black(if(indep$p.value>0.05){
+  message(if(indep$p.value>0.05){
     black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered independent")}
-    else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors are not independent"}))
+    else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors are not independent"})
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Additional Information")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -226,7 +236,7 @@ DBC=function(trat,
   if(mcomp=="sk"){
     letra=SK(b,"trat",sig.level=alpha.t)
     letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-    letra1$resp=as.numeric(as.character(letra1$resp))}
+    letra1$resp=as.numeric(letra1$resp)}
   if(mcomp=="duncan"){
     letra <- duncan.test(b, "trat", alpha=alpha.t)
     letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
@@ -330,7 +340,7 @@ DBC=function(trat,
                                                   round(abs(sqrt(a$`Mean Sq`[3])/mean(resp))*100,2),"%"))}
   }
   if(quali==FALSE){
-    trat=as.numeric(as.character(trat))
+    trat=trat1
     if(grau==1){graph=polynomial(trat,response, grau = 1,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
     if(grau==2){graph=polynomial(trat,response, grau = 2,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
     if(grau==3){graph=polynomial(trat,response, grau = 3,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
@@ -364,6 +374,7 @@ DBC=function(trat,
     dadosm$letra=paste(format(dadosm$response,digits = dec),dadosm$groups)
     if(addmean==TRUE){dadosm$letra=paste(format(dadosm$response,digits = dec),dadosm$groups)}
     if(addmean==FALSE){dadosm$letra=dadosm$groups}
+    dadosm=dadosm[unique(trat),]
     trats=dadosm$trats
     limite=dadosm$limite
     media=dadosm$media
@@ -436,6 +447,6 @@ DBC=function(trat,
     if(angle !=0){grafico=grafico+theme(axis.text.x=element_text(hjust = 1.01,
                                                                  angle = angle))}
   }
-  print(grafico)
+  if(quali==TRUE){print(grafico)}
   grafico=list(grafico)
   }

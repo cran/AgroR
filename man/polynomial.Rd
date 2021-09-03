@@ -9,6 +9,8 @@ polynomial(
   resp,
   ylab = "Response",
   xlab = "Independent",
+  yname.poly = "y",
+  xname.poly = "x",
   grau = NA,
   theme = theme_classic(),
   point = "mean_sd",
@@ -20,7 +22,6 @@ polynomial(
   family = "sans",
   pointsize = 4.5,
   linesize = 0.8,
-  decimal = ".",
   width.bar = NA,
   n = NA
 )
@@ -34,11 +35,15 @@ polynomial(
 
 \item{xlab}{Independent variable name (Accepts the \emph{expression}() function)}
 
+\item{yname.poly}{Y name in equation}
+
+\item{xname.poly}{X name in equation}
+
 \item{grau}{Degree of the polynomial (1, 2 or 3)}
 
 \item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
-\item{point}{Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").}
+\item{point}{Defines whether to plot mean ("mean"), all repetitions ("all"),mean with standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").}
 
 \item{color}{Graph color (\emph{default} is gray80)}
 
@@ -56,8 +61,6 @@ polynomial(
 
 \item{linesize}{line size (Trendline and Error Bar)}
 
-\item{decimal}{Decimal separate}
-
 \item{width.bar}{width of the error bars of a regression graph.}
 
 \item{n}{Number of decimal places for regression equations}
@@ -70,8 +73,7 @@ Linear regression analysis of an experiment with a quantitative factor or isolat
 }
 \examples{
 data("phao")
-attach(phao)
-polynomial(dose,comp, grau = 2)
+with(phao, polynomial(dose,comp, grau = 2))
 }
 \seealso{
 \link{polynomial2}, \link{polynomial2_color}

@@ -26,6 +26,7 @@ DICT(
   addmean = FALSE,
   legend = "Legend",
   ylim = NA,
+  width.bar = 0.1,
   posi = c(0.1, 0.8),
   xnumeric = FALSE
 )
@@ -73,6 +74,8 @@ DICT(
 
 \item{ylim}{y-axis scale}
 
+\item{width.bar}{width errorbar}
+
 \item{posi}{Legend position}
 
 \item{xnumeric}{Declare x as numeric (\emph{default} is FALSE)}
@@ -87,10 +90,11 @@ Function of the AgroR package for the analysis of experiments conducted in a com
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 }
 \examples{
+rm(list=ls())
 data(simulate1)
 attach(simulate1)
-DICT(trat, tempo, resp)
-DICT(trat, tempo, resp,geom="bar",sup=40)
+with(simulate1, DICT(trat, tempo, resp))
+with(simulate1, DICT(trat, tempo, resp,geom="bar",sup=40))
 }
 \references{
 

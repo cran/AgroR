@@ -115,10 +115,23 @@ The function does not perform multiple regression in the case of two quantitativ
 In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 }
 \examples{
+
+#================================================
+# Example cloro
+#================================================
 library(AgroR)
 data(cloro)
 attach(cloro)
 FAT2DBC(f1, f2, bloco, resp, ylab="Number of nodules", legend = "Stages")
+
+#================================================
+# Example covercrops
+#================================================
+library(AgroR)
+data(covercrops)
+attach(covercrops)
+FAT2DBC(A, B, Bloco, Resp, ylab=expression("Yield"~(Kg~"100 m"^2)),
+legend = "Cover crops")
 }
 \references{
 Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997

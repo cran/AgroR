@@ -23,8 +23,7 @@ Circular column chart of an experiment with a factor of interest or isolated eff
 }
 \examples{
 data("laranja")
-attach(laranja)
-a=DBC(trat,bloco,resp, mcomp = "sk")
+a=with(laranja, DBC(trat,bloco,resp, mcomp = "sk"))
 radargraph(a)
 }
 \seealso{

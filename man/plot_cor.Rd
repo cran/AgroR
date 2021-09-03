@@ -58,8 +58,7 @@ Correlation analysis function (Pearson or Spearman)
 }
 \examples{
 data("pomegranate")
-attach(pomegranate)
-plot_cor(WL, SS, xlab="WL", ylab="SS")
+with(pomegranate, plot_cor(WL, SS, xlab="WL", ylab="SS"))
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

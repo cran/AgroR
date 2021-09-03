@@ -92,7 +92,7 @@ polynomial2_color=function(fator1,
     stat_summary(aes(color=fator2),fun="mean", #shape=21,
                  size=pointsize, geom="point",na.rm = TRUE)}
 
-  if(is.na(ylim)==TRUE){grafico=grafico}else{grafico=grafico+ylim(ylim)}
+  if(is.na(ylim[1])==TRUE){grafico=grafico}else{grafico=grafico+ylim(ylim)}
   for(i in 1:length(levels(Fator2))){
     y=resp[Fator2==levels(Fator2)[i]]
     x=fator1[Fator2==levels(Fator2)[i]]

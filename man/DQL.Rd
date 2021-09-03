@@ -108,8 +108,7 @@ In the final output when transformation (transf argument) is different from 1, t
 \examples{
 library(AgroR)
 data(porco)
-attach(porco)
-DQL(trat, linhas, colunas, resp)
+with(porco, DQL(trat, linhas, colunas, resp, ylab="Weigth (kg)"))
 }
 \references{
 Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997

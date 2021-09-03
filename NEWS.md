@@ -1,8 +1,30 @@
+# AgroR 1.2.3
+
+* Added the `soybean` dataset 
+
+* Added the `bean` dataset 
+
+* Added the `corn` dataset
+
+* Added the `covercrops` dataset 
+
+* Added the `orchard` dataset 
+
+* Added the `pepper` dataset 
+
+* The summarise_anova function was implemented, which performs a summary of the outputs of the DIC, DBC and DQL functions, when the factor is qualitative. In the case of FAT2DIC, FAT2DBC, PSUBDIC and PSUBDBC a summary of the analysis of variance frame is returned. 
+
+* Fixed bug of conjdic and conjdbc functions in case of analysis of separate experiments. 
+
+* Now for DIC, DBC, DQL, FAT2DIC, FAT2DBC, FAT3DIC and FAT3DBC functions, the standardized residual graph is returned in list form, before the graphs. 
+
+* The standardized residual graph for the PSUBDIC and PSUBDBC functions was implemented
+
 # AgroR 1.2.2
 
 * Scott-Knott's test has been improved. Now composite names can be used in factor vectors.
 
-* Corrigido o bug da função FAT2DIC.art
+* Fixed the FAT2DIC.art function bug 
 
 * `PCA_function` function was implemented
 

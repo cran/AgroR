@@ -25,6 +25,7 @@
 #' @param legend Legend title
 #' @param posi Legend position
 #' @param ylim y-axis scale
+#' @param width.bar width errorbar
 #' @param xnumeric Declare x as numeric (\emph{default} is FALSE)
 #' @param p.adj Method for adjusting p values for Kruskal-Wallis ("none","holm","hommel", "hochberg", "bonferroni", "BH", "BY", "fdr")
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
@@ -46,10 +47,11 @@
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #' @export
 #' @examples
+#' rm(list=ls())
 #' data(simulate1)
 #' attach(simulate1)
-#' DICT(trat, tempo, resp)
-#' DICT(trat, tempo, resp,geom="bar",sup=40)
+#' with(simulate1, DICT(trat, tempo, resp))
+#' with(simulate1, DICT(trat, tempo, resp,geom="bar",sup=40))
 
 DICT=function(trat,
               time,
@@ -72,6 +74,7 @@ DICT=function(trat,
               addmean=FALSE,
               legend="Legend",
               ylim=NA,
+              width.bar=0.1,
               posi=c(0.1,0.8),
               xnumeric=FALSE){
   requireNamespace("ScottKnott")
@@ -83,7 +86,7 @@ DICT=function(trat,
   requireNamespace("ggrepel")
 resp=response
 trat=as.factor(trat)
-time=as.factor(time)
+time=factor(time,unique(time))
 dados=data.frame(resp,trat,time)
 
 if(mcomp=="tukey"){
@@ -287,7 +290,7 @@ grafico=ggplot(dadosm,aes(y=media,
 if(error==TRUE){grafico=grafico+
   geom_errorbar(aes(ymin=media-desvio,
                     ymax=media+desvio),
-                width=0.1)}
+                width=width.bar)}
 if(addmean==FALSE && error==FALSE){grafico=grafico+
   geom_text_repel(aes(y=media+sup,label=letra),family=family,size=labelsize)}
 if(addmean==TRUE && error==FALSE){grafico=grafico+
@@ -317,7 +320,7 @@ grafico=ggplot(dadosm,aes(y=media,
 if(error==TRUE){grafico=grafico+
   geom_errorbar(aes(ymin=media-desvio,
                     ymax=media+desvio),
-                width=0.3,
+                width=width.bar,
                 position = position_dodge(width=0.9))}
 if(addmean==FALSE && error==FALSE){grafico=grafico+
   geom_text(aes(y=media+sup,label=letra),

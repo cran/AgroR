@@ -65,9 +65,8 @@
 #' @examples
 #' library(AgroR)
 #' data(cloro)
-#' attach(cloro)
 #' respAd=c(268, 322, 275, 350, 320)
-#' FAT2DBC.ad(f1, f2, bloco, resp, respAd, ylab="Number of nodules", legend = "Stages")
+#' with(cloro, FAT2DBC.ad(f1, f2, bloco, resp, respAd, ylab="Number of nodules", legend = "Stages"))
 
 FAT2DBC.ad=function(f1,
                     f2,
@@ -87,7 +86,7 @@ FAT2DBC.ad=function(f1,
                     ylab="Response",
                     xlab="",
                     legend="Legend",
-                    ad.label="Aditional",
+                    ad.label="Additional",
                     color="rainbow",
                     fill="lightblue",
                     textsize=12,
@@ -117,16 +116,16 @@ FAT2DBC.ad=function(f1,
   # ================================
   # Transformacao de dados
   # ================================
-  if(transf=="1"){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf=="0"){resp=log(response)}
-  if(transf=="0.5"){resp=sqrt(response)}
-  if(transf=="-0.5"){resp=1/sqrt(response)}
-  if(transf=="-1"){resp=1/response}
-  if(transf=="1"){respAd=responseAd}else{respAd=(responseAd^transf-1)/transf}
-  if(transf=="0"){respAd=log(responseAd)}
-  if(transf=="0.5"){respAd=sqrt(responseAd)}
-  if(transf=="-0.5"){respAd=1/sqrt(responseAd)}
-  if(transf=="-1"){respAd=1/responseAd}
+  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
+  if(transf==0){resp=log(response)}
+  if(transf==0.5){resp=sqrt(response)}
+  if(transf==-0.5){resp=1/sqrt(response)}
+  if(transf==-1){resp=1/response}
+  if(transf==1){respAd=responseAd}else{respAd=(responseAd^transf-1)/transf}
+  if(transf==0){respAd=log(responseAd)}
+  if(transf==0.5){respAd=sqrt(responseAd)}
+  if(transf==-0.5){respAd=1/sqrt(responseAd)}
+  if(transf==-1){respAd=1/responseAd}
 
   if(is.na(sup==TRUE)){sup=0.1*mean(response)}
   Fator1=factor(fator1, levels = unique(fator1))
@@ -167,7 +166,7 @@ FAT2DBC.ad=function(f1,
   respad=b$residuals/sqrt(an$`Mean Sq`[5])
   out=respad[respad>3 | respad<(-3)]
   out=names(out)
-  out=ifelse(length(out)==0,"No discrepant point",out)
+  out=if(length(out)==0)("No discrepant point")else{out}
 
   if(norm=="sw"){norm1 = shapiro.test(b$res)}
   if(norm=="li"){norm1=lillie.test(b$residuals)}
@@ -191,7 +190,7 @@ FAT2DBC.ad=function(f1,
     names(homog1)=c("Df", "F value","p.value")}
 
   indep = dwtest(b)
-  resids=b$residuals/sqrt(an$`Mean Sq`[4])
+  resids=b$residuals/sqrt(an$`Mean Sq`[5])
   Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
   residplot=ggplot(data=data.frame(resids,Ids),
                    aes(y=resids,x=1:length(resids)))+
@@ -203,7 +202,6 @@ FAT2DBC.ad=function(f1,
     theme_classic()+theme(axis.text.y = element_text(size=12),
                           axis.text.x = element_blank())+
     geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
-  print(residplot)
 
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Normality of errors")))
@@ -280,7 +278,7 @@ FAT2DBC.ad=function(f1,
     cat(green(bold("\n-----------------------------------------------------------------\n")))
     fatores <- data.frame(Fator1 = factor(fator1), Fator2 = factor(fator2))
     fatoresa <- data.frame(Fator1 = fator1a, Fator2 = fator2a)
-    graficos=list(1,2)
+    graficos=list(1,2,3)
 
     for (i in 1:2) {if (anava$`Pr(>F)`[i] <= alpha.f)
     {cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -346,8 +344,7 @@ FAT2DBC.ad=function(f1,
         grafico=grafico+
           theme(text = element_text(size=textsize,color="black",family=family),
                 axis.text = element_text(size=textsize,color="black",family=family),
-                axis.title = element_text(size=textsize,color="black",family=family),
-                legend.position = "none")}
+                axis.title = element_text(size=textsize,color="black",family=family))}
 
         # ================================
         # grafico de pontos
@@ -375,9 +372,10 @@ FAT2DBC.ad=function(f1,
         grafico=grafico+
           theme(text = element_text(size=textsize,color="black",family=family),
                 axis.text = element_text(size=textsize,color="black",family=family),
-                axis.title = element_text(size=textsize,color="black",family=family),
-                legend.position = "none")}
-
+                axis.title = element_text(size=textsize,color="black",family=family))}
+        grafico=grafico+
+          geom_hline(aes(color=ad.label,group=ad.label,yintercept=mean(responseAd,na.rm=T)),lty=2)+
+          scale_color_manual(values = "black")+labs(color="")
         if(CV==TRUE){grafico=grafico+labs(caption=paste("p-value = ", if(anava$`Pr(>F)`[i]<0.0001){paste("<", 0.0001)}
                                                         else{paste("=", round(anava$`Pr(>F)`[i],4))},"; CV = ",
                                                         round(abs(sqrt(anava$`Mean Sq`[6])/mean(c(resp,respAd),na.rm=TRUE))*100,2),"%"))}
@@ -405,9 +403,8 @@ FAT2DBC.ad=function(f1,
 
       # Ns
       #if (a$`Pr(>F)`[i] > alpha.f) {cat("\nAccording to the F test, the means do not differ\n")}
-      graficos[[i]]=grafico
-    }
-    }
+      graficos[[i+1]]=grafico}}
+    graficos[[1]]=residplot
     if(anava$`Pr(>F)`[1]>=alpha.f && anava$`Pr(>F)`[2] <alpha.f){
       cat(green(bold("\n-----------------------------------------------------------------\n")))
       cat(green("Isolated factors 1 not significant"))
@@ -461,7 +458,7 @@ FAT2DBC.ad=function(f1,
     des1.tab$`F value`=des1.tab$`Mean Sq`/anava$`Mean Sq`[6]
     des1.tab$`Pr(>F)`=1-pf(des1.tab$`F value`,des1.tab$Df,anava$Df[6])
     print(des1.tab)
-
+    desdobramento1=des1.tab
     if(quali[1]==TRUE & quali[2]==TRUE){
       #-------------------------------------
       # Teste de comparação
@@ -558,7 +555,7 @@ FAT2DBC.ad=function(f1,
     des1.tab$`F value`=des1.tab$`Mean Sq`/anava$`Mean Sq`[6]
     des1.tab$`Pr(>F)`=1-pf(des1.tab$`F value`,des1.tab$Df,anava$Df[6])
     print(des1.tab)
-
+    desdobramento2=des1.tab
 
     #-------------------------------------
     # Teste de comparação
@@ -754,5 +751,7 @@ FAT2DBC.ad=function(f1,
       message(black("\n\nAverages followed by the same lowercase letter in the column and \nuppercase in the row do not differ by the",mcomp,"(p<",alpha.t,")"))
     }
   }
-  if(anava$`Pr(>F)`[4]>alpha.f){graficos}else{colints=list(grafico)}
+  if(anava$`Pr(>F)`[4]>alpha.f){
+    names(graficos)=c("residplot","graph1","graph2")
+    graficos}else{colints=list(residplot,grafico)}
 }

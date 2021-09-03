@@ -46,8 +46,7 @@ Apply the aligned rank transform to a factorial model (with optional grouping te
 }
 \examples{
 data(cloro)
-attach(cloro)
-FAT2DBC.art(f1,f2,bloco,resp)
+with(cloro, FAT2DBC.art(f1,f2,bloco,resp))
 }
 \references{
 Wobbrock, J. O., Findlater, L., Gergle, D., Higgins, J. J. (2011, May). The aligned rank transform for nonparametric factorial analyses using only anova procedures. In Proceedings of the SIGCHI conference on human factors in computing systems (pp. 143-146).

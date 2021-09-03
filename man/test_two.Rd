@@ -12,7 +12,7 @@ test_two(
   alternative = c("two.sided", "less", "greater"),
   conf.level = 0.95,
   theme = theme_classic(),
-  ylab = "Reponse",
+  ylab = "Response",
   xlab = "",
   var.equal = FALSE
 )

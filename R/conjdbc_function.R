@@ -48,8 +48,7 @@
 #' @examples
 #' library(AgroR)
 #' data(mirtilo)
-#' attach(mirtilo)
-#' conjdbc(trat, bloco, exp, resp)
+#' with(mirtilo, conjdbc(trat, bloco, exp, resp))
 
 conjdbc=function(trat,
                  block,
@@ -78,11 +77,11 @@ conjdbc=function(trat,
   requireNamespace("ggplot2")
   requireNamespace("lmtest")
 
-  if(transf=="1"){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf=="0"){resp=log(response)}
-  if(transf=="0.5"){resp=sqrt(response)}
-  if(transf=="-0.5"){resp=1/sqrt(response)}
-  if(transf=="-1"){resp=1/response}
+  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
+  if(transf==0){resp=log(response)}
+  if(transf==0.5){resp=sqrt(response)}
+  if(transf==-0.5){resp=1/sqrt(response)}
+  if(transf==-1){resp=1/response}
   tratnum=trat
   tratamento=factor(trat,levels=unique(trat))
   bloco=as.factor(block)
@@ -232,6 +231,24 @@ conjdbc=function(trat,
   # cat(green(bold("Anova location and treatment interaction")))
   # cat(green(bold("\n-----------------------------------------------------------------\n")))
   # print(a)
+
+  modres=anova(d)
+  respad=d$res/sqrt(modres$`Mean Sq`[6])
+  out=respad[respad>3 | respad<(-3)]
+  out=names(out)
+  out=if(length(out)==0)("No discrepant point")else{out}
+  resids=d$res/sqrt(modres$`Mean Sq`[6])
+  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
+  residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+    geom_point(shape=21,color="gray",fill="gray",size=3)+
+    labs(x="",y="Standardized residuals")+
+    geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
+    scale_x_continuous(breaks=1:length(resids))+
+    theme_classic()+theme(axis.text.y = element_text(size=12),
+                          axis.text.x = element_blank())+
+    geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
+  print(residplot)
+
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Analysis of variance")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -306,14 +323,14 @@ conjdbc=function(trat,
                   axis.title = element_text(size=textsize,color="black", family = family),
                   axis.text = element_text(size=textsize,color="black", family = family),
                   legend.position = "none")
-          graficos[[i]]=grafico
-        }
+          graficos[[i]]=grafico}
+        print(graficos)
     }
       print(tukey)}
       if(quali==FALSE){
         for(i in 1:length(levels(local))){
         data=dados[dados$local==levels(dados$local)[i],]
-        dose1=tratnum#as.numeric(as.character(data$tratamento))
+        dose1=data$tratnum#as.numeric(as.character(data$tratamento))
         resp=data$response
         grafico=polynomial(dose1,
                            resp,grau = grau,
@@ -323,10 +340,9 @@ conjdbc=function(trat,
                            xlab=xlab,
                            theme=theme,
                            posi="top",
-                           se=errorbar)
+                           se=errorbar)[[1]]
         graficos[[i]]=grafico}
       }
-    print(graficos)
   }
   if(a$`Pr(>F)`[1] > alpha.f && qmresmedio < 7){
     if(quali==TRUE){

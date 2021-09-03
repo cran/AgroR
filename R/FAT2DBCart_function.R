@@ -24,8 +24,7 @@
 #'
 #' @examples
 #' data(cloro)
-#' attach(cloro)
-#' FAT2DBC.art(f1,f2,bloco,resp)
+#' with(cloro, FAT2DBC.art(f1,f2,bloco,resp))
 
 FAT2DBC.art=function(f1,
                      f2,

@@ -107,10 +107,20 @@ The ordering of the graph is according to the sequence in which the factor level
 In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 }
 \examples{
+
+#==============================
+# Example tomate
+#==============================
 library(AgroR)
 data(tomate)
-attach(tomate)
-PSUBDBC(parc, subp, bloco, resp)
+with(tomate, PSUBDBC(parc, subp, bloco, resp, ylab="Dry mass (g)"))
+
+#==============================
+# Example orchard
+#==============================
+library(AgroR)
+data(orchard)
+with(orchard, PSUBDBC(A, B, Bloco, Resp, ylab="CBM"))
 }
 \references{
 Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997

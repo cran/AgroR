@@ -4,20 +4,20 @@
 \alias{sketch}
 \title{Utils: Experimental sketch}
 \usage{
-sketch(trat, trat1 = NULL, r, design = "dic", pos = "line", ncol = NA)
+sketch(trat, trat1 = NULL, trat2 = NULL, r, design = "dic", pos = "line")
 }
 \arguments{
 \item{trat}{Vector with factor A levels}
 
 \item{trat1}{Vector with levels of factor B (Set to NULL if not factorial or psub)}
 
+\item{trat2}{Vector with levels of factor C (Set to NULL if not factorial)}
+
 \item{r}{Number of repetitions}
 
 \item{design}{Experimental design ("dic", "dbc", "dql","psubdic","psubdbc","fat2dic","fat2dbc")}
 
 \item{pos}{Repeat position (line or column)}
-
-\item{ncol}{Default is NA. Warning!!! Use only in a completely randomized design}
 }
 \value{
 Returns an experimental sketch according to the specified design.
@@ -30,25 +30,33 @@ The sketches have only a rectangular shape, and the blocks (in the case of rando
 Mendiburu, F., & de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
 }
 \examples{
-Trat=paste("Treatments",1:6)
+Trat=paste("Tr",1:6)
 
 #=============================
 # Completely randomized design
 #=============================
 sketch(Trat,r=3)
+sketch(Trat,r=3,pos="column")
 
 #=============================
 # Randomized block design
 #=============================
 sketch(Trat, r=3, design="dbc")
+sketch(Trat, r=3, design="dbc",pos="column")
 
 #=============================
 # Completely randomized experiments in double factorial
 #=============================
-sketch(trat=c(1,2),
-       trat1=c(1,2,3),
+sketch(trat=c("A","B"),
+       trat1=c("A","B","C"),
        design = "fat2dic",
        r=3)
+
+sketch(trat=c("A","B"),
+       trat1=c("A","B","C"),
+       design = "fat2dic",
+       r=3,
+       pos="column")
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

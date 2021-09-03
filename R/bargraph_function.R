@@ -12,10 +12,9 @@
 #' @seealso \link{radargraph}, \link{barplot_positive}, \link{plot_TH}, \link{plot_TH1}, \link{corgraph}, \link{spider_graph}, \link{line_plot}, \link{plot_cor}, \link{plot_interaction}, \link{plot_jitter}, \link{seg_graph}, \link{TBARPLOT.reverse}
 #' @examples
 #' data("laranja")
-#' attach(laranja)
-#'a=DBC(trat, bloco, resp,
+#'a=with(laranja, DBC(trat, bloco, resp,
 #'      mcomp = "sk",angle=45,
-#'      ylab = "Number of fruits/plants")
+#'      ylab = "Number of fruits/plants"))
 #'bar_graph(a,horiz = FALSE)
 
 

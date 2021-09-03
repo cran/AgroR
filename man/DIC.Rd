@@ -110,34 +110,36 @@ In the final output when transformation (transf argument) is different from 1, t
 \examples{
 library(AgroR)
 data(pomegranate)
-attach(pomegranate)
 
-DIC(trat, WL) # tukey
-DIC(trat, WL, mcomp = "sk")
-DIC(trat, WL, mcomp = "duncan")
+with(pomegranate, DIC(trat, WL, ylab = "Weight loss (\%)")) # tukey
+with(pomegranate, DIC(trat, WL, mcomp = "sk", ylab = "Weight loss (\%)"))
+with(pomegranate, DIC(trat, WL, mcomp = "duncan", ylab = "Weight loss (\%)"))
 
 #=============================
 # Kruskal-Wallis
 #=============================
-DIC(trat, WL, test = "noparametric")
+with(pomegranate, DIC(trat, WL, test = "noparametric", ylab = "Weight loss (\%)"))
 
-#=============================
-# data transformation
-#=============================
-DIC(trat, WL, transf = 0)
 
 #=============================
 # chart type
 #=============================
-DIC(trat, WL, geom="point")
-DIC(trat, WL, ylab = "Weight loss (\%)", xlab="Treatments")
+with(pomegranate, DIC(trat, WL, geom="point", ylab = "Weight loss (\%)"))
+with(pomegranate, DIC(trat, WL, ylab = "Weight loss (\%)", xlab="Treatments"))
 
 #=============================
 # quantitative factor
 #=============================
 data("phao")
-attach(phao)
-DIC(dose,comp,quali=FALSE,grau=2)
+with(phao, DIC(dose,comp,quali=FALSE,grau=2,
+               xlab = expression("Dose"~(g~vase^-1)),
+               ylab="Leaf length (cm)"))
+
+#=============================
+# data transformation
+#=============================
+data("pepper")
+with(pepper, DIC(Acesso, VitC, transf = 0,ylab="Vitamin C"))
 }
 \references{
 Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997

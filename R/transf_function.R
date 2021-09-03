@@ -20,8 +20,7 @@
 #' Box, G. E., Cox, D. R. (1964). An analysis of transformations. Journal of the Royal Statistical Society: Series B (Methodological), 26(2), 211-243.
 #' @examples
 #' data("pomegranate")
-#' attach(pomegranate)
-#' transf(WL,trat)
+#' with(pomegranate, transf(WL,trat))
 
 transf=function(response,
                 f1,

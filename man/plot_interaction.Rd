@@ -4,10 +4,30 @@
 \alias{plot_interaction}
 \title{Graph: Interaction plot}
 \usage{
-plot_interaction(a)
+plot_interaction(
+  a,
+  box_label = TRUE,
+  repel = FALSE,
+  pointsize = 3,
+  linesize = 0.8,
+  width.bar = 0.05,
+  add.errorbar = TRUE
+)
 }
 \arguments{
 \item{a}{FAT2DIC, FAT2DBC, PSUBDIC or PSUBDBC object}
+
+\item{box_label}{Add box in label}
+
+\item{repel}{a boolean, whether to use ggrepel to avoid overplotting text labels or not.}
+
+\item{pointsize}{Point size}
+
+\item{linesize}{Line size (Trendline and Error Bar)}
+
+\item{width.bar}{width of the error bars.}
+
+\item{add.errorbar}{Add error bars.}
 }
 \value{
 Returns an interaction graph with averages and letters from the multiple comparison test
@@ -17,8 +37,7 @@ Performs an interaction graph from an output of the FAT2DIC, FAT2DBC, PSUBDIC or
 }
 \examples{
 data(cloro)
-attach(cloro)
-a=FAT2DIC(f1, f2, resp)
+a=with(cloro, FAT2DIC(f1, f2, resp))
 plot_interaction(a)
 }
 \author{

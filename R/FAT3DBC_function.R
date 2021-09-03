@@ -56,8 +56,7 @@
 #' @examples
 #' library(AgroR)
 #' data(enxofre)
-#' attach(enxofre)
-#' FAT3DBC(f1, f2, f3, bloco, resp)
+#' with(enxofre, FAT3DBC(f1, f2, f3, bloco, resp))
 
 FAT3DBC=function(f1,
                  f2,
@@ -107,11 +106,11 @@ FAT3DBC=function(f1,
     # ================================
     # Transformacao de dados
     # ================================
-    if(transf=="1"){resp=response}else{resp=(response^transf-1)/transf}
-    if(transf=="0"){resp=log(response)}
-    if(transf=="0.5"){resp=sqrt(response)}
-    if(transf=="-0.5"){resp=1/sqrt(response)}
-    if(transf=="-1"){resp=1/response}
+    if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
+    if(transf==0){resp=log(response)}
+    if(transf==0.5){resp=sqrt(response)}
+    if(transf==-0.5){resp=1/sqrt(response)}
+    if(transf==-1){resp=1/response}
 
     # =================================
     ## Reconstruindo vetores
@@ -135,7 +134,7 @@ FAT3DBC=function(f1,
     respad=anava$residuals/sqrt(anavaF3$`Mean Sq`[9])
     out=respad[respad>3 | respad<(-3)]
     out=names(out)
-    out=ifelse(length(out)==0,"No discrepant point",out)
+    out=if(length(out)==0)("No discrepant point")else{out}
     resids=anava$residuals/sqrt(anavaF3$`Mean Sq`[9])
     Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
     residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
@@ -146,7 +145,7 @@ FAT3DBC=function(f1,
         theme_classic()+theme(axis.text.y = element_text(size=12),
                               axis.text.x = element_blank())+
         geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
-    print(residplot)
+    # print(residplot)
 
 
     # =================================
@@ -313,7 +312,7 @@ FAT3DBC=function(f1,
                 print(grafico)}
             }
 
-            if(quali[i]==TRUE | quali[i]==FALSE && anavaF3[i,5]>alpha.f) {
+            if(anavaF3[i,5]>alpha.f) {
                 cat(green(bold("\n------------------------------------------\n")))
                 cat(fac.names[i])
                 cat(green(bold("\n------------------------------------------\n")))
@@ -329,7 +328,8 @@ FAT3DBC=function(f1,
                 grafico=polynomial(dose,resp,grau = grau)
                 cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
                 cat(green(bold("\n------------------------------------------")))}
-            graficos[[i]]=grafico
+            graficos[[1]]=residplot
+            graficos[[i+1]]=grafico
         }
     }
 
@@ -1835,32 +1835,32 @@ FAT3DBC=function(f1,
 
     if(anavaF3[5,5]>alpha.f && anavaF3[6,5]>alpha.f && anavaF3[7,5]>alpha.f && anavaF3[8,5]>alpha.f){
         if(anavaF3[1,5]<=alpha.f | anavaF3[2,5]<=alpha.f | anavaF3[3,5]<=alpha.f){
-        graficos=graficos
+        print(residplot)
         graficos}else{graficos=NA}}
     if(anavaF3[8,5]>alpha.f && anavaF3[5,5]<=alpha.f){
-         graficos=list(colint1)
+         graficos=list(residplot,colint1)
          if(anavaF3[6,5]>alpha.f && anavaF3[7,5]>alpha.f && anavaF3[3,5]<=alpha.f){
-             graficos=list(colint1,grafico1)}
+             graficos=list(residplot,colint1,grafico1)}
          graficos}
     if(anavaF3[8,5]>alpha.f && anavaF3[6,5]<=alpha.f){
-         graficos=list(colint2)
+         graficos=list(residplot,colint2)
          if(anavaF3[5,5]>alpha.f && anavaF3[7,5]>alpha.f && anavaF3[2,5]<=alpha.f){
-             graficos=list(colint2,grafico2)}
+             graficos=list(residplot,colint2,grafico2)}
          graficos}
     if(anavaF3[8,5]>alpha.f && anavaF3[7,5]<=alpha.f){
-         graficos=list(colint3)
+         graficos=list(residplot,colint3)
          if(anavaF3[5,5]>alpha.f && anavaF3[6,5]>alpha.f && anavaF3[1,5]<=alpha.f){
-             graficos=list(colint3,grafico3)}}
+             graficos=list(residplot,colint3,grafico3)}}
     if(anavaF3[8,5]>alpha.f && anavaF3[5,5]<=alpha.f && anavaF3[6,5]<=alpha.f){
-        graficos=list(colint1,colint2)
+        graficos=list(residplot,colint1,colint2)
         graficos}
     if(anavaF3[8,5]>alpha.f && anavaF3[5,5]<=alpha.f && anavaF3[7,5]<=alpha.f){
-        graficos=list(colint1,colint3)
+        graficos=list(residplot,colint1,colint3)
         graficos}
     if(anavaF3[8,5]>alpha.f && anavaF3[6,5]<=alpha.f && anavaF3[7,5]<=alpha.f){
-        graficos=list(colint2,colint3)
+        graficos=list(residplot,colint2,colint3)
         graficos}
-    if(anavaF3[8,5]<=alpha.f){graficos=NA}
+    if(anavaF3[8,5]<=alpha.f){graficos=list(residplot)}
     graficos=graficos
 }
 

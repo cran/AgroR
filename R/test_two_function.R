@@ -31,7 +31,7 @@ test_two=function(trat,
                 alternative = c("two.sided", "less", "greater"),
                 conf.level=0.95,
                 theme=theme_classic(),
-                ylab="Reponse",
+                ylab="Response",
                 xlab="",
                 var.equal=FALSE){
   if(test=="t"){teste=t.test(resp~trat,
@@ -47,7 +47,7 @@ test_two=function(trat,
   dados=data.frame(resp,trat)
   media=data.frame(media=tapply(resp,trat,mean, na.rm=TRUE))
   media$trat=rownames(media)
-  pvalor=sprintf("italic(p-value)==%0.3f",teste$p.value)
+  pvalor=sprintf("italic(\"p-value\")==%0.3f",teste$p.value)
   requireNamespace("ggplot2")
   grafico=ggplot(dados,aes(y=resp,x=trat))+
   geom_boxplot(size=0.8,outlier.colour = "white")+
@@ -57,14 +57,13 @@ test_two=function(trat,
                             x=trat,
                             label=round(media,2)),fill="lightyellow")+
   theme+ylab(ylab)+xlab(xlab)+
-  theme(axis.text = element_text(size=12,color="black"))+
-  annotate(geom="text",
-           x=1.5,
-           y=min(resp),hjust=0.5,vjust=0,
-           label=
-             ifelse(teste$p.value<0.001,
-                    expression(italic("p-value <0.001")),
-                    parse(text=pvalor)))
+  theme(axis.text = element_text(size=12,color="black"))
+  if(teste$p.value<0.001){grafico=grafico+annotate(geom="text",
+           x=1.5,y=min(resp),hjust=0.5,vjust=0,
+           label="italic(\"p-value <0.001\")",parse=TRUE)}
+  if(teste$p.value>0.001){grafico=grafico+
+    annotate(geom="text",x=1.5,y=min(resp),hjust=0.5,vjust=0,
+             label=pvalor,parse=TRUE)}
   print(teste)
   print(grafico)
   graficos=list(grafico)[[1]]

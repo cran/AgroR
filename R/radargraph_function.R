@@ -12,8 +12,7 @@
 #' @export
 #' @examples
 #' data("laranja")
-#' attach(laranja)
-#' a=DBC(trat,bloco,resp, mcomp = "sk")
+#' a=with(laranja, DBC(trat,bloco,resp, mcomp = "sk"))
 #' radargraph(a)
 
 radargraph=function(model,

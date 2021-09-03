@@ -26,6 +26,7 @@
 #' @param legend Legend title
 #' @param posi Legend position
 #' @param ylim y-axis scale
+#' @param width.bar width errorbar
 #' @param xnumeric Declare x as numeric (\emph{default} is FALSE)
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @keywords dbct
@@ -47,6 +48,7 @@
 #' @export
 #' @return The function returns the p-value of Anova, the assumptions of normality of errors, homogeneity of variances and independence of errors, multiple comparison test, as well as a line graph
 #' @examples
+#' rm(list=ls())
 #' data(simulate2)
 #' attach(simulate2)
 #'
@@ -81,6 +83,7 @@ DBCT=function(trat,
               posi=c(0.1,0.8),
               legend="Legend",
               ylim=NA,
+              width.bar=0.1,
               dec=3,
               xnumeric=FALSE){
   requireNamespace("ScottKnott")
@@ -92,7 +95,7 @@ DBCT=function(trat,
   trat=as.factor(trat)
   resp=response
   block=as.factor(block)
-  time=as.factor(time)
+  time=factor(time,unique(time))
   dados=data.frame(resp,trat,block,time)
   if(mcomp=="tukey"){
     tukeyg=c()
@@ -277,7 +280,7 @@ DBCT=function(trat,
             legend.text = element_text(size = textsize))+labs(shape=legend, lty=legend)
     if(error==TRUE){grafico=grafico+
       geom_errorbar(aes(ymin=media-desvio,
-                        ymax=media+desvio), width=0.1)}
+                        ymax=media+desvio), width=width.bar)}
     if(addmean==FALSE && error==FALSE){grafico=grafico+
       geom_text_repel(aes(y=media+sup,label=letra),family=family,size=labelsize)}
     if(addmean==TRUE && error==FALSE){grafico=grafico+
@@ -309,7 +312,7 @@ DBCT=function(trat,
     if(error==TRUE){grafico=grafico+
       geom_errorbar(aes(ymin=media-desvio,
                         ymax=media+desvio),
-                    width=0.3, position = position_dodge(width=0.9))}
+                    width=width.bar, position = position_dodge(width=0.9))}
     if(addmean==FALSE && error==FALSE){grafico=grafico+
       geom_text(aes(y=media+sup,label=letra),
                 size=labelsize,family=family,

@@ -88,7 +88,7 @@ polynomial2=function(fator1,
   if(point=="all"){grafico=grafico+
     geom_point(aes(shape=fator2),size=pointsize,na.rm = TRUE)}
 
-  if(is.na(ylim)==TRUE){grafico=grafico}else{grafico=grafico+ylim(ylim)}
+  if(is.na(ylim[1])==TRUE){grafico=grafico}else{grafico=grafico+ylim(ylim)}
   for(i in 1:length(levels(Fator2))){
     y=resp[Fator2==levels(Fator2)[i]]
     x=fator1[Fator2==levels(Fator2)[i]]

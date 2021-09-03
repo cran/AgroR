@@ -101,8 +101,7 @@ The plot_TH1 function allows the user to build a column/line graph with climatic
 \examples{
 library(AgroR)
 data(weather)
-attach(weather)
-plot_TH1(tempo, Tmed, Tmax, Tmin, UR)
+with(weather, plot_TH1(tempo, Tmed, Tmax, Tmin, UR))
 }
 \seealso{
 \link{radargraph}, \link{sk_graph}, \link{barplot_positive}, \link{corgraph}, \link{spider_graph}, \link{line_plot}

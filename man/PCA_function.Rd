@@ -2,7 +2,7 @@
 % Please edit documentation in R/pca_function.R
 \name{PCA_function}
 \alias{PCA_function}
-\title{Principal components analysis}
+\title{Analysis: Principal components analysis}
 \usage{
 PCA_function(
   data,
@@ -11,6 +11,7 @@ PCA_function(
   pointsize = 5,
   textsize = 12,
   labelsize = 4,
+  linesize = 0.6,
   repel = TRUE,
   ylab = NA,
   xlab = NA,
@@ -34,6 +35,8 @@ PCA_function(
 \item{textsize}{Text size (\emph{default} is 12)}
 
 \item{labelsize}{Label size (\emph{default} is 4)}
+
+\item{linesize}{Line size (\emph{default} is 0.8)}
 
 \item{repel}{Avoid text overlay (\emph{default} is TRUE)}
 
@@ -64,7 +67,7 @@ The type.graph argument defines the graph that will be returned,
 in the case of "biplot" the biplot graph is returned with the
 first two main components and with eigenvalues and eigenvectors.
 In the case of "scores" only the treatment scores are returned,
-while for "color" the correlations are returned. For "corPCA" a
+while for "cor" the correlations are returned. For "corPCA" a
 correlation between the vectors with the components is returned.
 }
 \examples{

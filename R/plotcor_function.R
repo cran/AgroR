@@ -21,8 +21,7 @@
 #' @export
 #' @examples
 #' data("pomegranate")
-#' attach(pomegranate)
-#' plot_cor(WL, SS, xlab="WL", ylab="SS")
+#' with(pomegranate, plot_cor(WL, SS, xlab="WL", ylab="SS"))
 
 plot_cor=function(x,y,
                   method="pearson",

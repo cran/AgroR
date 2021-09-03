@@ -8,7 +8,7 @@ DQLT(
   trat,
   line,
   column,
-  tempo,
+  time,
   response,
   alpha.f = 0.05,
   alpha.t = 0.05,
@@ -26,6 +26,7 @@ DQLT(
   fill = "gray",
   legend = "Legend",
   ylim = NA,
+  width.bar = 0.1,
   dec = 3,
   theme = theme_classic(),
   xnumeric = FALSE
@@ -38,7 +39,7 @@ DQLT(
 
 \item{column}{Numerical or complex vector with column}
 
-\item{tempo}{Numerical or complex vector with times}
+\item{time}{Numerical or complex vector with times}
 
 \item{response}{Numerical vector containing the response of the experiment.}
 
@@ -74,6 +75,8 @@ DQLT(
 
 \item{ylim}{y-axis scale}
 
+\item{width.bar}{width errorbar}
+
 \item{dec}{Number of cells}
 
 \item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
@@ -93,6 +96,7 @@ The p-value of the analysis of variance, the normality test for Shapiro-Wilk err
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 }
 \examples{
+rm(list=ls())
 data(simulate3)
 attach(simulate3)
 DQLT(trat, linhas, colunas, tempo, resp)

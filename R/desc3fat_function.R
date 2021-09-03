@@ -20,8 +20,7 @@
 #' @examples
 #' library(AgroR)
 #' data(enxofre)
-#' attach(enxofre)
-#' desc3fat(f1, f2, f3, resp)
+#' with(enxofre, desc3fat(f1, f2, f3, resp))
 
 ######################################################################################
 ## Analise descritiva

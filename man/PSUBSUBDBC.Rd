@@ -47,8 +47,7 @@ The PSUBSUBDBC function does not present residual analysis, interaction breakdow
 \examples{
 library(AgroR)
 data(enxofre)
-attach(enxofre)
-PSUBSUBDBC(f1, f2, f3, bloco, resp)
+with(enxofre, PSUBSUBDBC(f1, f2, f3, bloco, resp))
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

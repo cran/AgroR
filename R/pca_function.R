@@ -1,4 +1,4 @@
-#' Principal components analysis
+#' Analysis: Principal components analysis
 #'
 #' @author Gabriel Danilo Shimizu
 #' @description This function performs principal component analysis.
@@ -9,6 +9,7 @@
 #' @param pointsize Point size (\emph{default} is 5)
 #' @param textsize Text size (\emph{default} is 12)
 #' @param labelsize Label size (\emph{default} is 4)
+#' @param linesize Line size (\emph{default} is 0.8)
 #' @param repel Avoid text overlay (\emph{default} is TRUE)
 #' @param ylab Names y-axis
 #' @param xlab Names x-axis
@@ -24,7 +25,7 @@
 #' in the case of "biplot" the biplot graph is returned with the
 #' first two main components and with eigenvalues and eigenvectors.
 #' In the case of "scores" only the treatment scores are returned,
-#' while for "color" the correlations are returned. For "corPCA" a
+#' while for "cor" the correlations are returned. For "corPCA" a
 #' correlation between the vectors with the components is returned.
 #'
 #' @export
@@ -40,6 +41,7 @@ PCA_function=function(data,
                       pointsize=5,
                       textsize=12,
                       labelsize=4,
+                      linesize=0.6,
                       repel=TRUE,
                       ylab=NA,
                       xlab=NA,
@@ -51,15 +53,18 @@ PCA_function=function(data,
                       type.graph="biplot"){
   nVar = ncol(data)
   if(scale==TRUE){D=scale(data)}else{D=data}
+  comp=length(colnames(D))
+  #fat=rep(c(-1,1),comp/2)
   Eig = eigen(var(D))
-  Avl = Eig$values
-  Avt = Eig$vectors
+  Avl = Eig$values#*fat
+  Avt = Eig$vectors#*fat
   autov=data.frame(rbind(Eigenvalue=Avl,
       Perc=Avl/sum(Avl),
       CumPer=cumsum(Avl/sum(Avl))))
   colnames(autov)=paste("PC",1:length(Avl),sep = "")
   if(is.na(xlab)==TRUE){xlab=paste("PC1 (",round(autov$PC1[2]*100,2),"%)",sep = "")}
   if(is.na(ylab)==TRUE){ylab=paste("PC2 (",round(autov$PC2[2]*100,2),"%)",sep = "")}
+  # Avt[,1]=Avt[,1]*-1
   Escores = as.matrix(D) %*% Avt
   Escores2 = apply(Escores, 2, function(x) (x - mean(x))/sd(x))
   Escores2=data.frame(Escores2)
@@ -85,11 +90,11 @@ PCA_function=function(data,
     geom_point(data=Escores2,aes(y=PC2,x=PC1,groups=groups,fill=groups),
                shape=21,color="black",size=pointsize)+labs(fill=label.legend)}
   graph=graph+theme+
-    geom_vline(xintercept = 0,lty=2,size=0.8)+
-    geom_hline(yintercept = 0,lty=2,size=0.8)+
+    geom_vline(xintercept = 0,lty=2,size=linesize)+
+    geom_hline(yintercept = 0,lty=2,size=linesize)+
     geom_segment(data=setas,aes(x=0,y=0,
                                 yend=PC2,
-                                xend=PC1),size=0.8,
+                                xend=PC1),size=linesize,
                  arrow = arrow(length = unit(0.14,"inches")))+
     theme(axis.text = element_text(size=textsize,color="black"))+
     xlab(xlab)+ylab(ylab)
@@ -115,8 +120,8 @@ PCA_function=function(data,
                    shape=21,color="black",size=pointsize)+labs(fill=label.legend)}
 
     graph=graph+theme+
-      geom_vline(xintercept = 0,lty=2,size=0.8)+
-      geom_hline(yintercept = 0,lty=2,size=0.8)+
+      geom_vline(xintercept = 0,lty=2,size=linesize)+
+      geom_hline(yintercept = 0,lty=2,size=linesize)+
       theme(axis.text = element_text(size=textsize,color="black"))+
       xlab(xlab)+ylab(ylab)
     if(repel==FALSE & text==TRUE){
@@ -126,15 +131,29 @@ PCA_function=function(data,
       graph=graph+
         geom_text_repel(data=Escores2,aes(label=rownames(Escores2)),color="black",family=font.family,size=labelsize)}}}
   if(type.graph=="cor"){
+    circle <- function(center = c(0, 0), npoints = 100) {
+      r = 1
+      tt = seq(0, 2 * pi, length = npoints)
+      xx = center[1] + r * cos(tt)
+      yy = center[1] + r * sin(tt)
+      x=xx
+      y=yy
+      return(data.frame(x = xx, y = yy))
+    }
+    corcir = circle(c(0, 0), npoints = 100)
+    x=corcir$x
+    y=corcir$y
     graph=ggplot()+theme+
-      geom_vline(xintercept = 0,lty=2,size=0.8)+
-      geom_hline(yintercept = 0,lty=2,size=0.8)+
+      geom_vline(xintercept = 0,lty=2,size=linesize)+
+      geom_hline(yintercept = 0,lty=2,size=linesize)+
       geom_segment(data=setas,aes(x=0,y=0,
                                   yend=PC2,
-                                  xend=PC1),size=0.8,
+                                  xend=PC1),size=linesize,
                    arrow = arrow(length = unit(0.14,"inches")))+
       theme(axis.text = element_text(size=textsize,color="black"))+
-      xlab(xlab)+ylab(ylab)
+      xlab(xlab)+ylab(ylab)+
+      geom_path(data = corcir, aes(x = x, y = y), colour = "gray65")
+
     if(repel==FALSE & text==TRUE){
       PC1=setas$PC1
       PC2=setas$PC2
@@ -155,7 +174,7 @@ PCA_function=function(data,
     graph=ggplot(data=dados,aes(x=rownames(dados),y=Perc,group=1))+
       geom_col(fill="blue",color="black")+
       theme(axis.text = element_text(size=textsize,color="black"))+
-      geom_point(size=3,color="red")+geom_line(color="red",size=0.8)+theme+
+      geom_point(size=3,color="red")+geom_line(color="red",size=linesize)+theme+
       xlab("Dimensions")+ylab("Percentage of explained variances")
   }
   if(type.graph=="corPCA"){

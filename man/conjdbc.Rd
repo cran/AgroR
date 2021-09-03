@@ -88,8 +88,7 @@ In the final output when transformation (transf argument) is different from 1, t
 \examples{
 library(AgroR)
 data(mirtilo)
-attach(mirtilo)
-conjdbc(trat, bloco, exp, resp)
+with(mirtilo, conjdbc(trat, bloco, exp, resp))
 }
 \references{
 Ferreira, P. V. Estatistica experimental aplicada a agronomia. Edufal, 2018.

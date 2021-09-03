@@ -26,8 +26,7 @@ Performs the descriptive analysis of an experiment with a factor of interest.
 \examples{
 library(AgroR)
 data("pomegranate")
-attach(pomegranate)
-desc(trat,WL)
+with(pomegranate, desc(trat,WL))
 }
 \seealso{
 \link{desc2fat}, \link{tabledesc},\link{dispvar}

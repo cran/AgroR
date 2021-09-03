@@ -107,16 +107,25 @@ In the final output when transformation (transf argument) is different from 1, t
 }
 \examples{
 library(AgroR)
+
+#=============================
+# Example laranja
+#=============================
 data(laranja)
 attach(laranja)
-DBC(trat, bloco, resp,
-     mcomp = "sk",angle=45,
-     ylab = "Number of fruits/plants")
+DBC(trat, bloco, resp, mcomp = "sk", angle=45, ylab = "Number of fruits/plants")
 
 #=============================
 # Friedman test
 #=============================
-DBC(trat, bloco, resp, test="noparametric")
+DBC(trat, bloco, resp, test="noparametric", ylab = "Number of fruits/plants")
+
+#=============================
+# Example soybean
+#=============================
+data(soybean)
+with(soybean, DBC(cult, bloc, prod,
+                  ylab=expression("Grain yield"~(kg~ha^-1))))
 }
 \references{
 Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997

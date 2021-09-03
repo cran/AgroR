@@ -65,10 +65,23 @@
 #' @seealso \link{FAT2DBC.art}
 #' @export
 #' @examples
+#'
+#' #================================================
+#' # Example cloro
+#' #================================================
 #' library(AgroR)
 #' data(cloro)
 #' attach(cloro)
 #' FAT2DBC(f1, f2, bloco, resp, ylab="Number of nodules", legend = "Stages")
+#'
+#' #================================================
+#' # Example covercrops
+#' #================================================
+#' library(AgroR)
+#' data(covercrops)
+#' attach(covercrops)
+#' FAT2DBC(A, B, Bloco, Resp, ylab=expression("Yield"~(Kg~"100 m"^2)),
+#' legend = "Cover crops")
 
 FAT2DBC=function(f1,
                  f2,
@@ -126,20 +139,20 @@ FAT2DBC=function(f1,
   # ================================
   # Transformacao de dados
   # ================================
-  if(transf=="1"){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf=="0"){resp=log(response)}
-  if(transf=="0.5"){resp=sqrt(response)}
-  if(transf=="-0.5"){resp=1/sqrt(response)}
-  if(transf=="-1"){resp=1/response}
+  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
+  if(transf==0){resp=log(response)}
+  if(transf==0.5){resp=sqrt(response)}
+  if(transf==-0.5){resp=1/sqrt(response)}
+  if(transf==-1){resp=1/response}
   graph=data.frame(Fator1,Fator2,resp)
   a=anova(aov(resp~Fator1*Fator2+bloco))
   b=aov(resp~Fator1*Fator2+bloco)
   anava=a
   colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
-  respad=b$residuals/sqrt(a$`Mean Sq`[4])
+  respad=b$residuals/sqrt(a$`Mean Sq`[5])
   out=respad[respad>3 | respad<(-3)]
   out=names(out)
-  out=ifelse(length(out)==0,"No discrepant point",out)
+  out=if(length(out)==0)("No discrepant point")else{out}
 
   if(norm=="sw"){norm1 = shapiro.test(b$res)}
   if(norm=="li"){norm1=lillie.test(b$residuals)}
@@ -174,7 +187,7 @@ FAT2DBC=function(f1,
     theme_classic()+theme(axis.text.y = element_text(size=12),
                           axis.text.x = element_blank())+
     geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
-  print(residplot)
+  # print(residplot)
 
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Normality of errors")))
@@ -243,7 +256,7 @@ FAT2DBC=function(f1,
     cat(green(bold("\n-----------------------------------------------------------------\n")))
     fatores <- data.frame(Fator1 = factor(fator1), Fator2 = factor(fator2))
     fatoresa <- data.frame(Fator1 = fator1a, Fator2 = fator2a)
-    graficos=list(1,2)
+    graficos=list(1,2,3)
 
     for (i in 1:2) {if (a$`Pr(>F)`[i] <= alpha.f){
       cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -338,7 +351,7 @@ FAT2DBC=function(f1,
                                                       round(abs(sqrt(a$`Mean Sq`[5])/mean(resp))*100,2),"%"))}
       grafico=grafico
       if(color=="gray"){grafico=grafico+scale_fill_grey()}
-      print(grafico)
+      # print(grafico)
       cat("\n\n")
       }
       if(quali[i]==FALSE){
@@ -355,8 +368,8 @@ FAT2DBC=function(f1,
                            point=point,
                            family=family)
         grafico=grafico[[1]]}
-    graficos[[i]]=grafico}
-    }
+    graficos[[i+1]]=grafico}}
+    graficos[[1]]=residplot
     if(a$`Pr(>F)`[1]>=alpha.f && a$`Pr(>F)`[2] <alpha.f){
   cat(green(bold("\n-----------------------------------------------------------------\n")))
     cat(green("Isolated factors 1 not significant"))
@@ -397,6 +410,7 @@ FAT2DBC=function(f1,
     }
     des1.tab<-summary(des1,split=list('Fator2:Fator1'=l1))[[1]]
     print(des1.tab)
+    desdobramento1=des1.tab
     if(quali[1]==TRUE & quali[2]==TRUE){
     if (mcomp == "tukey"){
       tukeygrafico=c()
@@ -467,6 +481,8 @@ FAT2DBC=function(f1,
     }
     des2.tab<-summary(des2,split=list('Fator1:Fator2'=l2))[[1]]
     print(des2.tab)
+    desdobramento2=des2.tab
+
     if(quali[1]==TRUE && quali[2]==TRUE){
     if (mcomp == "tukey"){
       tukeygrafico1=c()
@@ -815,6 +831,8 @@ FAT2DBC=function(f1,
     message(black("\n\nAverages followed by the same lowercase letter in the column \nand uppercase in the row do not differ by the",mcomp,"(p<",alpha.t,")"))
     }
   }
-  if(a$`Pr(>F)`[4]>alpha.f){graficos}else{colints=list(grafico)}
+  if(a$`Pr(>F)`[4]>alpha.f){
+    names(graficos)=c("residplot","graph1","graph2")
+    graficos}else{colints=list(residplot,grafico)}
 }
 

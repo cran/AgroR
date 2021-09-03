@@ -21,10 +21,9 @@ This is a function of the bar graph for one factor
 }
 \examples{
 data("laranja")
-attach(laranja)
-a=DBC(trat, bloco, resp,
+a=with(laranja, DBC(trat, bloco, resp,
      mcomp = "sk",angle=45,
-     ylab = "Number of fruits/plants")
+     ylab = "Number of fruits/plants"))
 bar_graph(a,horiz = FALSE)
 }
 \seealso{

@@ -100,8 +100,7 @@ In the final output when transformation (transf argument) is different from 1, t
 \examples{
 library(AgroR)
 data(enxofre)
-attach(enxofre)
-FAT3DIC(f1, f2, f3, resp)
+with(enxofre, FAT3DIC(f1, f2, f3, resp))
 }
 \references{
 Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997

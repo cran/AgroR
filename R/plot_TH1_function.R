@@ -38,8 +38,7 @@
 #' @examples
 #' library(AgroR)
 #' data(weather)
-#' attach(weather)
-#' plot_TH1(tempo, Tmed, Tmax, Tmin, UR)
+#' with(weather, plot_TH1(tempo, Tmed, Tmax, Tmin, UR))
 
 plot_TH1=function(tempo,
                  Tmed,

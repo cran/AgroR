@@ -44,8 +44,7 @@ Performs the descriptive graphical analysis of an experiment with three factors 
 \examples{
 library(AgroR)
 data(enxofre)
-attach(enxofre)
-desc3fat(f1, f2, f3, resp)
+with(enxofre, desc3fat(f1, f2, f3, resp))
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

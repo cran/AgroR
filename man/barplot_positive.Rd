@@ -38,8 +38,8 @@ When there is only an effect of the isolated factor in the case of factorial or 
 \examples{
 data("passiflora")
 attach(passiflora)
-a=DBC(trat,bloco,MSPA)
-b=DBC(trat,bloco,MSR)
+a=with(passiflora, DBC(trat, bloco, MSPA))
+b=with(passiflora, DBC(trat, bloco, MSR))
 barplot_positive(a, b, var_name = c("DMAP","DRM"), ylab = "Dry root (g)")
 }
 \seealso{

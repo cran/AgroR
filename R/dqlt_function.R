@@ -7,7 +7,7 @@
 #' @param trat Numerical or complex vector with treatments
 #' @param line Numerical or complex vector with line
 #' @param column Numerical or complex vector with column
-#' @param tempo Numerical or complex vector with times
+#' @param time Numerical or complex vector with times
 #' @param response Numerical vector containing the response of the experiment.
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
@@ -27,6 +27,7 @@
 #' @param legend Legend title
 #' @param posi Legend position
 #' @param ylim y-axis scale
+#' @param width.bar width errorbar
 #' @param xnumeric Declare x as numeric (\emph{default} is FALSE)
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @keywords dqlt
@@ -48,6 +49,7 @@
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #' @export
 #' @examples
+#' rm(list=ls())
 #' data(simulate3)
 #' attach(simulate3)
 #' DQLT(trat, linhas, colunas, tempo, resp)
@@ -55,7 +57,7 @@
 DQLT=function(trat,
               line,
               column,
-              tempo,
+              time,
               response,
               alpha.f=0.05,
               alpha.t=0.05,
@@ -73,6 +75,7 @@ DQLT=function(trat,
               fill="gray",
               legend="Legend",
               ylim=NA,
+              width.bar=0.1,
               dec=3,
               theme=theme_classic(),
               xnumeric=FALSE){
@@ -87,7 +90,7 @@ DQLT=function(trat,
   resp=response
   line=as.factor(line)
   column=as.factor(column)
-  tempo=as.factor(tempo)
+  tempo=factor(tempo,unique(tempo))
   dados=data.frame(resp,trat,column, line, tempo)
 
   if(mcomp=="tukey"){
@@ -262,7 +265,7 @@ DQLT=function(trat,
             legend.text = element_text(size = textsize))+labs(shape=legend, lty=legend)
     if(error==TRUE){grafico=grafico+
       geom_errorbar(aes(ymin=media-desvio,
-                        ymax=media+desvio), width=0.1)}
+                        ymax=media+desvio), width=width.bar)}
     if(addmean==FALSE && error==FALSE){grafico=grafico+
       geom_text(aes(y=media+sup,label=letra),size=labelsize,family=family)}
     if(addmean==TRUE && error==FALSE){grafico=grafico+
@@ -295,7 +298,7 @@ DQLT=function(trat,
     if(error==TRUE){grafico=grafico+
       geom_errorbar(aes(ymin=media-desvio,
                         ymax=media+desvio),
-                    width=0.1, position = position_dodge(width=0.9))}
+                    width=width.bar, position = position_dodge(width=0.9))}
     if(addmean==FALSE && error==FALSE){grafico=grafico+
       geom_text_repel(aes(y=media+sup,label=letra),size=labelsize,
                       position = position_dodge(width=0.9),family=family)}

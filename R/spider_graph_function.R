@@ -17,8 +17,7 @@
 #' @examples
 #' library(AgroR)
 #' data(sensorial)
-#' attach(sensorial)
-#' spider_graph(resp, variable, Blend)
+#' with(sensorial, spider_graph(resp, variable, Blend))
 
 spider_graph=function(resp,
                       vari,

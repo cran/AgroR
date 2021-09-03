@@ -13,7 +13,7 @@ Performs the analysis of completely randomized experimental designs (CRD), rando
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://agronomiar.github.io/AgroR_Tutorial/index.html}
+  \item \url{https://agronomiar.github.io/AgroR_package/index.html}
 }
 
 }

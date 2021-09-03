@@ -209,8 +209,14 @@ DIC.glm=function(trat,
       superior=letra$asymp.UCL
       inferior=letra$asymp.LCL
       grupo=str_trim(letra$.group)
+
+      desvio=letra$asymp.UCL-letra$rate
       trat=letra$trat
-      dadosm=data.frame(trat,rate,superior,inferior,grupo)
+      media=rate
+      trats=trat
+      dadosm=data.frame(trat,rate,superior,inferior,
+                        grupo,desvio,
+                        media,trats)
       if(addmean==TRUE){dadosm$letra=paste(format(round(rate,3),digits = dec),
                                            grupo)}
       if(addmean==FALSE){dadosm$letra=grupo}

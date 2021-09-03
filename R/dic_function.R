@@ -94,34 +94,36 @@
 #' @examples
 #' library(AgroR)
 #' data(pomegranate)
-#' attach(pomegranate)
 #'
-#' DIC(trat, WL) # tukey
-#' DIC(trat, WL, mcomp = "sk")
-#' DIC(trat, WL, mcomp = "duncan")
+#' with(pomegranate, DIC(trat, WL, ylab = "Weight loss (%)")) # tukey
+#' with(pomegranate, DIC(trat, WL, mcomp = "sk", ylab = "Weight loss (%)"))
+#' with(pomegranate, DIC(trat, WL, mcomp = "duncan", ylab = "Weight loss (%)"))
 #'
 #' #=============================
 #' # Kruskal-Wallis
 #' #=============================
-#' DIC(trat, WL, test = "noparametric")
+#' with(pomegranate, DIC(trat, WL, test = "noparametric", ylab = "Weight loss (%)"))
 #'
-#' #=============================
-#' # data transformation
-#' #=============================
-#' DIC(trat, WL, transf = 0)
 #'
 #' #=============================
 #' # chart type
 #' #=============================
-#' DIC(trat, WL, geom="point")
-#' DIC(trat, WL, ylab = "Weight loss (%)", xlab="Treatments")
+#' with(pomegranate, DIC(trat, WL, geom="point", ylab = "Weight loss (%)"))
+#' with(pomegranate, DIC(trat, WL, ylab = "Weight loss (%)", xlab="Treatments"))
 #'
 #' #=============================
 #' # quantitative factor
 #' #=============================
 #' data("phao")
-#' attach(phao)
-#' DIC(dose,comp,quali=FALSE,grau=2)
+#' with(phao, DIC(dose,comp,quali=FALSE,grau=2,
+#'                xlab = expression("Dose"~(g~vase^-1)),
+#'                ylab="Leaf length (cm)"))
+#'
+#' #=============================
+#' # data transformation
+#' #=============================
+#' data("pepper")
+#' with(pepper, DIC(Acesso, VitC, transf = 0,ylab="Vitamin C"))
 
 DIC <- function(trat,
                 response,
@@ -160,11 +162,11 @@ DIC <- function(trat,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   if(test=="parametric"){
-  if(transf=="1"){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf=="0"){resp=log(response)}
-  if(transf=="0.5"){resp=sqrt(response)}
-  if(transf=="-0.5"){resp=1/sqrt(response)}
-  if(transf=="-1"){resp=1/response}
+  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
+  if(transf==0){resp=log(response)}
+  if(transf==0.5){resp=sqrt(response)}
+  if(transf==-0.5){resp=1/sqrt(response)}
+  if(transf==-1){resp=1/response}
   trat1=trat
   trat=as.factor(trat)
   a = anova(aov(resp ~ trat))
@@ -175,7 +177,7 @@ DIC <- function(trat,
   respad=b$residuals/sqrt(a$`Mean Sq`[2])
   out=respad[respad>3 | respad<(-3)]
   out=names(out)
-  out=ifelse(length(out)==0,"No discrepant point",out)
+  out=if(length(out)==0)("No discrepant point")else{out}
   if(norm=="sw"){norm1 = shapiro.test(b$res)}
   if(norm=="li"){norm1=nortest::lillie.test(b$residuals)}
   if(norm=="ad"){norm1=nortest::ad.test(b$residuals)}
@@ -189,7 +191,7 @@ DIC <- function(trat,
     method=paste("Bartlett test","(",names(statistic),")",sep="")
   }
   if(homog=="levene"){
-    homog1 = leveneTest(b$res~trat)
+    homog1 = leveneTest(b$res~trat)[1,]
     statistic=homog1$`F value`[1]
     phomog=homog1$`Pr(>F)`[1]
     method="Levene's Test (center = median)(F)"
@@ -494,6 +496,6 @@ DIC <- function(trat,
             legend.position = "none")
     if(angle !=0){grafico=grafico+theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
 }
-  print(grafico)
+  if(quali==TRUE){print(grafico)}
   graficos=list(grafico)#[[1]]
 }

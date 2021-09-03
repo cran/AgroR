@@ -9,6 +9,7 @@
 #' @param line Numerical or complex vector with lines
 #' @param column Numerical or complex vector with columns
 #' @param alpha.t Significance level (\emph{default} is 0.05)
+#' @param label Variable label
 #' @note Do not use the "-" symbol or space in treatment names
 #' @return I return the Dunnett test for experiments in a completely randomized design, randomized blocks or Latin square.
 #' @importFrom multcomp glht
@@ -41,7 +42,8 @@
 
 
 dunnett=function(trat, resp, control, model="DIC",
-                 block=NA, column=NA, line=NA, alpha.t=0.05){
+                 block=NA, column=NA, line=NA, alpha.t=0.05,
+                 label="Response"){
   trat1=as.factor(trat)
   trat=as.factor(trat)
   levels(trat1)=paste("T",1:length(levels(trat1)),sep = "")

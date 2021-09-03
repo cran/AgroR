@@ -56,10 +56,14 @@
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 #' @examples
+#'
+#' #===================================
+#' # Example tomate
+#' #===================================
+#' # Obs. Consider that the "tomato" experiment is a completely randomized design.
 #' library(AgroR)
 #' data(tomate)
-#' attach(tomate)
-#' PSUBDIC(parc, subp, bloco, resp)
+#' with(tomate, PSUBDIC(parc, subp, bloco, resp, ylab="Dry mass (g)"))
 
 
 PSUBDIC=function(f1,
@@ -99,11 +103,11 @@ PSUBDIC=function(f1,
     requireNamespace("nortest")
     requireNamespace("lmtest")
 
-    if(transf=="1"){resp=response}else{resp=(response^transf-1)/transf}
-    if(transf=="0"){resp=log(response)}
-    if(transf=="0.5"){resp=sqrt(response)}
-    if(transf=="-0.5"){resp=1/sqrt(response)}
-    if(transf=="-1"){resp=1/response}
+    if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
+    if(transf==0){resp=log(response)}
+    if(transf==0.5){resp=sqrt(response)}
+    if(transf==-0.5){resp=1/sqrt(response)}
+    if(transf==-1){resp=1/response}
     fator1=f1
     fator2=f2
     fator1a=fator1
@@ -142,7 +146,18 @@ PSUBDIC=function(f1,
     # Pressupostos
     # -----------------------------
     modp=lme4::lmer(resp~Fator1*Fator2+(1|bloco/Fator1))
-
+    resids=residuals(modp,scaled=TRUE)
+    Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
+    residplot=ggplot(data=data.frame(resids,Ids),
+                     aes(y=resids,x=1:length(resids)))+
+        geom_point(shape=21,color="gray",fill="gray",size=3)+
+        labs(x="",y="Standardized residuals")+
+        geom_text(x=1:length(resids),label=1:length(resids),
+                  color=Ids,size=4)+
+        scale_x_continuous(breaks=1:length(resids))+
+        theme_classic()+theme(axis.text.y = element_text(size=12),
+                              axis.text.x = element_blank())+
+        geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
     # Normalidade dos erros
     if(norm=="sw"){norm1 = shapiro.test(resid(modp))}
     if(norm=="li"){norm1=lillie.test(resid(modp))}
@@ -247,7 +262,7 @@ PSUBDIC=function(f1,
     {cat(green(bold("-----------------------------------------------------------------\n")))
         cat("No significant interaction")
         cat(green(bold("\n-----------------------------------------------------------------\n")))
-        graficos=list(1,2)
+        graficos=list(1,2,3)
 
         for (i in 1:2) {if (num(tab[cont[i], 5]) <= alpha.f)
         {cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -364,7 +379,7 @@ PSUBDIC=function(f1,
                           legend.position = "none")}
                 grafico=grafico
                 if(color=="gray"){grafico=grafico+scale_fill_grey()}
-                print(grafico)
+                # print(grafico)
                 cat("\n\n")
             }
 
@@ -377,10 +392,11 @@ PSUBDIC=function(f1,
                           theme=theme,posi=posi,textsize=textsize, se=errorbar,
                           family=family)
             grafico=grafico[[1]]}
-            graficos[[i]]=grafico
+            graficos[[i+1]]=grafico
 
         }
         }
+        graficos[[1]]=residplot
         if(as.numeric(tab[1,5])>=alpha.f && as.numeric(tab[3,5])<alpha.f){
             cat(green(bold("-----------------------------------------------------------------\n")))
             cat("Isolated factors 1 not significant")
@@ -442,7 +458,7 @@ PSUBDIC=function(f1,
         tab.f1f2[nv2 + 1, 2] <- tab.f1f2[nv2 + 1, 3] * tab.f1f2[nv2 + 1, 1]
         tab.f1f2[nv2 + 1, 5] <- tab.f1f2[nv2 + 1, 4] <- ""
         print(tab.f1f2)
-
+        desdobramento1=tab.f1f2
         #-------------------------------------
         # Teste de Tukey
         #-------------------------------------
@@ -547,7 +563,7 @@ PSUBDIC=function(f1,
         tab.f2f1 <- round(tab.f2f1, 6)
         tab.f2f1[nv1 + 1, 5] <- tab.f2f1[nv1 + 1, 4] <- ""
         print(tab.f2f1)
-
+        desdobramento2=tab.f2f1
         #-------------------------------------
         # Teste de Tukey
         #-------------------------------------
@@ -984,7 +1000,9 @@ PSUBDIC=function(f1,
         }
         colints=grafico
     }
-    if(as.numeric(tab[4, 5])>alpha.f){graficos}else{colints=list(colints)}
+    if(as.numeric(tab[4, 5])>alpha.f){
+        names(graficos)=c("residplot","graph1","graph2")
+        graficos}else{colints=list(residplot,colints)}
     }
 
 

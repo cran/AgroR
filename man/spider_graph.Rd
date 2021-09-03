@@ -38,8 +38,7 @@ Spider chart or radar chart. Usually used for graphical representation of accept
 \examples{
 library(AgroR)
 data(sensorial)
-attach(sensorial)
-spider_graph(resp, variable, Blend)
+with(sensorial, spider_graph(resp, variable, Blend))
 }
 \seealso{
 \link{radargraph}, \link{sk_graph}, \link{plot_TH}, \link{corgraph}, \link{barplot_positive}, \link{line_plot}

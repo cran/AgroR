@@ -26,8 +26,7 @@ It performs the descriptive analysis of an experiment with two factors of intere
 \examples{
 library(AgroR)
 data(cloro)
-attach(cloro)
-desc2fat(f1,f2,resp)
+with(cloro, desc2fat(f1,f2,resp))
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

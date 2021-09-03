@@ -62,9 +62,9 @@ The function is symmetric about the inflection point (e).
 }
 \examples{
 data("emerg")
-attach(emerg)
+with(emerg, logistic(time, resp,xlab="Time (days)",ylab="Emergence (\%)"))
+with(emerg, logistic(time, resp,npar="LL.4",xlab="Time (days)",ylab="Emergence (\%)"))
 
-logistic(time, resp)
 }
 \references{
 Seber, G. A. F. and Wild, C. J (1989) Nonlinear Regression, New York: Wiley \& Sons (p. 330).

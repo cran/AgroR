@@ -20,8 +20,7 @@ All layout and subtitles are imported from DICT, DBCT and DQLT functions
 }
 \examples{
 data(simulate1)
-attach(simulate1)
-a=DICT(trat, tempo, resp,geom="bar",sup=40)
+a=with(simulate1, DICT(trat, tempo, resp,geom="bar",sup=40))
 TBARPLOT.reverse(a)
 }
 \seealso{

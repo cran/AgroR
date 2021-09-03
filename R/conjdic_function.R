@@ -49,8 +49,7 @@
 #' @examples
 #' library(AgroR)
 #' data(mirtilo)
-#' attach(mirtilo)
-#' conjdic(trat, bloco, exp, resp)
+#' with(mirtilo, conjdic(trat, bloco, exp, resp))
 
 conjdic=function(trat,
                  repet,
@@ -79,11 +78,11 @@ conjdic=function(trat,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("lmtest")
-  if(transf=="1"){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf=="0"){resp=log(response)}
-  if(transf=="0.5"){resp=sqrt(response)}
-  if(transf=="-0.5"){resp=1/sqrt(response)}
-  if(transf=="-1"){resp=1/response}
+  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
+  if(transf==0){resp=log(response)}
+  if(transf==0.5){resp=sqrt(response)}
+  if(transf==-0.5){resp=1/sqrt(response)}
+  if(transf==-1){resp=1/response}
   tratnum=trat
   tratamento=factor(trat,levels = unique(trat))
   bloco=as.factor(repet)
@@ -158,7 +157,7 @@ conjdic=function(trat,
   datas[4,2]=datas[4,3]*datas[4,1]
 
 
-  d=aov(resp~tratamento*local+bloco/local)
+  d=aov(resp~tratamento*local+bloco:local)
   if(norm=="sw"){norm1 = shapiro.test(d$res)}
   if(norm=="li"){norm1=nortest::lillie.test(d$residuals)}
   if(norm=="ad"){norm1=nortest::ad.test(d$residuals)}
@@ -181,6 +180,21 @@ conjdic=function(trat,
 
   indep = dwtest(d)
 
+  modres=anova(d)
+  resids=d$res/sqrt(modres$`Mean Sq`[5])
+  out=resids[resids>3 | resids<(-3)]
+  out=names(out)
+  out=if(length(out)==0)("No discrepant point")else{out}
+  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
+  residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+    geom_point(shape=21,color="gray",fill="gray",size=3)+
+    labs(x="",y="Standardized residuals")+
+    geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
+    scale_x_continuous(breaks=1:length(resids))+
+    theme_classic()+theme(axis.text.y = element_text(size=12),
+                          axis.text.x = element_blank())+
+    geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
+  print(residplot)
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Normality of errors")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -290,11 +304,14 @@ conjdic=function(trat,
             theme(text = element_text(size=textsize,color="black", family = family),
                   axis.title = element_text(size=textsize,color="black", family = family),
                   axis.text = element_text(size=textsize,color="black", family = family),
-                  legend.position = "none")}}
+                  legend.position = "none")}
+        graficos[[i]]=grafico}
+      print(graficos)
       print(tukey)}
-      if(a$`Pr(>F)`[1] < alpha.f && quali==FALSE | qmresmedio > 7 && quali==FALSE){
+    if(a$`Pr(>F)`[1] < alpha.f && quali==FALSE | qmresmedio > 7 && quali==FALSE){
+        for(i in 1:length(levels(local))){
         data=dados[dados$local==levels(dados$local)[i],]
-        dose1=tratnum#as.numeric(as.character(data$tratamento))
+        dose1=data$tratnum#as.numeric(as.character(data$tratamento))
         resp=data$response
         grafico=polynomial(dose1,
                            resp,grau = grau,
@@ -304,9 +321,8 @@ conjdic=function(trat,
                            xlab=xlab,
                            theme=theme,
                            posi="top",
-                           se=errorbar)
-      graficos[[i]]=grafico}
-    print(graficos)
+                           se=errorbar)[[1]]
+        graficos[[i]]=grafico}}
     }
 
   if(a$`Pr(>F)`[1] > alpha.f && qmresmedio < 7){

@@ -13,10 +13,9 @@
 #' @seealso \link{radargraph}, \link{barplot_positive}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}
 #' @examples
 #' data("laranja")
-#' attach(laranja)
-#'a=DBC(trat, bloco, resp,
+#'a=with(laranja, DBC(trat, bloco, resp,
 #'      mcomp = "sk",angle=45,
-#'      ylab = "Number of fruits/plants")
+#'      ylab = "Number of fruits/plants"))
 #'seg_graph(a,horiz = FALSE)
 
 

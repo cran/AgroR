@@ -19,10 +19,9 @@ This is a function of the bar graph for the Scott-Knott test
 }
 \examples{
 data("laranja")
-attach(laranja)
-a=DBC(trat, bloco, resp,
+a=with(laranja, DBC(trat, bloco, resp,
      mcomp = "sk",angle=45,
-     ylab = "Number of fruits/plants")
+     ylab = "Number of fruits/plants"))
 sk_graph(a,horiz = FALSE)
 }
 \seealso{

@@ -23,7 +23,7 @@ FAT2DIC.ad(
   ylab = "Response",
   xlab = "",
   legend = "Legend",
-  ad.label = "Aditional",
+  ad.label = "Additional",
   color = "rainbow",
   fill = "lightblue",
   textsize = 12,
@@ -125,9 +125,8 @@ In the final output when transformation (transf argument) is different from 1, t
 \examples{
 library(AgroR)
 data(cloro)
-attach(cloro)
 respAd=c(268, 322, 275, 350, 320)
-FAT2DIC.ad(f1, f2, bloco, resp, respAd, ylab="Number of nodules", legend = "Stages")
+with(cloro, FAT2DIC.ad(f1, f2, bloco, resp, respAd, ylab="Number of nodules", legend = "Stages"))
 }
 \references{
 Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997

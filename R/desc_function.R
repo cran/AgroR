@@ -16,8 +16,7 @@
 #' @examples
 #' library(AgroR)
 #' data("pomegranate")
-#' attach(pomegranate)
-#' desc(trat,WL)
+#' with(pomegranate, desc(trat,WL))
 
 ######################################################################################
 ## Analise descritiva

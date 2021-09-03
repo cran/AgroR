@@ -12,7 +12,8 @@ dunnett(
   block = NA,
   column = NA,
   line = NA,
-  alpha.t = 0.05
+  alpha.t = 0.05,
+  label = "Response"
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ dunnett(
 \item{line}{Numerical or complex vector with lines}
 
 \item{alpha.t}{Significance level (\emph{default} is 0.05)}
+
+\item{label}{Variable label}
 }
 \value{
 I return the Dunnett test for experiments in a completely randomized design, randomized blocks or Latin square.

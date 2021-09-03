@@ -11,10 +11,9 @@
 #' @seealso \link{radargraph}, \link{barplot_positive}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}
 #' @examples
 #' data("laranja")
-#' attach(laranja)
-#'a=DBC(trat, bloco, resp,
+#'a=with(laranja, DBC(trat, bloco, resp,
 #'      mcomp = "sk",angle=45,
-#'      ylab = "Number of fruits/plants")
+#'      ylab = "Number of fruits/plants"))
 #'sk_graph(a,horiz = FALSE)
 
 
@@ -28,19 +27,28 @@ sk_graph=function(model,
   limite=data$limite
   letra=data$letra
   groups=data$groups
+  sup=model[[1]]$plot$sup
+  ploterror=model[[1]]$plot$errorbar
   # if(transf==FALSE){data=data[,c(5,1,2)]}
   # if(transf==TRUE){data=data[,c(6,3,2)]}
   if(horiz==TRUE){
-  graph=ggplot(data,aes(y=as.vector(trats),
+    graph=ggplot(data,aes(y=as.vector(trats),
                         x=as.vector(media)))+
     model[[1]]$theme+
     geom_col(aes(fill=as.vector(groups)),
              size=0.3,
-             color="black")+
-    geom_label(aes(x=as.vector(media)+1/15*as.vector(media),
+             color="black")
+    if(ploterror==TRUE){graph=graph+geom_errorbar(aes(xmax=media+desvio,xmin=media-desvio),
+                  width=model[[1]]$layers[3][[1]]$geom_params$width)+
+    geom_label(aes(x=as.vector(media)+sup+desvio,
                    y=as.vector(trats),
                    label = letra),
-               fill="lightyellow",hjust=0)+
+               fill="lightyellow",hjust=0)}
+    if(ploterror==FALSE){graph=graph+geom_label(aes(x=as.vector(media)+sup,
+                     y=as.vector(trats),
+                     label = letra),
+                 fill="lightyellow",hjust=0)}
+    graph=graph+
     labs(y=model[[1]]$labels$x,
          x=model[[1]]$labels$y)+
     theme(axis.text = element_text(size=12,color="black"),
@@ -53,11 +61,18 @@ sk_graph=function(model,
                           y=as.vector(media)))+
       model[[1]]$theme+
       geom_col(aes(fill=as.vector(groups)),size=0.3,
-               color="black")+
-      geom_label(aes(y=as.vector(media)+1/15*as.vector(media),
+               color="black")
+    if(ploterror==TRUE){graph=graph+geom_errorbar(aes(ymax=media+desvio,ymin=media-desvio),
+                                                  width=model[[1]]$layers[3][[1]]$geom_params$width)+
+      geom_label(aes(y=as.vector(media)+sup+desvio,
                      x=as.vector(trats),
                      label = letra),
-                 fill="lightyellow",vjust=0)+
+                 fill="lightyellow",hjust=0)}
+    if(ploterror==FALSE){graph=graph+geom_label(aes(y=as.vector(media)+sup,
+                                                    x=as.vector(trats),
+                                                    label = letra),
+                                                fill="lightyellow",hjust=0)}
+    graph=graph+
       labs(x=model[[1]]$labels$x,
            y=model[[1]]$labels$y)+
       theme(axis.text = element_text(size=12,color="black"),

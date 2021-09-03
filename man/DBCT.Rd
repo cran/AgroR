@@ -26,6 +26,7 @@ DBCT(
   posi = c(0.1, 0.8),
   legend = "Legend",
   ylim = NA,
+  width.bar = 0.1,
   dec = 3,
   xnumeric = FALSE
 )
@@ -73,6 +74,8 @@ DBCT(
 
 \item{ylim}{y-axis scale}
 
+\item{width.bar}{width errorbar}
+
 \item{dec}{Number of cells}
 
 \item{xnumeric}{Declare x as numeric (\emph{default} is FALSE)}
@@ -90,6 +93,7 @@ The p-value of the analysis of variance, the normality test for Shapiro-Wilk err
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 }
 \examples{
+rm(list=ls())
 data(simulate2)
 attach(simulate2)
 

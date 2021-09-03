@@ -16,8 +16,7 @@
 #' @examples
 #' library(AgroR)
 #' data(cloro)
-#' attach(cloro)
-#' desc2fat(f1,f2,resp)
+#' with(cloro, desc2fat(f1,f2,resp))
 
 ######################################################################################
 ## Analise descritiva
