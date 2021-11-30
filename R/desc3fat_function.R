@@ -39,7 +39,6 @@ desc3fat=function(f1,
   f2=as.factor(f2)
   f3=as.factor(f3)
   requireNamespace("ggplot2")
-  requireNamespace("gridExtra")
 
   #===========================
   # Fator 1 x Fator 2

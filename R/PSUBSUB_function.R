@@ -139,21 +139,21 @@ PSUBSUBDBC=function(f1,
         cat(fac.names[i])
         cat(green(bold("\n------------------------------------------\n")))
         if(mcomp=="tukey"){
-        letra=HSD.test(response,
+        letra=TUKEY(response,
                        fatores[,i],
                        GL[i],
                        qmres[i],alpha.t)
         letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
         print(letra1)}
         if(mcomp=="lsd"){
-          letra=LSD.test(response,
+          letra=LSD(response,
                          fatores[,i],
                          GL[i],
                          qmres[i],alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           print(letra1)}
         if(mcomp=="duncan"){
-          letra=duncan.test(response,
+          letra=duncan(response,
                          fatores[,i],
                          GL[i],
                          qmres[i],alpha.t)
@@ -163,7 +163,7 @@ PSUBSUBDBC=function(f1,
       if(pvalor[i]>alpha.f) {
         cat(fac.names[i])
         cat(green(bold("\n------------------------------------------\n")))
-        mean.table<-tapply.stat(response,fatores[,i],mean)
+        mean.table<-mean.stat(response,fatores[,i],mean)
         colnames(mean.table)<-c('Levels','Mean')
         print(mean.table)
         grafico=NA
@@ -264,7 +264,7 @@ PSUBSUBDBC=function(f1,
       trati=fatores[, 1][Fator2 == lf2[i]]
       trati=factor(trati,levels = unique(trati))
       respi=response[Fator2 == lf2[i]]
-      tukey=HSD.test(respi,trati,nf1f2,qmresf1f2,alpha.t)
+      tukey=TUKEY(respi,trati,nf1f2,qmresf1f2,alpha.t)
       tukeygrafico[[i]]=tukey$groups[levels(trati),2]
       ordem[[i]]=rownames(tukey$groups[levels(trati),])
     }
@@ -279,7 +279,7 @@ PSUBSUBDBC=function(f1,
       trati=fatores[, 2][Fator1 == lf1[i]]
       trati=factor(trati,levels = unique(trati))
       respi=response[Fator1 == lf1[i]]
-      tukey=HSD.test(respi,trati,GL[2],qmres[2],alpha.t)
+      tukey=TUKEY(respi,trati,GL[2],qmres[2],alpha.t)
       tukeygrafico1[[i]]=tukey$groups[levels(trati),2]
     }
     letra1=unlist(tukeygrafico1)
@@ -291,7 +291,7 @@ PSUBSUBDBC=function(f1,
         trati=fatores[, 1][Fator2 == lf2[i]]
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator2 == lf2[i]]
-        lsd=LSD.test(respi,trati,nf1f2,qmresf1f2,alpha.t)
+        lsd=LSD(respi,trati,nf1f2,qmresf1f2,alpha.t)
         lsdgrafico[[i]]=lsd$groups[levels(trati),2]
         ordem[[i]]=rownames(lsd$groups[levels(trati),])
       }
@@ -306,7 +306,7 @@ PSUBSUBDBC=function(f1,
         trati=fatores[, 2][Fator1 == lf1[i]]
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator1 == lf1[i]]
-        lsd=LSD.test(respi,trati,GL[2],qmres[2],alpha.t)
+        lsd=LSD(respi,trati,GL[2],qmres[2],alpha.t)
         lsdgrafico1[[i]]=lsd$groups[levels(trati),2]
       }
       letra1=unlist(lsdgrafico1)
@@ -318,7 +318,7 @@ PSUBSUBDBC=function(f1,
         trati=fatores[, 1][Fator2 == lf2[i]]
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator2 == lf2[i]]
-        duncan=duncan.test(respi,trati,nf1f2,qmresf1f2,alpha.t)
+        duncan=duncan(respi,trati,nf1f2,qmresf1f2,alpha.t)
         duncangrafico[[i]]=duncan$groups[levels(trati),2]
         ordem[[i]]=rownames(duncan$groups[levels(trati),])
       }
@@ -333,7 +333,7 @@ PSUBSUBDBC=function(f1,
         trati=fatores[, 2][Fator1 == lf1[i]]
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator1 == lf1[i]]
-        duncan=duncan.test(respi,trati,GL[2],qmres[2],alpha.t)
+        duncan=duncan(respi,trati,GL[2],qmres[2],alpha.t)
         duncangrafico1[[i]]=duncan$groups[levels(trati),2]
       }
       letra1=unlist(duncangrafico1)
@@ -369,9 +369,9 @@ PSUBSUBDBC=function(f1,
         cat(green(italic('Analyzing the simple effects of the factor ',fac.names[3])))
         cat(green(bold("\n------------------------------------------\n")))
         cat(fac.names[i])
-        if(mcomp=="tukey"){letra=HSD.test(response,fatores[,i],GL[3],qmres[3],alpha.t)}
-        if(mcomp=="lsd"){letra=LSD.test(response,fatores[,i],GL[3],qmres[3],alpha.t)}
-        if(mcomp=="duncan"){letra=duncan.test(response,fatores[,i],GL[3],qmres[3],alpha.t)}
+        if(mcomp=="tukey"){letra=TUKEY(response,fatores[,i],GL[3],qmres[3],alpha.t)}
+        if(mcomp=="lsd"){letra=LSD(response,fatores[,i],GL[3],qmres[3],alpha.t)}
+        if(mcomp=="duncan"){letra=duncan(response,fatores[,i],GL[3],qmres[3],alpha.t)}
         letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
         print(letra1)
         cat(green(bold("\n-----------------------------------------------------------------")))
@@ -472,7 +472,7 @@ PSUBSUBDBC=function(f1,
       trati=fatores[, 1][Fator3 == lf3[i]]
       trati=factor(trati,levels = unique(trati))
       respi=response[Fator3 == lf3[i]]
-      tukey=HSD.test(respi,trati,nf1f3,qmresf1f3,alpha.t)
+      tukey=TUKEY(respi,trati,nf1f3,qmresf1f3,alpha.t)
       tukeygrafico[[i]]=tukey$groups[levels(trati),2]
       ordem[[i]]=rownames(tukey$groups[levels(trati),])}
     letra=unlist(tukeygrafico)
@@ -486,7 +486,7 @@ PSUBSUBDBC=function(f1,
       trati=fatores[, 3][Fator1 == lf1[i]]
       trati=factor(trati,levels = unique(trati))
       respi=response[Fator1 == lf1[i]]
-      tukey=HSD.test(respi,trati,GL[3],qmres[3],alpha.t)
+      tukey=TUKEY(respi,trati,GL[3],qmres[3],alpha.t)
       tukeygrafico1[[i]]=tukey$groups[levels(trati),2]}
     letra1=unlist(tukeygrafico1)
     letra1=toupper(letra1)}
@@ -497,7 +497,7 @@ PSUBSUBDBC=function(f1,
         trati=fatores[, 1][Fator3 == lf3[i]]
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator3 == lf3[i]]
-        lsd=LSD.test(respi,trati,nf1f3,qmresf1f3,alpha.t)
+        lsd=LSD(respi,trati,nf1f3,qmresf1f3,alpha.t)
         lsdgrafico[[i]]=lsd$groups[levels(trati),2]
         ordem[[i]]=rownames(lsd$groups[levels(trati),])}
       letra=unlist(lsdgrafico)
@@ -511,7 +511,7 @@ PSUBSUBDBC=function(f1,
         trati=fatores[, 3][Fator1 == lf1[i]]
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator1 == lf1[i]]
-        lsd=LSD.test(respi,trati,GL[3],qmres[3],alpha.t)
+        lsd=LSD(respi,trati,GL[3],qmres[3],alpha.t)
         lsdgrafico1[[i]]=lsd$groups[levels(trati),2]}
       letra1=unlist(lsdgrafico1)
       letra1=toupper(letra1)}
@@ -522,7 +522,7 @@ PSUBSUBDBC=function(f1,
         trati=fatores[, 1][Fator3 == lf3[i]]
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator3 == lf3[i]]
-        duncan=duncan.test(respi,trati,nf1f3,qmresf1f3,alpha.t)
+        duncan=duncan(respi,trati,nf1f3,qmresf1f3,alpha.t)
         duncangrafico[[i]]=duncan$groups[levels(trati),2]
         ordem[[i]]=rownames(duncan$groups[levels(trati),])}
       letra=unlist(duncangrafico)
@@ -536,7 +536,7 @@ PSUBSUBDBC=function(f1,
         trati=fatores[, 3][Fator1 == lf1[i]]
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator1 == lf1[i]]
-        duncan=duncan.test(respi,trati,GL[3],qmres[3],alpha.t)
+        duncan=duncan(respi,trati,GL[3],qmres[3],alpha.t)
         duncangrafico1[[i]]=duncan$groups[levels(trati),2]}
       letra1=unlist(duncangrafico1)
       letra1=toupper(letra1)}
@@ -566,9 +566,9 @@ PSUBSUBDBC=function(f1,
       cat(green(italic('Analyzing the simple effects of the factor ',fac.names[2])))
       cat(green(bold("\n------------------------------------------\n")))
       cat(fac.names[i])
-      if(mcomp=="tukey"){letra=HSD.test(response,fatores[,i], GL[2], qmres[2],alpha.t)}
-      if(mcomp=="lsd"){letra=LSD.test(response,fatores[,i], GL[2], qmres[2],alpha.t)}
-      if(mcomp=="duncan"){letra=duncan.test(response,fatores[,i], GL[2], qmres[2],alpha.t)}
+      if(mcomp=="tukey"){letra=TUKEY(response,fatores[,i], GL[2], qmres[2],alpha.t)}
+      if(mcomp=="lsd"){letra=LSD(response,fatores[,i], GL[2], qmres[2],alpha.t)}
+      if(mcomp=="duncan"){letra=duncan(response,fatores[,i], GL[2], qmres[2],alpha.t)}
       letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
       print(letra1)
       cat(green(bold("\n-----------------------------------------------------------------")))
@@ -659,7 +659,7 @@ PSUBSUBDBC=function(f1,
       trati=factor(trati,levels = unique(trati))
       respi=response[Fator3 == lf3[i]]
       mod=aov(respi~trati)
-      tukey=HSD.test(respi,trati,nf2f3,qmresf2f3,alpha.t)
+      tukey=TUKEY(respi,trati,nf2f3,qmresf2f3,alpha.t)
       tukeygrafico[[i]]=tukey$groups[levels(trati),2]
       ordem[[i]]=rownames(tukey$groups[levels(trati),])}
     letra=unlist(tukeygrafico)
@@ -674,7 +674,7 @@ PSUBSUBDBC=function(f1,
       trati=factor(trati,levels = unique(trati))
       respi=response[Fator2 == lf2[i]]
       mod=aov(respi~trati)
-      tukey=HSD.test(respi,trati,GL[3],qmres[3],alpha.t)
+      tukey=TUKEY(respi,trati,GL[3],qmres[3],alpha.t)
       tukeygrafico1[[i]]=tukey$groups[levels(trati),2]}
     letra1=unlist(tukeygrafico1)
     letra1=toupper(letra1)}
@@ -686,7 +686,7 @@ PSUBSUBDBC=function(f1,
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator3 == lf3[i]]
         mod=aov(respi~trati)
-        lsd=LSD.test(respi,trati,nf2f3,qmresf2f3,alpha.t)
+        lsd=LSD(respi,trati,nf2f3,qmresf2f3,alpha.t)
         lsdgrafico[[i]]=lsd$groups[levels(trati),2]
         ordem[[i]]=rownames(lsd$groups[levels(trati),])}
       letra=unlist(lsdgrafico)
@@ -701,7 +701,7 @@ PSUBSUBDBC=function(f1,
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator2 == lf2[i]]
         mod=aov(respi~trati)
-        lsd=LSD.test(respi,trati,GL[3],qmres[3],alpha.t)
+        lsd=LSD(respi,trati,GL[3],qmres[3],alpha.t)
         lsdgrafico1[[i]]=lsd$groups[levels(trati),2]}
       letra1=unlist(lsdgrafico1)
       letra1=toupper(letra1)}
@@ -713,7 +713,7 @@ PSUBSUBDBC=function(f1,
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator3 == lf3[i]]
         mod=aov(respi~trati)
-        duncan=duncan.test(respi,trati,nf2f3,qmresf2f3,alpha.t)
+        duncan=duncan(respi,trati,nf2f3,qmresf2f3,alpha.t)
         duncangrafico[[i]]=duncan$groups[levels(trati),2]
         ordem[[i]]=rownames(duncan$groups[levels(trati),])}
       letra=unlist(duncangrafico)
@@ -728,7 +728,7 @@ PSUBSUBDBC=function(f1,
         trati=factor(trati,levels = unique(trati))
         respi=response[Fator2 == lf2[i]]
         mod=aov(respi~trati)
-        duncan=duncan.test(respi,trati,GL[3],qmres[3],alpha.t)
+        duncan=duncan(respi,trati,GL[3],qmres[3],alpha.t)
         duncangrafico1[[i]]=duncan$groups[levels(trati),2]}
       letra1=unlist(duncangrafico1)
       letra1=toupper(letra1)}
@@ -760,9 +760,9 @@ PSUBSUBDBC=function(f1,
         cat(green(italic('Analyzing the simple effects of the factor ',fac.names[1])))
         cat(green(bold("\n------------------------------------------\n")))
         cat(fac.names[i])
-        if(mcomp=="tukey"){letra=HSD.test(response,fatores[,i],GL[1],qmres[1],alpha.t)}
-        if(mcomp=="lsd"){letra=LSD.test(response,fatores[,i],GL[1],qmres[1],alpha.t)}
-        if(mcomp=="duncan"){letra=duncan.test(response,fatores[,i],GL[1],qmres[1],alpha.t)}
+        if(mcomp=="tukey"){letra=TUKEY(response,fatores[,i],GL[1],qmres[1],alpha.t)}
+        if(mcomp=="lsd"){letra=LSD(response,fatores[,i],GL[1],qmres[1],alpha.t)}
+        if(mcomp=="duncan"){letra=duncan(response,fatores[,i],GL[1],qmres[1],alpha.t)}
         letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
         print(letra1)
         cat(green(bold("\n------------------------------------------\n")))
@@ -831,7 +831,7 @@ PSUBSUBDBC=function(f1,
         cat('\n',fac.names[1],' within the combination of levels ',lf2[i],' of  ',fac.names[2],' and ',lf3[j],' of  ',fac.names[3],"\n")
         cat("------------------------------------------\n")
         if(mcomp=="tukey"){
-        tukey=HSD.test(response[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
+        tukey=TUKEY(response[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                        fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                        nf1f3,
                        qmresf1f3,
@@ -839,7 +839,7 @@ PSUBSUBDBC=function(f1,
         tukey=tukey$groups;colnames(tukey)=c("Mean","letters")
         print(tukey)}
         if(mcomp=="lsd"){
-          lsd=LSD.test(response[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
+          lsd=LSD(response[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                          fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                          nf1f3,
                          qmresf1f3,
@@ -847,7 +847,7 @@ PSUBSUBDBC=function(f1,
           lsd=lsd$groups;colnames(lsd)=c("Mean","letters")
           print(lsd)}
         if(mcomp=="duncan"){
-          duncan=duncan.test(response[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
+          duncan=duncan(response[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                          fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                          nf1f3,
                          qmresf1f3,
@@ -906,7 +906,7 @@ PSUBSUBDBC=function(f1,
         cat('\n',fac.names[2],' within the combination of levels ',lf1[k],' of  ',fac.names[1],' and ',lf3[j],' of  ',fac.names[3],'\n')
         cat("------------------------------------------\n")
         if(mcomp=="tukey"){
-        tukey=HSD.test(response[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
+        tukey=TUKEY(response[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                        fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                        nf2f3,
                        qmresf2f3,
@@ -914,7 +914,7 @@ PSUBSUBDBC=function(f1,
         tukey=tukey$groups;colnames(tukey)=c("Mean","letters")
         print(tukey)}
         if(mcomp=="lsd"){
-          lsd=LSD.test(response[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
+          lsd=LSD(response[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                          fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                          nf2f3,
                          qmresf2f3,
@@ -922,7 +922,7 @@ PSUBSUBDBC=function(f1,
           lsd=lsd$groups;colnames(lsd)=c("Mean","letters")
           print(lsd)}
         if(mcomp=="duncan"){
-          duncan=duncan.test(response[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
+          duncan=duncan(response[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                          fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                          nf2f3,
                          qmresf2f3,
@@ -961,7 +961,7 @@ PSUBSUBDBC=function(f1,
         cat('\n',fac.names[3],' within the combination of levels ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of  ',fac.names[2],'\n')
         cat("------------------------------------------\n")
         if(mcomp=="tukey"){
-        tukey=HSD.test(response[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
+        tukey=TUKEY(response[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                        fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                        GL[3],
                        qmres[3],
@@ -969,7 +969,7 @@ PSUBSUBDBC=function(f1,
         tukey=tukey$groups;colnames(tukey)=c("Mean","letters")
         print(tukey)}
         if(mcomp=="lsd"){
-          lsd=LSD.test(response[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
+          lsd=LSD(response[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                          fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                          GL[3],
                          qmres[3],
@@ -977,7 +977,7 @@ PSUBSUBDBC=function(f1,
           lsd=lsd$groups;colnames(lsd)=c("Mean","letters")
           print(lsd)}
         if(mcomp=="duncan"){
-          duncan=duncan.test(response[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
+          duncan=duncan(response[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                          fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                          GL[3],
                          qmres[3],

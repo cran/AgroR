@@ -1,3 +1,15 @@
+# AgroR 1.2.4
+
+* The `.welcome` startup function has been removed 
+
+* The `dunn` function has been added. 
+
+* LSD testing on `FAT2DBC` was added 
+
+* Dependence on the `grid` and `gridExtra` packages have been removed. Functions with more than one graph are now joined by the `cowplot` package. 
+
+* Added `add.letters` argument in DICT, DBCT and DQLT function.
+
 # AgroR 1.2.3
 
 * Added the `soybean` dataset 

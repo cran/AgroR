@@ -4,6 +4,7 @@
 #' @param axis.size Axes font size (\emph{default} is 12)
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
+#' @param theme ggplot theme (\emph{default} is theme_classic())
 #' @author Gabriel Danilo Shimizu, \email{shimizu@uel.br}
 #' @author Leandro Simoes Azeredo Goncalves
 #' @author Rodrigo Yudi Palhaci Marubayashi
@@ -21,7 +22,8 @@ cor_ic=function(data,
                 background=TRUE,
                 axis.size=12,
                 ylab="",
-                xlab="Correlation (r)"){
+                xlab="Correlation (r)",
+                theme=theme_classic()){
   method="pearson"
   requireNamespace("RColorBrewer")
   requireNamespace("ggplot2")
@@ -53,7 +55,8 @@ cor_ic=function(data,
     deg = 180, n = 500, cols = brewer.pal(9, "RdBu")[9:1])
   df_list <- lapply(1:(ncol(combn(1:ncol(data), m = 2))),
                     function(y) data[, combn(1:ncol(data), m = 2)[,y]])
-  combs=factorial(length(colnames(data))-1)
+  # combs=factorial(length(colnames(data))-1)
+  combs=length(df_list)
   combin=1:combs
   combin1=1:combs
   combin2=1:combs
@@ -81,8 +84,7 @@ cor_ic=function(data,
   graph=graph+geom_vline(xintercept = c(-1,0,1),
                          lty=c(2,2,2),color=c("red","black","blue"),size=1)+
     geom_errorbar(aes(xmin=combin2,xmax=combin1),size=1,width=0.1)+
-    geom_point(size=5,shape=21,color="black",fill="gray")+
-    theme_classic()+
+    geom_point(size=5,shape=21,color="black",fill="gray")+theme+
     geom_label(aes(label=paste(round(combin,2),pvalue,sep = "")),
                vjust=-0.5)+
     theme(axis.text = element_text(size=axis.size))+

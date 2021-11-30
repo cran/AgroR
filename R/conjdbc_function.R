@@ -75,7 +75,6 @@ conjdbc=function(trat,
   sup=0.2*mean(response, na.rm=TRUE)
   requireNamespace("crayon")
   requireNamespace("ggplot2")
-  requireNamespace("lmtest")
 
   if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
   if(transf==0){resp=log(response)}
@@ -176,7 +175,7 @@ conjdbc=function(trat,
     method=paste("Bartlett test","(",names(statistic),")",sep="")
   }
   if(homog=="levene"){
-    homog1 = leveneTest(d$res~trat)
+    homog1 = levenehomog(d$res~trat)
     statistic=homog1$`F value`[1]
     phomog=homog1$`Pr(>F)`[1]
     method="Levene's Test (center = median)(F)"
@@ -227,11 +226,6 @@ conjdbc=function(trat,
     message(black("The experiments can be analyzed together"))}else{
       message("Experiments cannot be analyzed together (Separate by experiment)")}
   cat("\n\n")
-  # cat(green(bold("\n-----------------------------------------------------------------\n")))
-  # cat(green(bold("Anova location and treatment interaction")))
-  # cat(green(bold("\n-----------------------------------------------------------------\n")))
-  # print(a)
-
   modres=anova(d)
   respad=d$res/sqrt(modres$`Mean Sq`[6])
   out=respad[respad>3 | respad<(-3)]
@@ -270,23 +264,23 @@ conjdbc=function(trat,
         #names(anova1)[i]=levels(local)[i]
         aov1=aov(resp~tratamento+bloco, data=dados[dados$local==levels(dados$local)[i],])
         if(quali==TRUE){
-          if(mcomp=="tukey"){tukey[[i]]=HSD.test(aov1,"tratamento",
+          if(mcomp=="tukey"){tukey[[i]]=TUKEY(aov1,"tratamento",
                                                  alpha = alpha.t)$groups[unique(as.character(trat)),]
-          comp=HSD.test(aov1,"tratamento")$groups}
-          if(mcomp=="duncan"){tukey[[i]]=duncan.test(aov1,"tratamento",
+          comp=TUKEY(aov1,"tratamento")$groups}
+          if(mcomp=="duncan"){tukey[[i]]=duncan(aov1,"tratamento",
                                                      alpha = alpha.t)$groups[unique(as.character(trat)),]
-          comp=duncan.test(aov1,"tratamento")$groups}
-          if(mcomp=="lsd"){tukey[[i]]=LSD.test(aov1,"tratamento",
+          comp=duncan(aov1,"tratamento")$groups}
+          if(mcomp=="lsd"){tukey[[i]]=LSD(aov1,"tratamento",
                                                alpha = alpha.t)$groups[unique(as.character(trat)),]
-          comp=LSD.test(aov1,"tratamento")$groups}
+          comp=LSD(aov1,"tratamento")$groups}
           if(mcomp=="sk"){
             anova=anova(aov1)
             data=dados[dados$local==levels(dados$local)[i],]
-            tukey[[i]]=sk_triple(data$resp,
+            tukey[[i]]=sk(data$resp,
                                  data$tratamento,
                                  anova$Df[3],
                                  anova$`Sum Sq`[3],alpha = alpha.t)[unique(as.character(trat)),]
-            comp=sk_triple(data$resp,data$tratamento,anova$Df[3],
+            comp=sk(data$resp,data$tratamento,anova$Df[3],
                            anova$`Sum Sq`[3],alpha = alpha.t)}
 
           if(transf=="1"){}else{tukey[[i]]$respo=with(dados[dados$local==levels(dados$local)[i],],
@@ -347,23 +341,23 @@ conjdbc=function(trat,
   if(a$`Pr(>F)`[1] > alpha.f && qmresmedio < 7){
     if(quali==TRUE){
       if(mcomp=="tukey"){
-        tukeyjuntos=(HSD.test(resp,tratamento,a$Df[1], a$`Mean Sq`[1], alpha = alpha.t))
+        tukeyjuntos=(TUKEY(resp,tratamento,a$Df[1], a$`Mean Sq`[1], alpha = alpha.t))
         if(transf!="1"){tukeyjuntos$groups$respo=tapply(response,
                                                         tratamento,
                                                         mean, na.rm=TRUE)[rownames(tukeyjuntos$groups)]}
         tukeyjuntos=tukeyjuntos$groups}
       if(mcomp=="duncan"){
-        tukeyjuntos=duncan.test(resp,tratamento,a$Df[1], a$`Mean Sq`[1], alpha = alpha.t)
+        tukeyjuntos=duncan(resp,tratamento,a$Df[1], a$`Mean Sq`[1], alpha = alpha.t)
         if(transf!="1"){tukeyjuntos$groups$respo=tapply(response, tratamento,
                                                         mean, na.rm=TRUE)[rownames(tukeyjuntos$groups)]}
         tukeyjuntos=tukeyjuntos$groups}
       if(mcomp=="lsd"){
-        tukeyjuntos=LSD.test(resp,tratamento,a$Df[1], a$`Mean Sq`[1], alpha = alpha.t)
+        tukeyjuntos=LSD(resp,tratamento,a$Df[1], a$`Mean Sq`[1], alpha = alpha.t)
         if(transf!="1"){tukeyjuntos$groups$respo=tapply(response, tratamento,
                                                         mean, na.rm=TRUE)[rownames(tukeyjuntos$groups)]}
         tukeyjuntos=tukeyjuntos$groups}
       if(mcomp=="sk"){
-        tukeyjuntos=sk_triple(resp,tratamento,a$Df[1], a$`Sum Sq`[1],
+        tukeyjuntos=sk(resp,tratamento,a$Df[1], a$`Sum Sq`[1],
                               alpha = alpha.t)
         colnames(tukeyjuntos)=c("resp","groups")
         if(transf!="1"){tukeyjuntos$respo=tapply(response, tratamento,

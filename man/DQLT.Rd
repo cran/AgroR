@@ -20,7 +20,7 @@ DQLT(
   labelsize = 5,
   family = "sans",
   sup = 0,
-  addmean = F,
+  addmean = FALSE,
   posi = c(0.1, 0.8),
   geom = "bar",
   fill = "gray",
@@ -29,7 +29,8 @@ DQLT(
   width.bar = 0.1,
   dec = 3,
   theme = theme_classic(),
-  xnumeric = FALSE
+  xnumeric = FALSE,
+  all.letters = FALSE
 )
 }
 \arguments{
@@ -82,6 +83,8 @@ DQLT(
 \item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
 \item{xnumeric}{Declare x as numeric (\emph{default} is FALSE)}
+
+\item{all.letters}{Adds all label letters regardless of whether it is significant or not.}
 }
 \value{
 The function returns the p-value of Anova, the assumptions of normality of errors, homogeneity of variances and independence of errors, multiple comparison test, as well as a line graph

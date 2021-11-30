@@ -24,7 +24,6 @@
 #' @param posi Legend position
 #' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
 #' @param angle.label label angle
-#' @importFrom hnp hnp
 #' @importFrom emmeans regrid
 #' @export
 #' @examples
@@ -76,7 +75,6 @@ DIC.glm=function(trat,
   requireNamespace("multcomp")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
-  requireNamespace("hnp")
   trat=as.factor(trat)
   resp=response
   if(glm.family=="binomial" | glm.family=="quasibinomial"){

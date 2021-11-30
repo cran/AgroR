@@ -29,6 +29,7 @@
 #' @param ylim y-axis scale
 #' @param width.bar width errorbar
 #' @param xnumeric Declare x as numeric (\emph{default} is FALSE)
+#' @param all.letters Adds all label letters regardless of whether it is significant or not.
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @keywords dqlt
 #' @keywords Experimental
@@ -69,7 +70,7 @@ DQLT=function(trat,
               labelsize=5,
               family="sans",
               sup=0,
-              addmean=F,
+              addmean=FALSE,
               posi=c(0.1,0.8),
               geom="bar",
               fill="gray",
@@ -78,13 +79,12 @@ DQLT=function(trat,
               width.bar=0.1,
               dec=3,
               theme=theme_classic(),
-              xnumeric=FALSE){
+              xnumeric=FALSE,
+              all.letters=FALSE){
   requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
-  requireNamespace("gridExtra")
   requireNamespace("nortest")
-  requireNamespace("lmtest")
   requireNamespace("ggrepel")
   trat=as.factor(trat)
   resp=response
@@ -105,9 +105,10 @@ DQLT=function(trat,
       mod=aov(resp~trat+line+column, data=dados[dados$tempo==levels(dados$tempo)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
       cv[[i]]=sqrt(anova(mod)$`Mean Sq`[4])/mean(mod$model$resp)*100
-      tukey=HSD.test(mod,"trat",alpha = alpha.t)
+      tukey=TUKEY(mod,"trat",alpha = alpha.t)
       tukey$groups=tukey$groups[unique(as.character(trat)),2]
-      if(anova(mod)$`Pr(>F)`[1]>alpha.f){tukey$groups=c("ns",rep(" ",length(unique(trat))-1))}
+      if(all.letters==FALSE){
+        if(anova(mod)$`Pr(>F)`[1]>alpha.f){tukey$groups=c("ns",rep(" ",length(unique(trat))-1))}}
       tukeyg[[i]]=as.character(tukey$groups)
       ordem[[i]]=rownames(tukey$groups)
       norm=shapiro.test(mod$residuals)
@@ -139,9 +140,10 @@ DQLT=function(trat,
       mod=aov(resp~trat+line+column, data=dados[dados$tempo==levels(dados$tempo)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
       cv[[i]]=sqrt(anova(mod)$`Mean Sq`[4])/mean(mod$model$resp)*100
-      lsd=LSD.test(mod,"trat",alpha = alpha.t)
+      lsd=LSD(mod,"trat",alpha = alpha.t)
       lsd$groups=lsd$groups[unique(as.character(trat)),2]
-      if(anova(mod)$`Pr(>F)`[1]>alpha.f){lsd$groups=c("ns",rep(" ",length(unique(trat))-1))}
+      if(all.letters==FALSE){
+        if(anova(mod)$`Pr(>F)`[1]>alpha.f){lsd$groups=c("ns",rep(" ",length(unique(trat))-1))}}
       lsdg[[i]]=as.character(lsd$groups)
       ordem[[i]]=rownames(lsd$groups)
       norm=shapiro.test(mod$residuals)
@@ -173,9 +175,10 @@ DQLT=function(trat,
       mod=aov(resp~trat+line+column, data=dados[dados$tempo==levels(dados$tempo)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
       cv[[i]]=sqrt(anova(mod)$`Mean Sq`[4])/mean(mod$model$resp)*100
-      duncan=duncan.test(mod,"trat",alpha = alpha.t)
+      duncan=duncan(mod,"trat",alpha = alpha.t)
       duncan$groups=duncan$groups[unique(as.character(trat)),2]
-      if(anova(mod)$`Pr(>F)`[1]>alpha.f){duncan$groups=c("ns",rep(" ",length(unique(trat))-1))}
+      if(all.letters==FALSE){
+        if(anova(mod)$`Pr(>F)`[1]>alpha.f){duncan$groups=c("ns",rep(" ",length(unique(trat))-1))}}
       duncang[[i]]=as.character(duncan$groups)
       ordem[[i]]=rownames(duncan$groups)
       norm=shapiro.test(mod$residuals)
@@ -210,7 +213,8 @@ DQLT=function(trat,
       data=data.frame(sk=letters[letra$groups])
       rownames(data)=rownames(letra$m.inf)
       data=data[unique(as.character(trat)),]
-      if(anova(mod)$`Pr(>F)`[1]>alpha.f){data=c("ns",rep(" ",length(unique(trat))-1))}
+      if(all.letters==FALSE){
+        if(anova(mod)$`Pr(>F)`[1]>alpha.f){data=c("ns",rep(" ",length(unique(trat))-1))}}
       data=data
       scott[[i]]=data
       norm=shapiro.test(mod$residuals)

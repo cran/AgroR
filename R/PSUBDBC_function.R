@@ -53,7 +53,7 @@
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #' @export
-#' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
+#' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 #' @examples
 #'
 #' #==============================
@@ -102,10 +102,8 @@ PSUBDBC=function(f1,
   if(angle.label==0){hjust=0.5}else{hjust=0}
   requireNamespace("crayon")
   requireNamespace("ggplot2")
-  requireNamespace("gridExtra")
   requireNamespace("ScottKnott")
   requireNamespace("nortest")
-  requireNamespace("lmtest")
   fator1=f1
   fator2=f2
   fator1a=fator1
@@ -274,23 +272,23 @@ PSUBDBC=function(f1,
       if(quali[i]==TRUE){
         ## Tukey
         if(mcomp=="tukey"){
-          letra <- HSD.test(resp, fat[, i],num(tab[3*i,1]),
+          letra <- TUKEY(resp, fat[, i],num(tab[3*i,1]),
                             num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="duncan"){
-          letra <- duncan.test(resp, fat[, i],num(tab[3*i,1]),
+          letra <- duncan(resp, fat[, i],num(tab[3*i,1]),
                                num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="lsd"){
-          letra <- LSD.test(resp, fat[, i],num(tab[3*i,1]),
+          letra <- LSD(resp, fat[, i],num(tab[3*i,1]),
                             num(tab[3*i,2])/num(tab[3*i,1]), alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
 
         if(mcomp=="sk"){
-          letra1 <- sk_triple(resp, fat[, i],num(tab[3*i,1]),
+          letra1 <- sk(resp, fat[, i],num(tab[3*i,1]),
                               num(tab[3*i,2]), alpha.t)
           colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
@@ -467,7 +465,7 @@ PSUBDBC=function(f1,
         tukeygrafico=c()
         ordem=c()
         for (i in 1:nv2) {
-          tukey=HSD.test(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
+          tukey=TUKEY(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
                          num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]), alpha.t)
           colnames(tukey$groups)=c("resp","groups")
           tukeygrafico[[i]]=tukey$groups[as.character(unique(fat[,1][fat[,2]==l2[i]])),2]
@@ -483,7 +481,7 @@ PSUBDBC=function(f1,
         duncangrafico=c()
         ordem=c()
         for (i in 1:nv2) {
-          duncan=duncan.test(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
+          duncan=duncan(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
                              num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]), alpha.t)
           colnames(duncan$groups)=c("resp","groups")
           duncangrafico[[i]]=duncan$groups[as.character(unique(fat[,1][fat[,2]==l2[i]])),2]
@@ -518,7 +516,7 @@ PSUBDBC=function(f1,
           # trati=fatores[, 1][Fator2 == lf2[i]]
           trati=factor(trati,levels = unique(trati))
           # respi=resp[Fator2 == lf2[i]]
-          sk=sk_triple(respi,trati,
+          sk=sk(respi,trati,
                        num(tab.f1f2[nv2+1,1]),
                        num(tab.f1f2[nv2+1,2]),alpha.t)
           if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
@@ -571,7 +569,7 @@ PSUBDBC=function(f1,
       if (mcomp == "tukey"){
         tukeygrafico1=c()
         for (i in 1:nv1) {
-          tukey=HSD.test(resp[fat[, 1] == l1[i]],
+          tukey=TUKEY(resp[fat[, 1] == l1[i]],
                                     fat[,2][fat[, 1] == l1[i]],
                                     num(tab.f2f1[nv1 +1, 1]),
                                     num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
@@ -586,7 +584,7 @@ PSUBDBC=function(f1,
       if (mcomp == "duncan"){
         duncangrafico1=c()
         for (i in 1:nv1) {
-          duncan=duncan.test(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
+          duncan=duncan(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
                              num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
           colnames(duncan$groups)=c("resp","groups")
           duncangrafico1[[i]]=duncan$groups[levels(fat[,2][fat[, 1] == l1[i]]),2]
@@ -599,7 +597,7 @@ PSUBDBC=function(f1,
       if (mcomp == "lsd"){
         lsdgrafico1=c()
         for (i in 1:nv1) {
-          lsd=LSD.test(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
+          lsd=LSD(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
                              num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
           colnames(lsd$groups)=c("resp","groups")
           duncangrafico1[[i]]=lsd$groups[levels(fat[,2][fat[, 1] == l1[i]]),2]
@@ -614,7 +612,7 @@ PSUBDBC=function(f1,
           respi=resp[fat[, 1] == l1[i]]
           trati=fat[,2][fat[, 1] == l1[i]]
           trati=factor(trati,unique(trati))
-          sk=sk_triple(respi,trati,
+          sk=sk(respi,trati,
                        num(tab.f2f1[nv1 +1, 1]),
                        num(tab.f2f1[nv1 + 1, 2]),alpha.t)
           if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
@@ -704,7 +702,7 @@ PSUBDBC=function(f1,
       if(quali[2]==FALSE){
         if (mcomp == "tukey"){
           for (i in 1:nv2) {
-            tukey=HSD.test(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
+            tukey=TUKEY(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
                            num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]), alpha.t)
             colnames(tukey$groups)=c("resp","groups")
             cat("\n----------------------\n")
@@ -713,7 +711,7 @@ PSUBDBC=function(f1,
             print(tukey$groups)}}
         if (mcomp == "duncan"){
         for (i in 1:nv2) {
-            duncan=duncan.test(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
+            duncan=duncan(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
                                num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]), alpha.t)
             colnames(duncan$groups)=c("resp","groups")
             cat("\n----------------------\n")
@@ -738,7 +736,7 @@ PSUBDBC=function(f1,
             respi=resp[fat[,2]==l2[i]]
             trati=fat[,1][fat[,2]==l2[i]]
             trati=factor(trati,levels = unique(trati))
-            sk=sk_triple(respi,trati,
+            sk=sk(respi,trati,
                          num(tab.f1f2[nv2+1,1]),
                          num(tab.f1f2[nv2+1,2]),alpha.t)
             if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
@@ -768,7 +766,7 @@ PSUBDBC=function(f1,
       if(quali[1]==FALSE){
         if (mcomp == "tukey"){
           for (i in 1:nv1) {
-            tukey=HSD.test(resp[fat[, 1] == l1[i]],
+            tukey=TUKEY(resp[fat[, 1] == l1[i]],
                            fat[,2][fat[, 1] == l1[i]],
                            num(tab.f2f1[nv1 +1, 1]),
                            num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
@@ -782,7 +780,7 @@ PSUBDBC=function(f1,
           }}
         if (mcomp == "duncan"){
           for (i in 1:nv1) {
-            duncan=duncan.test(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
+            duncan=duncan(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
                                num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
             colnames(duncan$groups)=c("resp","groups")
             if(transf !="1"){duncan$groups$respo=tapply(response[fat[, 1] == l1[i]],
@@ -794,7 +792,7 @@ PSUBDBC=function(f1,
           }}
         if (mcomp == "lsd"){
           for (i in 1:nv1) {
-            lsd=LSD.test(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
+            lsd=LSD(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
                          num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
             colnames(lsd$groups)=c("resp","groups")
             if(transf !="1"){lsd$groups$respo=tapply(response[fat[, 1] == l1[i]],
@@ -811,7 +809,7 @@ PSUBDBC=function(f1,
             respi=resp[fat[, 1] == l1[i]]
             trati=fat[,2][fat[, 1] == l1[i]]
             trati=factor(trati,unique(trati))
-            sk=sk_triple(respi,trati,
+            sk=sk(respi,trati,
                          num(tab.f2f1[nv1 +1, 1]),
                          num(tab.f2f1[nv1 + 1, 2]),alpha.t)
             if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
@@ -845,7 +843,7 @@ PSUBDBC=function(f1,
       if(quali[2]==FALSE){
         if (mcomp == "tukey"){
           for (i in 1:nv2) {
-            tukey=HSD.test(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
+            tukey=TUKEY(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
                            num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]), alpha.t)
             colnames(tukey$groups)=c("resp","groups")
             cat("\n----------------------\n")
@@ -854,7 +852,7 @@ PSUBDBC=function(f1,
             print(tukey$groups)}}
         if (mcomp == "duncan"){
           for (i in 1:nv2) {
-            duncan=duncan.test(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
+            duncan=duncan(resp[fat[,2]==l2[i]], fat[,1][fat[,2]==l2[i]], num(tab.f1f2[nv2+1,1]),
                                num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]), alpha.t)
             colnames(duncan$groups)=c("resp","groups")
             cat("\n----------------------\n")
@@ -881,7 +879,7 @@ PSUBDBC=function(f1,
             # trati=fatores[, 1][Fator2 == lf2[i]]
             trati=factor(trati,levels = unique(trati))
             # respi=resp[Fator2 == lf2[i]]
-            sk=sk_triple(respi,trati,
+            sk=sk(respi,trati,
                          num(tab.f1f2[nv2+1,1]),
                          num(tab.f1f2[nv2+1,2]),alpha.t)
             if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
@@ -911,7 +909,7 @@ PSUBDBC=function(f1,
       if(quali[1]==FALSE){
         if (mcomp == "tukey"){
           for (i in 1:nv1) {
-            tukey=HSD.test(resp[fat[, 1] == l1[i]],
+            tukey=TUKEY(resp[fat[, 1] == l1[i]],
                            fat[,2][fat[, 1] == l1[i]],
                            num(tab.f2f1[nv1 +1, 1]),
                            num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
@@ -925,7 +923,7 @@ PSUBDBC=function(f1,
           }}
         if (mcomp == "duncan"){
           for (i in 1:nv1) {
-            duncan=duncan.test(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
+            duncan=duncan(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
                                num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
             colnames(duncan$groups)=c("resp","groups")
             if(transf !="1"){duncan$groups$respo=tapply(response[fat[, 1] == l1[i]],
@@ -937,7 +935,7 @@ PSUBDBC=function(f1,
           }}
         if (mcomp == "lsd"){
           for (i in 1:nv1) {
-            lsd=LSD.test(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
+            lsd=LSD(resp[fat[, 1] == l1[i]], fat[,2][fat[, 1] == l1[i]], num(tab.f2f1[nv1 +1, 1]),
                          num(tab.f2f1[nv1 + 1, 2])/num(tab.f2f1[nv1 +1, 1]),alpha.t)
             colnames(lsd$groups)=c("resp","groups")
             if(transf !="1"){lsd$groups$respo=tapply(response[fat[, 1] == l1[i]],
@@ -954,7 +952,7 @@ PSUBDBC=function(f1,
             respi=resp[fat[, 1] == l1[i]]
             trati=fat[,2][fat[, 1] == l1[i]]
             trati=factor(trati,unique(trati))
-            sk=sk_triple(respi,trati,
+            sk=sk(respi,trati,
                          num(tab.f2f1[nv1 +1, 1]),
                          num(tab.f2f1[nv1 + 1, 2]),alpha.t)
             if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,

@@ -105,9 +105,7 @@ FAT2DBC.ad=function(f1,
   requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
-  requireNamespace("gridExtra")
   requireNamespace("nortest")
-  requireNamespace("lmtest")
   fator1=f1
   fator2=f2
   fator1a=fator1
@@ -183,7 +181,7 @@ FAT2DBC.ad=function(f1,
     method=paste("Bartlett test","(",names(statistic),")",sep="")
   }
   if(homog=="levene"){
-    homog1 = leveneTest(c$res~trat)
+    homog1 = levenehomog(c$res~trat)
     statistic=homog1$`F value`[1]
     phomog=homog1$`Pr(>F)`[1]
     method="Levene's Test (center = median)(F)"
@@ -287,20 +285,20 @@ FAT2DBC.ad=function(f1,
       if(quali[i]==TRUE){
         ## Tukey
         if(mcomp=="tukey"){
-          letra <- HSD.test(resp, fatores[,i], anava$Df[6],
+          letra <- TUKEY(resp, fatores[,i], anava$Df[6],
                             anava$`Mean Sq`[6], alpha=alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="lsd"){
-          letra <- LSD.test(resp, fatores[,i], anava$Df[6],anava$`Mean Sq`[6],alpha=alpha.t)
+          letra <- LSD(resp, fatores[,i], anava$Df[6],anava$`Mean Sq`[6],alpha=alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if (mcomp == "sk"){
-          letra=sk_triple(resp, fatores[,i], anava$Df[6],anava$`Sum Sq`[6],alpha.t)
+          letra=sk(resp, fatores[,i], anava$Df[6],anava$`Sum Sq`[6],alpha.t)
           letra1 <- letra; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="duncan"){
-          letra <- duncan.test(resp, fatores[,i],anava$Df[6],anava$`Mean Sq`[6], alpha=alpha.t)
+          letra <- duncan(resp, fatores[,i],anava$Df[6],anava$`Mean Sq`[6], alpha=alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         print(letra1)
@@ -469,7 +467,7 @@ FAT2DBC.ad=function(f1,
         for (i in 1:nv2) {
           trati=fatores[, 1][Fator2 == lf2[i]]
           respi=resp[Fator2 == lf2[i]]
-          tukey=HSD.test(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
+          tukey=TUKEY(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
           if(transf !="1"){tukey$groups$respo=tapply(response[Fator2 == lf2[i]],trati,
                                                      mean, na.rm=TRUE)[rownames(tukey$groups)]}
           tukeygrafico[[i]]=tukey$groups[as.character(unique(trati)),2]
@@ -486,7 +484,7 @@ FAT2DBC.ad=function(f1,
         for (i in 1:nv2) {
           trati=fatores[, 1][Fator2 == lf2[i]]
           respi=resp[Fator2 == lf2[i]]
-          duncan=duncan.test(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
+          duncan=duncan(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
           if(transf !="1"){duncan$groups$respo=tapply(response[Fator2 == lf2[i]],
                                                       trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
           duncangrafico[[i]]=duncan$groups[as.character(unique(trati)),2]
@@ -503,7 +501,7 @@ FAT2DBC.ad=function(f1,
         for (i in 1:nv2) {
           trati=fatores[, 1][Fator2 == lf2[i]]
           respi=resp[Fator2 == lf2[i]]
-          lsd=LSD.test(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
+          lsd=LSD(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
           if(transf !="1"){lsd$groups$respo=tapply(response[Fator2 == lf2[i]],trati,
                                                    mean, na.rm=TRUE)[rownames(lsd$groups)]}
           duncangrafico[[i]]=lsd$groups[as.character(unique(trati)),2]
@@ -521,7 +519,7 @@ FAT2DBC.ad=function(f1,
           trati=fatores[, 1][Fator2 == lf2[i]]
           trati=factor(trati,levels = unique(trati))
           respi=resp[Fator2 == lf2[i]]
-          sk=sk_triple(respi,trati,anava$Df[6],anava$`Sum Sq`[6],alpha.t)
+          sk=sk(respi,trati,anava$Df[6],anava$`Sum Sq`[6],alpha.t)
           if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
           skgrafico[[i]]=sk[levels(trati),2]
           ordem[[i]]=rownames(sk[levels(trati),])
@@ -566,7 +564,7 @@ FAT2DBC.ad=function(f1,
         for (i in 1:nv1) {
           trati=fatores[, 2][Fator1 == lf1[i]]
           respi=resp[Fator1 == lf1[i]]
-          tukey=HSD.test(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
+          tukey=TUKEY(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
           if(transf !="1"){tukey$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
           tukeygrafico1[[i]]=tukey$groups[as.character(unique(trati)),2]
         }
@@ -577,7 +575,7 @@ FAT2DBC.ad=function(f1,
         for (i in 1:nv1) {
           trati=fatores[, 2][Fator1 == lf1[i]]
           respi=resp[Fator1 == lf1[i]]
-          duncan=duncan.test(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
+          duncan=duncan(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
           if(transf !="1"){duncan$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
           duncangrafico1[[i]]=duncan$groups[as.character(unique(trati)),2]
         }
@@ -588,7 +586,7 @@ FAT2DBC.ad=function(f1,
         for (i in 1:nv1) {
           trati=fatores[, 2][Fator1 == lf1[i]]
           respi=resp[Fator1 == lf1[i]]
-          lsd=LSD.test(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
+          lsd=LSD(respi,trati,anava$Df[6],anava$`Mean Sq`[6],alpha.t)
           if(transf !="1"){lsd$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
           lsdgrafico1[[i]]=lsd$groups[as.character(unique(trati)),2]
         }
@@ -600,7 +598,7 @@ FAT2DBC.ad=function(f1,
           trati=fatores[, 2][Fator1 == lf1[i]]
           trati=factor(trati,levels = unique(trati))
           respi=resp[Fator1 == lf1[i]]
-          sk=sk_triple(respi,trati,anava$Df[6],anava$`Sum Sq`[6],alpha.t)
+          sk=sk(respi,trati,anava$Df[6],anava$`Sum Sq`[6],alpha.t)
           if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
           skgrafico1[[i]]=sk[levels(trati),2]
         }

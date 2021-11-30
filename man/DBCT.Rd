@@ -28,7 +28,8 @@ DBCT(
   ylim = NA,
   width.bar = 0.1,
   dec = 3,
-  xnumeric = FALSE
+  xnumeric = FALSE,
+  all.letters = FALSE
 )
 }
 \arguments{
@@ -79,6 +80,8 @@ DBCT(
 \item{dec}{Number of cells}
 
 \item{xnumeric}{Declare x as numeric (\emph{default} is FALSE)}
+
+\item{all.letters}{Adds all label letters regardless of whether it is significant or not.}
 }
 \value{
 The function returns the p-value of Anova, the assumptions of normality of errors, homogeneity of variances and independence of errors, multiple comparison test, as well as a line graph

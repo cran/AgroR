@@ -119,7 +119,7 @@ summarise_anova=function(analysis,
       infor1[,i]=ifelse(pvalor<0.001,"p<0.001",pvalor)}
       if(tests=="noparametric"){
         variable[i]=analysis[[i]][[1]]$plot$ylab
-        pvalor=round(analysis[[i]][[1]]$plot$krusk$statistics[2][[1]],round)
+        pvalor=round(analysis[[i]][[1]]$plot$krusk$statistics[3][[1]],round)
         infor1[,i]=ifelse(pvalor<0.001,"p<0.001",pvalor)}}
 
     names(infor1)=variable
@@ -1083,7 +1083,6 @@ summarise_anova=function(analysis,
     names(f1mean)=variable
     names(f2mean)=variable
     names(f1f2mean)=variable
-    # juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,transf)
     if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,respAd,transf)}
     if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,respAd,transf)}
     if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,respAd,transf)}

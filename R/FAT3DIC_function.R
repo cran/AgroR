@@ -99,9 +99,7 @@ FAT3DIC=function(f1,
   requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
-  requireNamespace("gridExtra")
   requireNamespace("nortest")
-  requireNamespace("lmtest")
 
   if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
   if(transf==0){resp=log(response)}
@@ -200,7 +198,7 @@ FAT3DIC=function(f1,
         cat(green(bold("\n------------------------------------------\n")))
         cat(fac.names[i])
         cat(green(bold("\n------------------------------------------\n")))
-        if(mcomp=='tukey'){letra=HSD.test(resp,fatores[,i],anavaF3[8,1],anavaF3[8,3],alpha.t)
+        if(mcomp=='tukey'){letra=TUKEY(resp,fatores[,i],anavaF3[8,1],anavaF3[8,3],alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="sk"){
@@ -211,12 +209,12 @@ FAT3DIC=function(f1,
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="duncan"){
           ad=data.frame(Fator1,Fator2,Fator3)
-          letra <- duncan.test(anava, colnames(ad[i]), alpha=alpha.t)
+          letra <- duncan(anava, colnames(ad[i]), alpha=alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="lsd"){
           ad=data.frame(Fator1,Fator2,Fator3)
-          letra <- LSD.test(anava, colnames(ad[i]), alpha=alpha.t)
+          letra <- LSD(anava, colnames(ad[i]), alpha=alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         print(letra1)
@@ -297,7 +295,7 @@ FAT3DIC=function(f1,
         cat(green(bold("\n------------------------------------------\n")))
         cat(fac.names[i])
         cat(green(bold("\n------------------------------------------\n")))
-        mean.table<-tapply.stat(response,fatores[,i],mean)
+        mean.table<-mean.stat(response,fatores[,i],mean)
         colnames(mean.table)<-c('Levels','Mean')
         print(mean.table)
         grafico=NA}
@@ -344,7 +342,7 @@ FAT3DIC=function(f1,
           trati=fatores[, 1][Fator2 == lf2[i]]
           trati=factor(trati,levels = unique(trati))
           respi=resp[Fator2 == lf2[i]]
-          tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+          tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
           if(transf !=1){tukey$groups$respo=tapply(response[Fator2 == lf2[i]],
                                                    trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
           tukeygrafico[[i]]=tukey$groups[levels(trati),2]
@@ -362,7 +360,7 @@ FAT3DIC=function(f1,
           trati=fatores[, 1][Fator2 == lf2[i]]
           trati=factor(trati,levels = unique(trati))
           respi=resp[Fator2 == lf2[i]]
-          duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+          duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
           if(transf !=1){duncan$groups$respo=tapply(response[Fator2 == lf2[i]],
                                                     trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
           duncangrafico[[i]]=duncan$groups[levels(trati),2]
@@ -380,7 +378,7 @@ FAT3DIC=function(f1,
           trati=fatores[, 1][Fator2 == lf2[i]]
           trati=factor(trati,levels = unique(trati))
           respi=resp[Fator2 == lf2[i]]
-          lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+          lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
           if(transf !=1){lsd$groups$respo=tapply(response[Fator2 == lf2[i]],trati,
                                                  mean, na.rm=TRUE)[rownames(lsd$groups)]}
           lsdgrafico[[i]]=lsd$groups[levels(trati),2]
@@ -399,7 +397,7 @@ FAT3DIC=function(f1,
           trati=fatores[, 1][Fator2 == lf2[i]]
           trati=factor(trati,levels = unique(trati))
           respi=resp[Fator2 == lf2[i]]
-          sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+          sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
           if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
                                                   trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
           skgrafico[[i]]=sk[levels(trati),2]
@@ -436,7 +434,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 2][Fator1 == lf1[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator1 == lf1[i]]
-            tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+            tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
             if(transf !=1){tukey$groups$respo=tapply(response[Fator1 == lf1[i]],
                                                      trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
             tukeygrafico1[[i]]=tukey$groups[levels(trati),2]
@@ -449,7 +447,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 2][Fator1 == lf1[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator1 == lf1[i]]
-            duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+            duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
             if(transf !=1){duncan$groups$respo=tapply(response[Fator2 == lf2[i]],
                                                       trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
             duncangrafico1[[i]]=duncan$groups[levels(trati),2]
@@ -462,7 +460,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 2][Fator1 == lf1[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator1 == lf1[i]]
-            lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+            lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
             if(transf !=1){lsd$groups$respo=tapply(response[Fator1 == lf1[i]],
                                                    trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
             lsdgrafico1[[i]]=lsd$groups[levels(trati),2]
@@ -475,7 +473,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 2][Fator1 == lf1[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator1 == lf1[i]]
-            sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+            sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
             if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
                                               mean, na.rm=TRUE)[rownames(sk)]}
             skgrafico1[[i]]=sk[levels(trati),2]
@@ -539,7 +537,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 2][Fator1 == lf1[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator1 == lf1[i]]
-              tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){tukey$groups$respo=tapply(response[Fator1 == lf1[i]],
                                                        trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
               cat("\n----------------------\n")
@@ -551,7 +549,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 2][Fator1 == lf1[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator1 == lf1[i]]
-              duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){duncan$groups$respo=tapply(response[Fator2 == lf2[i]],
                                                         trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
               cat("\n----------------------\n")
@@ -563,7 +561,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 2][Fator1 == lf1[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator1 == lf1[i]]
-              lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){lsd$groups$respo=tapply(response[Fator1 == lf1[i]],
                                                      trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
               cat("\n----------------------\n")
@@ -575,7 +573,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 2][Fator1 == lf1[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator1 == lf1[i]]
-              sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+              sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
               if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
                                                 mean, na.rm=TRUE)[rownames(sk)]}
               cat("\n----------------------\n")
@@ -598,7 +596,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 1][Fator2 == lf2[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator2 == lf2[i]]
-              tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){tukey$groups$respo=tapply(response[Fator2 == lf2[i]],
                                                        trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
               cat("\n----------------------\n")
@@ -611,7 +609,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 1][Fator2 == lf2[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator2 == lf2[i]]
-              duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){duncan$groups$respo=tapply(response[Fator2 == lf2[i]],
                                                         trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
               cat("\n----------------------\n")
@@ -626,7 +624,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 1][Fator2 == lf2[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator2 == lf2[i]]
-              lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){lsd$groups$respo=tapply(response[Fator2 == lf2[i]],trati,
                                                      mean, na.rm=TRUE)[rownames(lsd$groups)]}
               cat("\n----------------------\n")
@@ -638,7 +636,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 1][Fator2 == lf2[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator2 == lf2[i]]
-              sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+              sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
               if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
                                                       trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
               cat("\n----------------------\n")
@@ -666,7 +664,7 @@ FAT3DIC=function(f1,
             cat(green(italic('Analyzing the simple effects of the factor ',fac.names[3])))
             cat(green(bold("\n------------------------------------------\n")))
             cat(fac.names[i])
-            if(mcomp=='tukey'){letra=HSD.test(resp,fatores[,i],anavaF3[8,1],anavaF3[8,3],alpha.t)
+            if(mcomp=='tukey'){letra=TUKEY(resp,fatores[,i],anavaF3[8,1],anavaF3[8,3],alpha.t)
             letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
             if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
             if(mcomp=="sk"){
@@ -677,12 +675,12 @@ FAT3DIC=function(f1,
               if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
             if(mcomp=="duncan"){
               ad=data.frame(Fator1,Fator2,Fator3)
-              letra <- duncan.test(anava, colnames(ad[i]), alpha=alpha.t)
+              letra <- duncan(anava, colnames(ad[i]), alpha=alpha.t)
               letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
               if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
             if(mcomp=="lsd"){
               ad=data.frame(Fator1,Fator2,Fator3)
-              letra <- LSD.test(anava, colnames(ad[i]), alpha=alpha.t)
+              letra <- LSD(anava, colnames(ad[i]), alpha=alpha.t)
               letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
               if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
             print(letra1)
@@ -766,7 +764,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 1][Fator3 == lf3[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator3 == lf3[i]]
-            tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+            tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
             if(transf !=1){tukey$groups$respo=tapply(response[Fator3 == lf3[i]],
                                                      trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
             tukeygrafico[[i]]=tukey$groups[levels(trati),2]
@@ -784,7 +782,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 1][Fator3 == lf3[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator3 == lf3[i]]
-            duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+            duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
             if(transf !=1){duncan$groups$respo=tapply(response[Fator3 == lf3[i]],
                                                       trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
             duncangrafico[[i]]=duncan$groups[levels(trati),2]
@@ -802,7 +800,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 1][Fator3 == lf3[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator3 == lf3[i]]
-            lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+            lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
             if(transf !=1){lsd$groups$respo=tapply(response[Fator3 == lf3[i]],trati,
                                                    mean, na.rm=TRUE)[rownames(lsd$groups)]}
             lsdgrafico[[i]]=lsd$groups[levels(trati),2]
@@ -820,7 +818,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 1][Fator3 == lf3[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator3 == lf3[i]]
-            sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+            sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
             if(transf !=1){sk$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
             skgrafico[[i]]=sk[levels(trati),2]
             ordem[[i]]=rownames(sk[levels(trati),])
@@ -854,7 +852,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 3][Fator1 == lf1[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator1 == lf1[i]]
-              tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){tukey$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
               tukeygrafico1[[i]]=tukey$groups[levels(trati),2]
               }
@@ -866,7 +864,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 3][Fator1 == lf1[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator1 == lf1[i]]
-              duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){duncan$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
               duncangrafico1[[i]]=duncan$groups[levels(trati),2]
               }
@@ -879,7 +877,7 @@ FAT3DIC=function(f1,
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator1 == lf1[i]]
               mod=aov(respi~trati)
-              lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){lsd$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
               lsdgrafico1[[i]]=lsd$groups[levels(trati),2]
               }
@@ -892,7 +890,7 @@ FAT3DIC=function(f1,
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator1 == lf1[i]]
               mod=aov(respi~trati)
-              sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+              sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
               if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
               skgrafico1[[i]]=sk[levels(trati),2]
               }
@@ -952,7 +950,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 3][Fator1 == lf1[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator1 == lf1[i]]
-                tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){tukey$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F3 within level",lf1[i],"of F1")
@@ -963,7 +961,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 3][Fator1 == lf1[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator1 == lf1[i]]
-                duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){duncan$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F3 within level",lf1[i],"of F1")
@@ -975,7 +973,7 @@ FAT3DIC=function(f1,
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator1 == lf1[i]]
                 mod=aov(respi~trati)
-                lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){lsd$groups$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F3 within level",lf1[i],"of F1")
@@ -987,7 +985,7 @@ FAT3DIC=function(f1,
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator1 == lf1[i]]
                 mod=aov(respi~trati)
-                sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+                sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
                 if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F3 within level",lf1[i],"of F1")
@@ -1009,7 +1007,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 1][Fator3 == lf3[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator3 == lf3[i]]
-                tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){tukey$groups$respo=tapply(response[Fator3 == lf3[i]],
                                                          trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                 cat("\n----------------------\n")
@@ -1021,7 +1019,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 1][Fator3 == lf3[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator3 == lf3[i]]
-                duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){duncan$groups$respo=tapply(response[Fator3 == lf3[i]],
                                                           trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
                 cat("\n----------------------\n")
@@ -1033,7 +1031,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 1][Fator3 == lf3[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator3 == lf3[i]]
-                lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){lsd$groups$respo=tapply(response[Fator3 == lf3[i]],trati,
                                                        mean, na.rm=TRUE)[rownames(lsd$groups)]}
                 cat("\n----------------------\n")
@@ -1045,7 +1043,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 1][Fator3 == lf3[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator3 == lf3[i]]
-                sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+                sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
                 if(transf !=1){sk$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F1 within level",lf3[i],"of F3")
@@ -1074,7 +1072,7 @@ FAT3DIC=function(f1,
               cat(green(italic('Analyzing the simple effects of the factor ',fac.names[2])))
               cat(green(bold("\n------------------------------------------\n")))
               cat(fac.names[i])
-              if(mcomp=='tukey'){letra=HSD.test(resp,fatores[,i],anavaF3[8,1],anavaF3[8,3],alpha.t)
+              if(mcomp=='tukey'){letra=TUKEY(resp,fatores[,i],anavaF3[8,1],anavaF3[8,3],alpha.t)
               letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
               if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
               if(mcomp=="sk"){
@@ -1085,12 +1083,12 @@ FAT3DIC=function(f1,
                 if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
               if(mcomp=="duncan"){
                 ad=data.frame(Fator1,Fator2,Fator3)
-                letra <- duncan.test(anava, colnames(ad[i]), alpha=alpha.t)
+                letra <- duncan(anava, colnames(ad[i]), alpha=alpha.t)
                 letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
                 if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
               if(mcomp=="lsd"){
                 ad=data.frame(Fator1,Fator2,Fator3)
-                letra <- LSD.test(anava, colnames(ad[i]), alpha=alpha.t)
+                letra <- LSD(anava, colnames(ad[i]), alpha=alpha.t)
                 letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
                 if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
               print(letra1)
@@ -1177,7 +1175,7 @@ FAT3DIC=function(f1,
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator3 == lf3[i]]
             mod=aov(respi~trati)
-            tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+            tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
             if(transf !=1){tukey$groups$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
             tukeygrafico[[i]]=tukey$groups[levels(trati),2]
             ordem[[i]]=rownames(tukey$groups[levels(trati),])
@@ -1195,7 +1193,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 2][Fator3 == lf3[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator3 == lf3[i]]
-            duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+            duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
             if(transf !=1){duncan$groups$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
             duncangrafico[[i]]=duncan$groups[levels(trati),2]
             ordem[[i]]=rownames(duncan$groups[levels(trati),])
@@ -1212,7 +1210,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 2][Fator3 == lf3[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator3 == lf3[i]]
-            lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+            lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
             if(transf !=1){lsd$groups$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
             lsdgrafico[[i]]=lsd$groups[levels(trati),2]
             ordem[[i]]=rownames(lsd$groups[levels(trati),])
@@ -1229,7 +1227,7 @@ FAT3DIC=function(f1,
             trati=fatores[, 2][Fator3 == lf3[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator3 == lf3[i]]
-            sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+            sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
             if(transf !=1){sk$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
             skgrafico[[i]]=sk[levels(trati),2]
             ordem[[i]]=rownames(sk[levels(trati),])
@@ -1265,7 +1263,7 @@ FAT3DIC=function(f1,
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator2 == lf2[i]]
               mod=aov(respi~trati)
-              tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){tukey$groups$respo=tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
               tukeygrafico1[[i]]=tukey$groups[levels(trati),2]
               }
@@ -1277,7 +1275,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 3][Fator2 == lf2[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator2 == lf2[i]]
-              duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){duncan$groups$respo=tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
               duncangrafico1[[i]]=duncan$groups[levels(trati),2]
               }
@@ -1289,7 +1287,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 3][Fator2 == lf2[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator2 == lf2[i]]
-              lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+              lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
               if(transf !=1){lsd$groups$respo=tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
               lsdgrafico1[[i]]=lsd$groups[levels(trati),2]
               }
@@ -1301,7 +1299,7 @@ FAT3DIC=function(f1,
               trati=fatores[, 3][Fator2 == lf2[i]]
               trati=factor(trati,levels = unique(trati))
               respi=resp[Fator2 == lf2[i]]
-              sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+              sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
               if(transf !=1){sk$respo=tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
               skgrafico1[[i]]=sk[levels(trati),2]
               }
@@ -1361,7 +1359,7 @@ FAT3DIC=function(f1,
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator2 == lf2[i]]
                 mod=aov(respi~trati)
-                tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){tukey$groups$respo=tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F3 within level",lf2[i],"of F2")
@@ -1372,7 +1370,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 3][Fator2 == lf2[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator2 == lf2[i]]
-                duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){duncan$groups$respo=tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F3 within level",lf2[i],"of F2")
@@ -1383,7 +1381,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 3][Fator2 == lf2[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator2 == lf2[i]]
-                lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){lsd$groups$respo=tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F3 within level",lf2[i],"of F2")
@@ -1394,7 +1392,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 3][Fator2 == lf2[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator2 == lf2[i]]
-                sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+                sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
                 if(transf !=1){sk$respo=tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F3 within level",lf2[i],"of F2")
@@ -1417,7 +1415,7 @@ FAT3DIC=function(f1,
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator3 == lf3[i]]
                 mod=aov(respi~trati)
-                tukey=HSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                tukey=TUKEY(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){tukey$groups$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F2 within level",lf3[i],"of F3")
@@ -1428,7 +1426,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 2][Fator3 == lf3[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator3 == lf3[i]]
-                duncan=duncan.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                duncan=duncan(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){duncan$groups$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F2 within level",lf3[i],"of F3")
@@ -1439,7 +1437,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 2][Fator3 == lf3[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator3 == lf3[i]]
-                lsd=LSD.test(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
+                lsd=LSD(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                 if(transf !=1){lsd$groups$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F2 within level",lf3[i],"of F3")
@@ -1450,7 +1448,7 @@ FAT3DIC=function(f1,
                 trati=fatores[, 2][Fator3 == lf3[i]]
                 trati=factor(trati,levels = unique(trati))
                 respi=resp[Fator3 == lf3[i]]
-                sk=sk_triple(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
+                sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
                 if(transf !=1){sk$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F2 within level",lf3[i],"of F3")
@@ -1477,7 +1475,7 @@ FAT3DIC=function(f1,
               cat(green(italic('Analyzing the simple effects of the factor ',fac.names[2])))
               cat(green(bold("\n------------------------------------------\n")))
               cat(fac.names[i])
-              if(mcomp=='tukey'){letra=HSD.test(resp,fatores[,i],anavaF3[8,1],anavaF3[8,3],alpha.t)
+              if(mcomp=='tukey'){letra=TUKEY(resp,fatores[,i],anavaF3[8,1],anavaF3[8,3],alpha.t)
               letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
               if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
               if(mcomp=="sk"){
@@ -1488,12 +1486,12 @@ FAT3DIC=function(f1,
                 if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
               if(mcomp=="duncan"){
                 ad=data.frame(Fator1,Fator2,Fator3)
-                letra <- duncan.test(anava, colnames(ad[i]), alpha=alpha.t)
+                letra <- duncan(anava, colnames(ad[i]), alpha=alpha.t)
                 letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
                 if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
               if(mcomp=="lsd"){
                 ad=data.frame(Fator1,Fator2,Fator3)
-                letra <- LSD.test(anava, colnames(ad[i]), alpha=alpha.t)
+                letra <- LSD(anava, colnames(ad[i]), alpha=alpha.t)
                 letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
                 if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
               print(letra1)
@@ -1579,7 +1577,7 @@ FAT3DIC=function(f1,
           # if(1-pf(QM/QME,glf,glE)[ii]<=alpha.f){
           if(quali[1]==TRUE){
             cat('\n',fac.names[1],' within the combination of levels ',lf2[i],' of  ',fac.names[2],' and ',lf3[j],' of  ',fac.names[3],"\n")
-            if(mcomp=='tukey'){tukey=HSD.test(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
+            if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                                      fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                                      anavaF3[8,1],
                                      anavaF3[8,3],
@@ -1589,7 +1587,7 @@ FAT3DIC=function(f1,
                                                      fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                                               mean, na.rm=TRUE)[rownames(tukey)]}
             print(tukey)}
-            if(mcomp=='duncan'){duncan=duncan.test(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
+            if(mcomp=='duncan'){duncan=duncan(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                                               fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                                               anavaF3[8,1],
                                               anavaF3[8,3],
@@ -1599,7 +1597,7 @@ FAT3DIC=function(f1,
                                                      fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                                                mean, na.rm=TRUE)[rownames(duncan)]}
             print(duncan)}
-            if(mcomp=='lsd'){lsd=LSD.test(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
+            if(mcomp=='lsd'){lsd=LSD(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                                               fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                                               anavaF3[8,1],
                                               anavaF3[8,3],
@@ -1614,7 +1612,7 @@ FAT3DIC=function(f1,
               fat1=factor(fat,unique(fat))
               levels(fat1)=1:length(levels(fat1))
 
-              sk=sk_triple(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
+              sk=sk(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                            fat1,
                            anavaF3$Df[8],
                            anavaF3$`Sum Sq`[8],
@@ -1655,7 +1653,7 @@ FAT3DIC=function(f1,
           ii<-ii+1
           if(quali[2]==TRUE){
             cat('\n\n',fac.names[2],' within the combination of levels ',lf1[k],' of  ',fac.names[1],' and ',lf3[j],' of  ',fac.names[3],'\n')
-            if(mcomp=='tukey'){tukey=HSD.test(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
+            if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                                         fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                                         anavaF3[8,1],
                                         anavaF3[8,3],
@@ -1664,7 +1662,7 @@ FAT3DIC=function(f1,
             if(transf !=1){tukey$respo=tapply(response[fatores[,1]==lf1[i] & fatores[,3]==lf3[j]],
                                                      fatores[,2][Fator1==lf1[i]  & fatores[,3]==lf3[j]],mean, na.rm=TRUE)[rownames(tukey)]}
             print(tukey)}
-            if(mcomp=='duncan'){duncan=duncan.test(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
+            if(mcomp=='duncan'){duncan=duncan(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                                             fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                                             anavaF3[8,1],
                                             anavaF3[8,3],
@@ -1673,7 +1671,7 @@ FAT3DIC=function(f1,
             if(transf !=1){duncan$respo=tapply(response[fatores[,1]==lf1[i] & fatores[,3]==lf3[j]],
                                                      fatores[,2][Fator1==lf1[i]  & fatores[,3]==lf3[j]],mean, na.rm=TRUE)[rownames(duncan)]}
             print(duncan)}
-            if(mcomp=='lsd'){lsd=LSD.test(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
+            if(mcomp=='lsd'){lsd=LSD(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                                               fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                                               anavaF3[8,1],
                                               anavaF3[8,3],
@@ -1686,7 +1684,7 @@ FAT3DIC=function(f1,
               fat=fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]]
               fat1=factor(fat,unique(fat))
               levels(fat1)=1:length(levels(fat1))
-              sk=sk_triple(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
+              sk=sk(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                           fat1,
                           anavaF3$Df[8],
                           anavaF3$`Sum Sq`[8],
@@ -1730,7 +1728,7 @@ FAT3DIC=function(f1,
           # if(1-pf(QM/QME,glf,glE)[ii]<=alpha.f){
           if(quali[3]==TRUE){
             cat('\n\n',fac.names[3],' within the combination of levels ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of  ',fac.names[2],'\n')
-            if(mcomp=='tukey'){tukey=HSD.test(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
+            if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                      fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                      anavaF3[8,1],
                                      anavaF3[8,3],
@@ -1740,7 +1738,7 @@ FAT3DIC=function(f1,
                                                      fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                                      mean, na.rm=TRUE)[rownames(tukey)]}
             print(tukey)}
-            if(mcomp=='duncan'){duncan=duncan.test(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
+            if(mcomp=='duncan'){duncan=duncan(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                               fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                               anavaF3[8,1],
                                               anavaF3[8,3],
@@ -1750,7 +1748,7 @@ FAT3DIC=function(f1,
                                                      fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                                      mean, na.rm=TRUE)[rownames(duncan)]}
             print(duncan)}
-            if(mcomp=='lsd'){lsd=LSD.test(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
+            if(mcomp=='lsd'){lsd=LSD(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                                                        fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                                                        anavaF3[8,1],
                                                                        anavaF3[8,3],
@@ -1764,7 +1762,7 @@ FAT3DIC=function(f1,
               fat=fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]]
               fat1=factor(fat,unique(fat))
               levels(fat1)=1:length(levels(fat1))
-              sk=sk_triple(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
+              sk=sk(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                           fat1,
                           anavaF3$Df[8],
                           anavaF3$`Sum Sq`[8],

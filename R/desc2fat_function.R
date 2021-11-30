@@ -29,7 +29,6 @@ desc2fat=function(f1,
                   theme=theme_classic()){
   requireNamespace("crayon")
   requireNamespace("ggplot2")
-  requireNamespace("gridExtra")
   f1=as.factor(f1)
   f2=as.factor(f2)
   #===========================
@@ -173,9 +172,7 @@ desc2fat=function(f1,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   print(juntos3)
   cat(green(bold("\n-----------------------------------------------------------------\n")))
-  gridExtra::grid.arrange(grafico,grafico1,grafico2,
-                          layout_matrix=rbind(c(1,1,2,2),
-                                              c(3,3,3,3)))
-  gridExtra::grid.arrange(inter1,inter2,ncol=2)
+  cowplot::plot_grid(grafico,grafico1,grafico2)
+  cowplot::plot_grid(inter1,inter2,ncol=2)
   }
 

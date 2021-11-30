@@ -21,6 +21,7 @@ sk_graph=function(model,
                   horiz=TRUE){
   requireNamespace("ggplot2")
   data=model[[1]]$data
+  family=model[[1]]$plot$family
   media=data$media
   desvio=data$desvio
   trats=data$trats
@@ -42,7 +43,7 @@ sk_graph=function(model,
                   width=model[[1]]$layers[3][[1]]$geom_params$width)+
     geom_label(aes(x=as.vector(media)+sup+desvio,
                    y=as.vector(trats),
-                   label = letra),
+                   label = letra),family=family,
                fill="lightyellow",hjust=0)}
     if(ploterror==FALSE){graph=graph+geom_label(aes(x=as.vector(media)+sup,
                      y=as.vector(trats),
@@ -66,7 +67,7 @@ sk_graph=function(model,
                                                   width=model[[1]]$layers[3][[1]]$geom_params$width)+
       geom_label(aes(y=as.vector(media)+sup+desvio,
                      x=as.vector(trats),
-                     label = letra),
+                     label = letra),family=family,
                  fill="lightyellow",hjust=0)}
     if(ploterror==FALSE){graph=graph+geom_label(aes(y=as.vector(media)+sup,
                                                     x=as.vector(trats),

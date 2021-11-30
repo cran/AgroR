@@ -70,7 +70,6 @@ plot_TH1=function(tempo,
                  legend.position=c(0.1,0.3)){
   data=data.frame(tempo,Tmed,Tmax,Tmin,UR)
   requireNamespace("ggplot2")
-  #requireNamespace("scales")
   if(x=="days"){
       a=ggplot(data, aes(x = tempo)) +
         geom_line(aes(y = Tmed,color=legend.tmed),size=linesize)+

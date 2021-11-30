@@ -153,6 +153,8 @@ Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e 
 Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 
 Mendiburu, F., and de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
+
+HOTHORN, Torsten et al. Package ‘lmtest’. Testing linear regression models. https://cran. r-project. org/web/packages/lmtest/lmtest. pdf. Accessed, v. 6, 2015.
 }
 \seealso{
 \link{DBC} \link{DQL}

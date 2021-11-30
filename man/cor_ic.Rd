@@ -9,7 +9,8 @@ cor_ic(
   background = TRUE,
   axis.size = 12,
   ylab = "",
-  xlab = "Correlation (r)"
+  xlab = "Correlation (r)",
+  theme = theme_classic()
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ cor_ic(
 \item{ylab}{Variable response name (Accepts the \emph{expression}() function)}
 
 \item{xlab}{Treatments name (Accepts the \emph{expression}() function)}
+
+\item{theme}{ggplot theme (\emph{default} is theme_classic())}
 }
 \value{
 The function returns a new graphical approach to correlation.

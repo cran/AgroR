@@ -58,7 +58,6 @@ polynomial2_color=function(fator1,
                            n=NA){
   if(is.na(width.bar)==TRUE){width.bar=0.05*mean(fator1)}
     requireNamespace("ggplot2")
-  requireNamespace("gridExtra")
   Fator2=fator2=factor(fator2,unique(fator2))
   if(is.na(color)[1]==TRUE){color=1:length(levels(Fator2))}
   if(is.na(grau)[1]==TRUE){grau=rep(1,length(levels(Fator2)))}

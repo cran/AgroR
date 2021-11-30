@@ -37,13 +37,6 @@
 #' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 #' @keywords DQL
 #' @keywords Experimental
-#' @import ggplot2
-#' @importFrom crayon green
-#' @importFrom crayon bold
-#' @importFrom crayon italic
-#' @importFrom crayon red
-#' @importFrom crayon blue
-#' @import stats
 #' @references
 #'
 #' Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
@@ -100,9 +93,7 @@ DQL=function(trat,
   requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
-  requireNamespace("gridExtra")
   requireNamespace("nortest")
-  requireNamespace("lmtest")
   if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
   if(transf==0){resp=log(response)}
   if(transf==0.5){resp=sqrt(response)}
@@ -137,7 +128,7 @@ DQL=function(trat,
     method=paste("Bartlett test","(",names(statistic),")",sep="")
   }
   if(homog=="levene"){
-    homog1 = leveneTest(b$res~trat)[1,]
+    homog1 = levenehomog(b$res~trat)[1,]
     statistic=homog1$`F value`[1]
     phomog=homog1$`Pr(>F)`[1]
     method="Levene's Test (center = median)(F)"
@@ -222,7 +213,7 @@ DQL=function(trat,
   if(quali==TRUE){
   ## Tukey
   if(mcomp=="tukey"){
-    letra <- HSD.test(b, "trat", alpha=alpha.t)
+    letra <- TUKEY(b, "trat", alpha=alpha.t)
     letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
 
   ## Scott-Knott
@@ -233,18 +224,18 @@ DQL=function(trat,
 
   ## Duncan
     if(mcomp=="duncan"){
-      letra <- duncan.test(b, "trat", alpha=alpha.t)
+      letra <- duncan(b, "trat", alpha=alpha.t)
       letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
 
   ## LSD
     if(mcomp=="lsd"){
-      letra <- LSD.test(b, "trat", alpha=alpha.t)
+      letra <- LSD(b, "trat", alpha=alpha.t)
       letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
 
   media = tapply(response, trat, mean, na.rm=TRUE)
 
   if(transf=="1"){letra1}else{letra1$respO=media[rownames(letra1)]}
-  print(if(a$`Pr(>F)`[1]<0.05){letra1}else{"H0 is not rejected"})
+  print(if(a$`Pr(>F)`[1]<alpha.f){letra1}else{"H0 is not rejected"})
 
   cat("\n")
   message(if(transf=="1"){}else{blue("resp = transformed means; respO = averages without transforming")})

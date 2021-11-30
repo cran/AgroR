@@ -62,7 +62,6 @@ DBC.glm=function(trat,
   requireNamespace("multcomp")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
-  requireNamespace("hnp")
   trat=as.factor(trat)
   block=as.factor(block)
   resp=response

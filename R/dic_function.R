@@ -41,12 +41,12 @@
 #' @importFrom crayon italic
 #' @importFrom crayon red
 #' @importFrom crayon blue
+#' @importFrom crayon black
 #' @importFrom nortest lillie.test
 #' @importFrom nortest ad.test
 #' @importFrom nortest cvm.test
 #' @importFrom nortest pearson.test
 #' @importFrom nortest sf.test
-#' @importFrom lmtest dwtest
 #' @importFrom utils setTxtProgressBar
 #' @importFrom utils txtProgressBar
 #' @importFrom graphics abline
@@ -57,17 +57,13 @@
 #' @importFrom ARTool artlm
 #' @importFrom ARTool art
 #' @importFrom lme4 lmer
-#' @importFrom grid grobTree
-#' @importFrom grid rectGrob
-#' @importFrom grid textGrob
-#' @importFrom grid gpar
-#' @importFrom gridExtra grid.arrange
 #' @importFrom graphics par
 #' @importFrom utils read.table
 #' @importFrom stringr str_trim
 #' @importFrom reshape2 melt
 #' @importFrom Hmisc rcorr
 #' @importFrom cowplot plot_grid
+#' @importFrom lmtest dwtest
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @note Post hoc test in nonparametric is using the criterium Fisher's least significant difference (p-adj="holm").
 #' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
@@ -85,6 +81,8 @@
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
 #'
 #' Mendiburu, F., and de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
+#'
+#' HOTHORN, Torsten et al. Package ‘lmtest’. Testing linear regression models. https://cran. r-project. org/web/packages/lmtest/lmtest. pdf. Accessed, v. 6, 2015.
 #'
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Kruskal-Wallis test. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 #' @keywords DIC
@@ -155,12 +153,295 @@ DIC <- function(trat,
                 angle.label=0){
   if(is.na(sup==TRUE)){sup=0.1*mean(response)}
   if(angle.label==0){hjust=0.5}else{hjust=0}
-  requireNamespace("gridExtra")
   requireNamespace("nortest")
-  requireNamespace("lmtest")
   requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
+  #=====================================================================
+  # duncan
+  #=====================================================================
+  duncan <- function(y,
+                     trt,
+                     DFerror,
+                     MSerror,
+                     alpha = 0.05,
+                     group = TRUE,
+                     main = NULL,
+                     console = FALSE)
+  {name.y <- paste(deparse(substitute(y)))
+  name.t <- paste(deparse(substitute(trt)))
+  if(is.null(main))main<-paste(name.y,"~", name.t)
+  clase<-c("aov","lm")
+  if("aov"%in%class(y) | "lm"%in%class(y)){
+    if(is.null(main))main<-y$call
+    A<-y$model
+    DFerror<-df.residual(y)
+    MSerror<-deviance(y)/DFerror
+    y<-A[,1]
+    ipch<-pmatch(trt,names(A))
+    nipch<- length(ipch)
+    for(i in 1:nipch){
+      if (is.na(ipch[i]))
+        return(if(console)cat("Name: ", trt, "\n", names(A)[-1], "\n"))}
+    name.t<- names(A)[ipch][1]
+    trt <- A[, ipch]
+    if (nipch > 1){
+      trt <- A[, ipch[1]]
+      for(i in 2:nipch){
+        name.t <- paste(name.t,names(A)[ipch][i],sep=":")
+        trt <- paste(trt,A[,ipch[i]],sep=":")
+      }}
+    name.y <- names(A)[1]
+  }
+  junto <- subset(data.frame(y, trt), is.na(y) == FALSE)
+  Mean<-mean(junto[,1])
+  CV<-sqrt(MSerror)*100/Mean
+  medians<-mean.stat(junto[,1],junto[,2],stat="median")
+  for(i in c(1,5,2:4)) {
+    x <- mean.stat(junto[,1],junto[,2],function(x)quantile(x)[i])
+    medians<-cbind(medians,x[,2])
+  }
+  medians<-medians[,3:7]
+  names(medians)<-c("Min","Max","Q25","Q50","Q75")
+  means <- mean.stat(junto[,1],junto[,2],stat="mean") # change
+  sds <-   mean.stat(junto[,1],junto[,2],stat="sd") #change
+  nn <-   mean.stat(junto[,1],junto[,2],stat="length") # change
+  means<-data.frame(means,std=sds[,2],r=nn[,2],medians)
+  names(means)[1:2]<-c(name.t,name.y)
+  ntr<-nrow(means)
+  Tprob<-NULL
+  k<-0
+  for(i in 2:ntr){
+    k<-k+1
+    x <- suppressWarnings(warning(qtukey((1-alpha)^(i-1), i, DFerror)))
+    if(x=="NaN")break
+    else Tprob[k]<-x
+  }
+  if(k<(ntr-1)){
+    for(i in k:(ntr-1)){
+      f <- Vectorize(function(x)ptukey(x,i+1,DFerror)-(1-alpha)^i)
+      Tprob[i]<-uniroot(f, c(0,100))$root
+    }
+  }
+  Tprob<-as.numeric(Tprob)
+  nr <- unique(nn[,2])
+  # Critical Value of Studentized Range
+  if(console){
+    cat("\nStudy:", main)
+    cat("\n\nDuncan's new multiple range test\nfor",name.y,"\n")
+    cat("\nMean Square Error: ",MSerror,"\n\n")
+    cat(paste(name.t,",",sep="")," means\n\n")
+    print(data.frame(row.names = means[,1], means[,2:6]))
+  }
+  if(length(nr) == 1 ) sdtdif <- sqrt(MSerror/nr)
+  else {
+    nr1 <-  1/mean(1/nn[,2])
+    sdtdif <- sqrt(MSerror/nr1)
+  }
+  DUNCAN <- Tprob * sdtdif
+  names(DUNCAN)<-2:ntr
+  duncan<-data.frame(Table=Tprob,CriticalRange=DUNCAN)
+  if ( group & length(nr) == 1 & console){
+    cat("\nAlpha:",alpha,"; DF Error:",DFerror,"\n")
+    cat("\nCritical Range\n")
+    print(DUNCAN)}
+  if ( group & length(nr) != 1 & console) cat("\nGroups according to probability of means differences and alpha level(",alpha,")\n")
+  if ( length(nr) != 1) duncan<-NULL
+  Omeans<-order(means[,2],decreasing = TRUE) #correccion 2019, 1 abril.
+  Ordindex<-order(Omeans)
+  comb <-utils::combn(ntr,2)
+  nn<-ncol(comb)
+  dif<-rep(0,nn)
+  DIF<-dif
+  LCL<-dif
+  UCL<-dif
+  pvalue<-dif
+  odif<-dif
+  sig<-NULL
+  for (k in 1:nn) {
+    i<-comb[1,k]
+    j<-comb[2,k]
+    dif[k]<-means[i,2]-means[j,2]
+    DIF[k]<-abs(dif[k])
+    nx<-abs(i-j)+1
+    odif[k] <- abs(Ordindex[i]- Ordindex[j])+1
+    pvalue[k]<- round(1-ptukey(DIF[k]/sdtdif,odif[k],DFerror)^(1/(odif[k]-1)),4)
+    LCL[k] <- dif[k] - DUNCAN[odif[k]-1]
+    UCL[k] <- dif[k] + DUNCAN[odif[k]-1]
+    sig[k]<-" "
+    if (pvalue[k] <= 0.001) sig[k]<-"***"
+    else  if (pvalue[k] <= 0.01) sig[k]<-"**"
+    else  if (pvalue[k] <= 0.05) sig[k]<-"*"
+    else  if (pvalue[k] <= 0.1) sig[k]<-"."
+  }
+  if(!group){
+    tr.i <- means[comb[1, ],1]
+    tr.j <- means[comb[2, ],1]
+    comparison<-data.frame("difference" = dif, pvalue=pvalue,"signif."=sig,LCL,UCL)
+    rownames(comparison)<-paste(tr.i,tr.j,sep=" - ")
+    if(console){cat("\nComparison between treatments means\n\n")
+      print(comparison)}
+    groups=NULL
+  }
+  if (group) {
+    comparison=NULL
+    Q<-matrix(1,ncol=ntr,nrow=ntr)
+    p<-pvalue
+    k<-0
+    for(i in 1:(ntr-1)){
+      for(j in (i+1):ntr){
+        k<-k+1
+        Q[i,j]<-p[k]
+        Q[j,i]<-p[k]
+      }
+    }
+    groups <- ordenacao(means[, 1], means[, 2],alpha, Q,console)
+    names(groups)[1]<-name.y
+    if(console) {
+      cat("\nMeans with the same letter are not significantly different.\n\n")
+      print(groups)
+    }
+  }
+  parameters<-data.frame(test="Duncan",name.t=name.t,ntr = ntr,alpha=alpha)
+  statistics<-data.frame(MSerror=MSerror,Df=DFerror,Mean=Mean,CV=CV)
+  rownames(parameters)<-" "
+  rownames(statistics)<-" "
+  rownames(means)<-means[,1]
+  means<-means[,-1]
+  output<-list(statistics=statistics,parameters=parameters, duncan=duncan,
+               means=means,comparison=comparison,groups=groups)
+  class(output)<-"group"
+  invisible(output)
+  }
+
+  #=====================================================================
+  # HSD.test
+  #=====================================================================
+
+  HSD.test <- function(y, trt, DFerror,
+                       MSerror, alpha=0.05, group=TRUE,
+                       main = NULL,unbalanced=FALSE,console=FALSE){
+    name.y <- paste(deparse(substitute(y)))
+    name.t <- paste(deparse(substitute(trt)))
+    if(is.null(main))main<-paste(name.y,"~", name.t)
+    clase<-c("aov","lm")
+    if("aov"%in%class(y) | "lm"%in%class(y)){
+      if(is.null(main))main<-y$call
+      A<-y$model
+      DFerror<-df.residual(y)
+      MSerror<-deviance(y)/DFerror
+      y<-A[,1]
+      ipch<-pmatch(trt,names(A))
+      nipch<- length(ipch)
+      for(i in 1:nipch){
+        if (is.na(ipch[i]))
+          return(if(console)cat("Name: ", trt, "\n", names(A)[-1], "\n"))
+      }
+      name.t<- names(A)[ipch][1]
+      trt <- A[, ipch]
+      if (nipch > 1){
+        trt <- A[, ipch[1]]
+        for(i in 2:nipch){
+          name.t <- paste(name.t,names(A)[ipch][i],sep=":")
+          trt <- paste(trt,A[,ipch[i]],sep=":")
+        }}
+      name.y <- names(A)[1]
+    }
+    junto <- subset(data.frame(y, trt), is.na(y) == FALSE)
+    Mean<-mean(junto[,1])
+    CV<-sqrt(MSerror)*100/Mean
+    medians<-mean.stat(junto[,1],junto[,2],stat="median")
+    for(i in c(1,5,2:4)) {
+      x <- mean.stat(junto[,1],junto[,2],function(x)quantile(x)[i])
+      medians<-cbind(medians,x[,2])
+    }
+    medians<-medians[,3:7]
+    names(medians)<-c("Min","Max","Q25","Q50","Q75")
+    means <- mean.stat(junto[,1],junto[,2],stat="mean") # change
+    sds <-   mean.stat(junto[,1],junto[,2],stat="sd") #change
+    nn <-   mean.stat(junto[,1],junto[,2],stat="length") # change
+    means<-data.frame(means,std=sds[,2],r=nn[,2],medians)
+    names(means)[1:2]<-c(name.t,name.y)
+    #   row.names(means)<-means[,1]
+    ntr<-nrow(means)
+    Tprob <- qtukey(1-alpha,ntr, DFerror)
+    nr<-unique(nn[, 2])
+    nr1<-1/mean(1/nn[,2])
+    if(console){
+      cat("\nStudy:", main)
+      cat("\n\nHSD Test for",name.y,"\n")
+      cat("\nMean Square Error: ",MSerror,"\n\n")
+      cat(paste(name.t,",",sep="")," means\n\n")
+      print(data.frame(row.names = means[,1], means[,2:6]))
+      cat("\nAlpha:",alpha,"; DF Error:",DFerror,"\n")
+      cat("Critical Value of Studentized Range:", Tprob,"\n")
+    }
+    HSD <- Tprob * sqrt(MSerror/nr)
+    statistics<-data.frame(MSerror=MSerror,Df=DFerror,Mean=Mean,CV=CV,MSD=HSD)
+    if ( group & length(nr) == 1 & console) cat("\nMinimun Significant Difference:",HSD,"\n")
+    if ( group & length(nr) != 1 & console) cat("\nGroups according to probability of means differences and alpha level(",alpha,")\n")
+    if ( length(nr) != 1) statistics<-data.frame(MSerror=MSerror,Df=DFerror,Mean=Mean,CV=CV)
+    comb <-utils::combn(ntr,2)
+    nn<-ncol(comb)
+    dif<-rep(0,nn)
+    sig<-NULL
+    LCL<-dif
+    UCL<-dif
+    pvalue<-rep(0,nn)
+    for (k in 1:nn) {
+      i<-comb[1,k]
+      j<-comb[2,k]
+      dif[k]<-means[i,2]-means[j,2]
+      sdtdif<-sqrt(MSerror * 0.5*(1/means[i,4] + 1/means[j,4]))
+      if(unbalanced)sdtdif<-sqrt(MSerror /nr1)
+      pvalue[k]<- round(1-ptukey(abs(dif[k])/sdtdif,ntr,DFerror),4)
+      LCL[k] <- dif[k] - Tprob*sdtdif
+      UCL[k] <- dif[k] + Tprob*sdtdif
+      sig[k]<-" "
+      if (pvalue[k] <= 0.001) sig[k]<-"***"
+      else  if (pvalue[k] <= 0.01) sig[k]<-"**"
+      else  if (pvalue[k] <= 0.05) sig[k]<-"*"
+      else  if (pvalue[k] <= 0.1) sig[k]<-"."
+    }
+    if(!group){
+      tr.i <- means[comb[1, ],1]
+      tr.j <- means[comb[2, ],1]
+      comparison<-data.frame("difference" = dif, pvalue=pvalue,"signif."=sig,LCL,UCL)
+      rownames(comparison)<-paste(tr.i,tr.j,sep=" - ")
+      if(console){cat("\nComparison between treatments means\n\n")
+        print(comparison)}
+      groups=NULL
+    }
+    if (group) {
+      comparison=NULL
+      Q<-matrix(1,ncol=ntr,nrow=ntr)
+      p<-pvalue
+      k<-0
+      for(i in 1:(ntr-1)){
+        for(j in (i+1):ntr){
+          k<-k+1
+          Q[i,j]<-p[k]
+          Q[j,i]<-p[k]
+        }
+      }
+      groups <- ordenacao(means[, 1], means[, 2],alpha, Q,console)
+      names(groups)[1]<-name.y
+      if(console) {
+        cat("\nTreatments with the same letter are not significantly different.\n\n")
+        print(groups)
+      }
+    }
+    parameters<-data.frame(test="Tukey",name.t=name.t,ntr = ntr, StudentizedRange=Tprob,alpha=alpha)
+    rownames(parameters)<-" "
+    rownames(statistics)<-" "
+    rownames(means)<-means[,1]
+    means<-means[,-1]
+    output<-list(statistics=statistics,parameters=parameters,
+                 means=means,comparison=comparison,groups=groups)
+    class(output)<-"group"
+    invisible(output)
+  }
+
   if(test=="parametric"){
   if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
   if(transf==0){resp=log(response)}
@@ -191,7 +472,7 @@ DIC <- function(trat,
     method=paste("Bartlett test","(",names(statistic),")",sep="")
   }
   if(homog=="levene"){
-    homog1 = leveneTest(b$res~trat)[1,]
+    homog1 = levenehomog(b$res~trat)[1,]
     statistic=homog1$`F value`[1]
     phomog=homog1$`Pr(>F)`[1]
     method="Levene's Test (center = median)(F)"
@@ -269,22 +550,21 @@ DIC <- function(trat,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   if(quali==TRUE){
   if(mcomp=="tukey"){
-    letra <- HSD.test(b, "trat", alpha=alpha.t)
+    letra <- TUKEY(b, "trat", alpha=alpha.t)
     letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
   if(mcomp=="sk"){
     letra=SK(b,"trat",sig.level=alpha.t)
     letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-    #letra1$resp=as.numeric(as.character(letra1$resp))
     }
   if(mcomp=="duncan"){
-    letra <- duncan.test(b, "trat", alpha=alpha.t)
+    letra <- duncan(b, "trat", alpha=alpha.t)
     letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
   if(mcomp=="lsd"){
-      letra <- LSD.test(b, "trat", alpha=alpha.t)
+      letra <- LSD(b, "trat", alpha=alpha.t)
       letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
   media = tapply(response, trat, mean, na.rm=TRUE)
   if(transf=="1"){letra1}else{letra1$respO=media[rownames(letra1)]}
-  print(if(a$`Pr(>F)`[1]<0.05){letra1}else{"H0 is not rejected"})
+  print(if(a$`Pr(>F)`[1]<alpha.f){letra1}else{"H0 is not rejected"})
   cat("\n")
   message(if(transf=="1"){}else{blue("\nNOTE: resp = transformed means; respO = averages without transforming\n")})
   if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 &&homog1$p.value<0.05){
@@ -393,6 +673,160 @@ DIC <- function(trat,
   grafico=graph[[1]]
   }}
   if(test=="noparametric"){
+    kruskal=function (y,
+                      trt,
+                      alpha = 0.05,
+                      p.adj = c("none", "holm",
+                                "hommel", "hochberg", "bonferroni", "BH", "BY", "fdr"),
+                      group = TRUE, main = NULL,console=FALSE){
+      name.y <- paste(deparse(substitute(y)))
+      name.t <- paste(deparse(substitute(trt)))
+      if(is.null(main))main<-paste(name.y,"~", name.t)
+      p.adj <- match.arg(p.adj)
+      junto <- subset(data.frame(y, trt), is.na(y) == FALSE)
+      N <- nrow(junto)
+      medians<-mean.stat(junto[,1],junto[,2],stat="median")
+      for(i in c(1,5,2:4)) {
+        x <- mean.stat(junto[,1],junto[,2],function(x)quantile(x)[i])
+        medians<-cbind(medians,x[,2])}
+      medians<-medians[,3:7]
+      names(medians)<-c("Min","Max","Q25","Q50","Q75")
+      Means <- mean.stat(junto[,1],junto[,2],stat="mean")
+      sds <-   mean.stat(junto[,1],junto[,2], stat="sd")
+      nn <-   mean.stat(junto[,1],junto[,2],stat="length")
+      Means<-data.frame(Means,std=sds[,2],r=nn[,2],medians)
+      rownames(Means)<-Means[,1]
+      Means<-Means[,-1]
+      names(Means)[1]<-name.y
+      junto[, 1] <- rank(junto[, 1])
+      means <- mean.stat(junto[, 1], junto[, 2], stat = "sum")
+      sds <- mean.stat(junto[, 1], junto[, 2], stat = "sd")
+      nn <- mean.stat(junto[, 1], junto[, 2], stat = "length")
+      means <- data.frame(means, r = nn[, 2])
+      names(means)[1:2] <- c(name.t, name.y)
+      ntr <- nrow(means)
+      nk <- choose(ntr, 2)
+      DFerror <- N - ntr
+      rs <- 0
+      U <- 0
+      for (i in 1:ntr) {
+        rs <- rs + means[i, 2]^2/means[i, 3]
+        U <- U + 1/means[i, 3]
+      }
+      S <- (sum(junto[, 1]^2) - (N * (N + 1)^2)/4)/(N - 1)
+      H <- (rs - (N * (N + 1)^2)/4)/S
+      p.chisq <- 1 - pchisq(H, ntr - 1)
+      if(console){
+        cat("\nStudy:", main)
+        cat("\nKruskal-Wallis test's\nTies or no Ties\n")
+        cat("\nCritical Value:", H)
+        cat("\nDegrees of freedom:", ntr - 1)
+        cat("\nPvalue Chisq  :", p.chisq, "\n\n")}
+      DFerror <- N - ntr
+      Tprob <- qt(1 - alpha/2, DFerror)
+      MSerror <- S * ((N - 1 - H)/(N - ntr))
+      means[, 2] <- means[, 2]/means[, 3]
+      if(console){cat(paste(name.t, ",", sep = ""), " means of the ranks\n\n")
+        print(data.frame(row.names = means[, 1], means[, -1]))
+        cat("\nPost Hoc Analysis\n")}
+      if (p.adj != "none") {
+        if(console)cat("\nP value adjustment method:", p.adj)
+        a <- 1e-06
+        b <- 1
+        for (i in 1:100) {
+          x <- (b + a)/2
+          xr <- rep(x, nk)
+          d <- p.adjust(xr, p.adj)[1] - alpha
+          ar <- rep(a, nk)
+          fa <- p.adjust(ar, p.adj)[1] - alpha
+          if (d * fa < 0)
+            b <- x
+          if (d * fa > 0)
+            a <- x}
+        Tprob <- qt(1 - x/2, DFerror)
+      }
+      nr <- unique(means[, 3])
+      if (group & console){
+        cat("\nt-Student:", Tprob)
+        cat("\nAlpha    :", alpha)}
+      if (length(nr) == 1)  LSD <- Tprob * sqrt(2 * MSerror/nr)
+      statistics<-data.frame(Chisq=H,Df=ntr-1,p.chisq=p.chisq)
+      if ( group & length(nr) == 1 & console) cat("\nMinimum Significant Difference:",LSD,"\n")
+      if ( group & length(nr) != 1 & console) cat("\nGroups according to probability of treatment differences and alpha level.\n")
+      if ( length(nr) == 1) statistics<-data.frame(statistics,t.value=Tprob,MSD=LSD)
+      comb <- utils::combn(ntr, 2)
+      nn <- ncol(comb)
+      dif <- rep(0, nn)
+      LCL <- dif
+      UCL <- dif
+      pvalue <- dif
+      sdtdif <- dif
+      for (k in 1:nn) {
+        i <- comb[1, k]
+        j <- comb[2, k]
+        dif[k] <- means[i, 2] - means[j, 2]
+        sdtdif[k] <- sqrt(MSerror * (1/means[i,3] + 1/means[j, 3]))
+        pvalue[k] <- 2*(1 - pt(abs(dif[k])/sdtdif[k],DFerror))
+      }
+      if (p.adj != "none") pvalue <- p.adjust(pvalue, p.adj)
+      pvalue <- round(pvalue,4)
+      sig <- rep(" ", nn)
+      for (k in 1:nn) {
+        if (pvalue[k] <= 0.001)
+          sig[k] <- "***"
+        else if (pvalue[k] <= 0.01)
+          sig[k] <- "**"
+        else if (pvalue[k] <= 0.05)
+          sig[k] <- "*"
+        else if (pvalue[k] <= 0.1)
+          sig[k] <- "."
+      }
+      tr.i <- means[comb[1, ], 1]
+      tr.j <- means[comb[2, ], 1]
+      LCL <- dif - Tprob * sdtdif
+      UCL <- dif + Tprob * sdtdif
+      comparison <- data.frame(Difference = dif, pvalue = pvalue, "Signif."=sig, LCL, UCL)
+      if (p.adj !="bonferroni" & p.adj !="none"){
+        comparison<-comparison[,1:3]
+        statistics<-data.frame(Chisq=H,p.chisq=p.chisq)}
+      rownames(comparison) <- paste(tr.i, tr.j, sep = " - ")
+      if (!group) {
+        groups<-NULL
+        if(console){
+          cat("\nComparison between treatments mean of the ranks.\n\n")
+          print(comparison)
+        }
+      }
+      if (group) {
+        comparison=NULL
+        Q<-matrix(1,ncol=ntr,nrow=ntr)
+        p<-pvalue
+        k<-0
+        for(i in 1:(ntr-1)){
+          for(j in (i+1):ntr){
+            k<-k+1
+            Q[i,j]<-p[k]
+            Q[j,i]<-p[k]
+          }
+        }
+        groups <- ordenacao(means[, 1], means[, 2],alpha, Q, console)
+        names(groups)[1]<-name.y
+        if(console) {
+          cat("\nTreatments with the same letter are not significantly different.\n\n")
+          print(groups)
+        }
+      }
+      ranks=means
+      Means<-data.frame(rank=ranks[,2],Means)
+      Means<-Means[,c(2,1,3:9)]
+      parameters<-data.frame(test="Kruskal-Wallis",p.ajusted=p.adj,name.t=name.t,ntr = ntr,alpha=alpha)
+      rownames(parameters)<-" "
+      rownames(statistics)<-" "
+      output<-list(statistics=statistics,parameters=parameters,
+                   means=Means,comparison=comparison,groups=groups)
+      class(output)<-"group"
+      invisible(output)
+    }
     krusk=kruskal(response,trat,p.adj = p.adj,alpha=alpha.t)
     cat(green(bold("\n\n-----------------------------------------------------------------\n")))
     cat(green(italic("Statistics")))
