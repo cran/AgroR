@@ -16,6 +16,7 @@
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
 #' @param transf Applies data transformation (default is 1; for log consider 0)
+#' @param constant Add a constant for transformation (enter value)
 #' @param geom Graph type (columns, boxes or segments)
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param sup Number of units above the standard deviation or average bar on the graph
@@ -26,6 +27,7 @@
 #' @param angle x-axis scale text rotation
 #' @param family Font family
 #' @param textsize Font size
+#' @param labelsize Label size
 #' @param dec Number of cells
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
@@ -66,12 +68,13 @@ DQL=function(trat,
              response,
              norm="sw",
              homog="bt",
-             mcomp="tukey",
              alpha.f=0.05,
              alpha.t=0.05,
              quali=TRUE,
-             transf=1,
+             mcomp="tukey",
              grau=1,
+             transf=1,
+             constant=0,
              geom="bar",
              theme=theme_classic(),
              sup=NA,
@@ -79,6 +82,7 @@ DQL=function(trat,
              ylab="Response",
              xlab="",
              textsize=12,
+             labelsize=4,
              fill="lightblue",
              angle=0,
              family="sans",
@@ -90,15 +94,14 @@ DQL=function(trat,
              angle.label=0)
 {if(is.na(sup==TRUE)){sup=0.2*mean(response)}
   if(angle.label==0){hjust=0.5}else{hjust=0}
-  requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
-  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf==0){resp=log(response)}
-  if(transf==0.5){resp=sqrt(response)}
-  if(transf==-0.5){resp=1/sqrt(response)}
-  if(transf==-1){resp=1/response}
+  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==0){resp=log(response+constant)}
+  if(transf==0.5){resp=sqrt(response+constant)}
+  if(transf==-0.5){resp=1/sqrt(response+constant)}
+  if(transf==-1){resp=1/(response+constant)}
   trat1=trat
   trat=as.factor(trat)
   line=as.factor(line)
@@ -218,9 +221,14 @@ DQL=function(trat,
 
   ## Scott-Knott
   if(mcomp=="sk"){
-    letra=SK(b,"trat",sig.level=alpha.t)
-    letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-    letra1$resp=as.numeric(letra1$resp)}
+    nrep=table(trat)[1]
+    medias=sort(tapply(resp,trat,mean),decreasing = TRUE)
+    letra=scottknott(means = medias,
+                     df1 = a$Df[4],
+                     nrep = nrep,
+                     QME = a$`Mean Sq`[4],
+                     alpha = alpha.t)
+    letra1=data.frame(resp=medias,groups=letra)}
 
   ## Duncan
     if(mcomp=="duncan"){
@@ -270,9 +278,9 @@ DQL=function(trat,
     geom_col(aes(fill=trats),fill=fill,color=1)}
   if(errorbar==TRUE){grafico=grafico+
     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                  label=letra),size=labelsize,family=family,angle=angle.label, hjust=hjust)}
   if(errorbar==FALSE){grafico=grafico+
-    geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
+    geom_text(aes(y=media+sup,label=letra),size=labelsize,family=family,angle=angle.label, hjust=hjust)}
   if(errorbar==TRUE){grafico=grafico+
     geom_errorbar(data=dadosm,
                   aes(ymin=media-desvio,
@@ -283,11 +291,11 @@ DQL=function(trat,
                                        y=media))
   if(errorbar==TRUE){grafico=grafico+
     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                  label=letra),family=family,size=labelsize,angle=angle.label, hjust=hjust)}
   if(errorbar==FALSE){grafico=grafico+
     geom_text(aes(y=media+sup,
                   label=letra),
-              family=family,angle=angle.label, hjust=hjust)}
+              family=family,size=labelsize,angle=angle.label, hjust=hjust)}
   if(errorbar==TRUE){grafico=grafico+
     geom_errorbar(data=dadosm,
                   aes(ymin=media-desvio,
@@ -324,7 +332,7 @@ DQL=function(trat,
     geom_text(data=dadosm2,
               aes(y=superior,
                   label=letra),
-              family=family,angle=angle.label, hjust=hjust)}
+              family=family,size=labelsize,angle=angle.label, hjust=hjust)}
 
   grafico=grafico+theme+
     ylab(ylab)+
@@ -334,16 +342,16 @@ DQL=function(trat,
           axis.title = element_text(size=textsize,color="black",family=family),
           legend.position = "none")
   if(angle !=0){grafico=grafico+theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
-  if(CV==TRUE){grafico=grafico+labs(caption=paste("p-value = ", if(a$`Pr(>F)`[1]<0.0001){paste("<", 0.0001)}
+  if(CV==TRUE){grafico=grafico+labs(caption=paste("p-value ", if(a$`Pr(>F)`[1]<0.0001){paste("<", 0.0001)}
                                                   else{paste("=", round(a$`Pr(>F)`[1],4))},"; CV = ",
                                                   round(abs(sqrt(a$`Mean Sq`[4])/mean(resp))*100,2),"%"))}
   }
 
   if(quali==FALSE){
     trat=trat1
-    if(grau==1){graph=polynomial(trat,response, grau = 1,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
-    if(grau==2){graph=polynomial(trat,response, grau = 2,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
-    if(grau==3){graph=polynomial(trat,response, grau = 3,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point)}
+    if(grau==1){graph=polynomial(trat,response, grau = 1,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4])}
+    if(grau==2){graph=polynomial(trat,response, grau = 2,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4])}
+    if(grau==3){graph=polynomial(trat,response, grau = 3,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4])}
     grafico=graph[[1]]
   }
   if(quali==TRUE){print(grafico)}

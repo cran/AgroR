@@ -1,3 +1,11 @@
+# AgroR 1.2.5 
+
+* The FAT2DIC.art and FAT2DBC.art functions have been discontinued 
+
+* Dependencies ARTool, reshape2, Hmisc, stringr and ScottKnott have been removed
+
+* Bug fixing `conjdic` and `conjdbc` functions for linux
+
 # AgroR 1.2.4
 
 * The `.welcome` startup function has been removed 

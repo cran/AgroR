@@ -93,12 +93,12 @@ conjdic=function(trat,
   anova=c()
   tukey=c()
   graficos=list()
-  qmres=data.frame(QM=NA)
+  nlocal=length(levels(local))
+  qmres=data.frame(QM=1:3)
   for(i in 1:length(levels(local))){
     anova[[i]]=anova(aov(resp~tratamento, data=dados[dados$local==levels(dados$local)[i],]))
     qm=anova[[i]]$`Mean Sq`[2]
-    qmres[i,]=c(qm)
-    qmres=as.vector(qmres)
+    qmres[i,1]=c(qm)
     names(anova)[i]=levels(local)[i]
     aov1=aov(resp~tratamento, data=dados[dados$local==levels(dados$local)[i],])}
   matriza=matrix(rep(qmres[[1]],e=length(qmres[[1]])),
@@ -247,10 +247,6 @@ conjdic=function(trat,
     if(a$`Pr(>F)`[1] < alpha.f && quali==TRUE | qmresmedio > 7 && quali==TRUE){
     for(i in 1:length(levels(local))){
         anova[[i]]=anova(aov(resp~tratamento, data=dados[dados$local==levels(dados$local)[i],]))
-        qm=anova[[i]]$`Mean Sq`[2]
-        qmres[i,]=c(qm)
-        qmres=as.vector(qmres)
-        names(anova)[i]=levels(local)[i]
         aov1=aov(resp~tratamento, data=dados[dados$local==levels(dados$local)[i],])
         if(quali==TRUE){
           if(mcomp=="tukey"){tukey[[i]]=TUKEY(aov1,"tratamento",alpha = alpha.t)$groups
@@ -262,8 +258,16 @@ conjdic=function(trat,
           if(mcomp=="sk"){
             anova=anova(aov1)
             data=dados[dados$local==levels(dados$local)[i],]
-            tukey[[i]]=sk(data$resp,data$tratamento,anova$Df[2],anova$`Sum Sq`[2],alpha = alpha.t)
-            comp=sk(data$resp,data$tratamento,anova$Df[2],anova$`Sum Sq`[2],alpha = alpha.t)}
+            nrep=table(data$trat)[1]
+            medias=sort(tapply(data$resp,data$trat,mean),decreasing = TRUE)
+            letra=scottknott(means = medias,
+                             df1 = anova$Df[2],
+                             nrep = nrep,
+                             QME = anova$`Mean Sq`[2],
+                             alpha = alpha.t)
+            letra1=data.frame(resp=medias,groups=letra)
+            tukey[[i]]=letra1
+            comp=letra1}
 
           if(transf=="1"){}else{tukey[[i]]$respo=with(dados[dados$local==levels(dados$local)[i],],
                                                       tapply(response, tratamento,
@@ -301,12 +305,11 @@ conjdic=function(trat,
                   axis.text = element_text(size=textsize,color="black", family = family),
                   legend.position = "none")}
         graficos[[i]]=grafico}
-      print(graficos)
       print(tukey)}
     if(a$`Pr(>F)`[1] < alpha.f && quali==FALSE | qmresmedio > 7 && quali==FALSE){
         for(i in 1:length(levels(local))){
         data=dados[dados$local==levels(dados$local)[i],]
-        dose1=data$tratnum#as.numeric(as.character(data$tratamento))
+        dose1=data$tratnum
         resp=data$response
         grafico=polynomial(dose1,
                            resp,grau = grau,
@@ -338,14 +341,17 @@ conjdic=function(trat,
                                                      na.rm=TRUE)[rownames(tukeyjuntos$groups)]}
       tukeyjuntos=tukeyjuntos$groups}
     if(mcomp=="sk"){
-      tukeyjuntos=sk(resp,tratamento,a$Df[1], a$`Sum Sq`[1], alpha = alpha.t)
-      colnames(tukeyjuntos)=c("resp","groups")
+      nrep=table(tratamento)[1]
+      medias=sort(tapply(resp,tratamento,mean),decreasing = TRUE)
+      letra=scottknott(means = medias,
+                       df1 = a$Df[1],
+                       nrep = nrep,
+                       QME = a$`Mean Sq`[1],
+                       alpha = alpha.t)
+      tukeyjuntos=data.frame(resp=medias,groups=letra)
       if(transf!="1"){tukeyjuntos$respo=tapply(response, tratamento, mean,
                                                na.rm=TRUE)[rownames(tukeyjuntos)]}}
 
-    # ================================
-    # data.frame para grafico
-    # ================================
     dadosm=data.frame(tukeyjuntos,
                       media=tapply(response, tratamento, mean, na.rm=TRUE)[rownames(tukeyjuntos)],
                       desvio=tapply(response, tratamento, sd, na.rm=TRUE)[rownames(tukeyjuntos)])
@@ -388,7 +394,7 @@ conjdic=function(trat,
     print(grafico1)
     graficos=list(grafico1)
     }
-    if(quali==FALSE){grafico1=polynomial(tratnum,#as.numeric(as.character(tratamento)),
+    if(quali==FALSE){grafico1=polynomial(tratnum,
                            response,grau = grau,
                            textsize=textsize,
                            family=family,
@@ -397,12 +403,14 @@ conjdic=function(trat,
                            theme=theme,
                            posi="top",
                            se=errorbar)
-    graficos=list(grafico1)
     }
+    graficos=list(grafico1)
+
     }
   cat(if(transf=="1"){}else{blue("\nNOTE: resp = transformed means; respO = averages without transforming\n")})
 
   if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 && homog1$p.value<0.05){cat(red("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric test and try to transform the data"))}
   if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){cat(red("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric test"))}
+  print(graficos)
   graph=as.list(graficos)
 }

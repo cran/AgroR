@@ -16,7 +16,7 @@
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
-#' @param error Add error bar
+#' @param error Add error bar (SD)
 #' @param sup Number of units above the standard deviation or average bar on the graph
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param textsize Font size of the texts and titles of the axes
@@ -27,7 +27,8 @@
 #' @param legend Legend title
 #' @param posi Legend position
 #' @param ylim y-axis scale
-#' @param width.bar width errorbar
+#' @param width.bar width error bar
+#' @param size.bar size error bar
 #' @param xnumeric Declare x as numeric (\emph{default} is FALSE)
 #' @param all.letters Adds all label letters regardless of whether it is significant or not.
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
@@ -76,12 +77,12 @@ DQLT=function(trat,
               fill="gray",
               legend="Legend",
               ylim=NA,
-              width.bar=0.1,
+              width.bar=0.2,
+              size.bar=0.8,
               dec=3,
               theme=theme_classic(),
               xnumeric=FALSE,
               all.letters=FALSE){
-  requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
@@ -90,7 +91,7 @@ DQLT=function(trat,
   resp=response
   line=as.factor(line)
   column=as.factor(column)
-  tempo=factor(tempo,unique(tempo))
+  tempo=factor(time,unique(time))
   dados=data.frame(resp,trat,column, line, tempo)
 
   if(mcomp=="tukey"){
@@ -209,10 +210,17 @@ DQLT=function(trat,
       mod=aov(resp~trat+line+column, data=dados[dados$tempo==levels(dados$tempo)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
       cv[[i]]=sqrt(anova(mod)$`Mean Sq`[4])/mean(mod$model$resp)*100
-      letra=SK(mod,"trat",sig.level = alpha.t)
-      data=data.frame(sk=letters[letra$groups])
-      rownames(data)=rownames(letra$m.inf)
-      data=data[unique(as.character(trat)),]
+      nrep=with(dados[dados$time==levels(dados$time)[i],], table(trat)[1])
+      ao=anova(mod)
+      medias=sort(tapply(resp,trat,mean),decreasing = TRUE)
+      letra=scottknott(means = medias,
+                       df1 = ao$Df[4],
+                       nrep = nrep,
+                       QME = ao$`Mean Sq`[4],
+                       alpha = alpha.t)
+      letra1=data.frame(resp=medias,groups=letra)
+      letra1=letra1[unique(as.character(trat)),]
+      data=letra1$groups
       if(all.letters==FALSE){
         if(anova(mod)$`Pr(>F)`[1]>alpha.f){data=c("ns",rep(" ",length(unique(trat))-1))}}
       data=data
@@ -269,7 +277,7 @@ DQLT=function(trat,
             legend.text = element_text(size = textsize))+labs(shape=legend, lty=legend)
     if(error==TRUE){grafico=grafico+
       geom_errorbar(aes(ymin=media-desvio,
-                        ymax=media+desvio), width=width.bar)}
+                        ymax=media+desvio), width=width.bar,size=size.bar)}
     if(addmean==FALSE && error==FALSE){grafico=grafico+
       geom_text(aes(y=media+sup,label=letra),size=labelsize,family=family)}
     if(addmean==TRUE && error==FALSE){grafico=grafico+
@@ -302,20 +310,20 @@ DQLT=function(trat,
     if(error==TRUE){grafico=grafico+
       geom_errorbar(aes(ymin=media-desvio,
                         ymax=media+desvio),
-                    width=width.bar, position = position_dodge(width=0.9))}
+                    width=width.bar, size=size.bar, position = position_dodge(width=0.9))}
     if(addmean==FALSE && error==FALSE){grafico=grafico+
-      geom_text_repel(aes(y=media+sup,label=letra),size=labelsize,
+      geom_text(aes(y=media+sup,label=letra),size=labelsize,
                       position = position_dodge(width=0.9),family=family)}
     if(addmean==TRUE && error==FALSE){grafico=grafico+
-      geom_text_repel(aes(y=media+sup,
+      geom_text(aes(y=media+sup,
                           label=paste(format(media,digits = dec),
                                       letra)),size=labelsize,family=family,
                       position = position_dodge(width=0.9))}
     if(addmean==FALSE && error==TRUE){grafico=grafico+
-      geom_text_repel(aes(y=desvio+media+sup,label=letra),size=labelsize,family=family,
+      geom_text(aes(y=desvio+media+sup,label=letra),size=labelsize,family=family,
                       position = position_dodge(width=0.9))}
     if(addmean==TRUE && error==TRUE){grafico=grafico+
-      geom_text_repel(aes(y=desvio+media+sup,
+      geom_text(aes(y=desvio+media+sup,
                           label=paste(format(media,digits = dec),letra)),
                       size=labelsize,family=family,
                       position = position_dodge(width=0.9))}

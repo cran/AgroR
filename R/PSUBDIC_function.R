@@ -8,6 +8,7 @@
 #' @param block Numeric or complex vector with blocks
 #' @param response Numeric vector with responses
 #' @param transf Applies data transformation (default is 1; for log consider 0)
+#' @param constant Add a constant for transformation (enter value)
 #' @param norm Error normality test (\emph{default} is Shapiro-Wilk)
 #' @param homog Homogeneity test of variances (\emph{default} is Bartlett)
 #' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)
@@ -72,12 +73,13 @@ PSUBDIC=function(f1,
                  response,
                  norm="sw",
                  homog="bt",
-                 mcomp = "tukey",
                  alpha.f=0.05,
                  alpha.t=0.05,
                  quali=c(TRUE,TRUE),
-                 transf=1,
+                 mcomp = "tukey",
                  grau=NA,
+                 transf=1,
+                 constant=0,
                  geom="bar",
                  theme=theme_classic(),
                  ylab="Response",
@@ -98,7 +100,6 @@ PSUBDIC=function(f1,
     if(angle.label==0){hjust=0.5}else{hjust=0}
     requireNamespace("crayon")
     requireNamespace("ggplot2")
-    requireNamespace("ScottKnott")
     requireNamespace("nortest")
 
     if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
@@ -139,7 +140,8 @@ PSUBDIC=function(f1,
     colnames(anova)=colnames(anova1)
     rownames(anova)=c("F1","Error A", "F2", "F1 x F2", "Error B")
     tab=anova
-
+    glres=tab$Df[c(2,5)]
+    qmres= tab$`Mean Sq`[c(2,5)]
     # -----------------------------
     # Pressupostos
     # -----------------------------
@@ -270,27 +272,34 @@ PSUBDIC=function(f1,
 
                 ## Tukey
                 if(mcomp=="tukey"){
-                    letra <- TUKEY(resp, fat[, i],num(tab[2*i,1]), num(tab[2*i,2])/num(tab[2*i,1]), alpha.t)
+                    letra <- TUKEY(resp, fat[, i],num(glres[i]), num(qmres[i]), alpha.t)
                     letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
                     if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
 
                 ## duncan
                 if(mcomp=="duncan"){
-                    letra <- duncan(resp, fat[, i],num(tab[2*i,1]),
-                                         num(tab[2*i,2])/num(tab[2*i,1]), alpha.t)
+                    letra <- duncan(resp, fat[, i],num(glres[i]), num(qmres[i]), alpha.t)
                     letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
                     if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
 
                 ## LSD
                 if(mcomp=="lsd"){
-                    letra <- LSD(resp, fat[, i],num(tab[3*i,1]), num(tab[2*i,2])/num(tab[2*i,1]), alpha.t)
+                    letra <- LSD(resp, fat[, i],num(glres[i]), num(qmres[i]), alpha.t)
                     letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
                     if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
 
                 if(mcomp=="sk"){
-                    letra1 <- sk(resp, fat[, i],num(tab[2*i,1]),
-                                       num(tab[2*i,2]), alpha.t)
-                    colnames(letra1)=c("resp","groups")
+                    nrep=table(fat[, i])[1]
+                    medias=sort(tapply(resp,fat[, i],mean),decreasing = TRUE)
+                    sk=scottknott(means = medias,
+                                     df1 = num(glres[i]),
+                                     nrep = nrep,
+                                     QME = num(qmres[i]),
+                                     alpha = alpha.t)
+                    letra1=data.frame(resp=medias,groups=sk)
+                    # letra1 <- sk(resp, fat[, i],num(tab[2*i,1]),
+                    #                    num(tab[2*i,2]), alpha.t)
+                    # colnames(letra1)=c("resp","groups")
                     if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
                 print(letra1)
 
@@ -386,9 +395,19 @@ PSUBDIC=function(f1,
                 # dose=as.numeric(as.character(as.vector(unlist(fat[i]))))
                 dose=as.vector(unlist(fata[i]))
 
-            grafico=polynomial(dose,resp,grau = grau,ylab=ylab,xlab=xlab,point=point,
-                          theme=theme,posi=posi,textsize=textsize, se=errorbar,
-                          family=family)
+            grafico=polynomial(dose,
+                               resp,
+                               grau = grau,
+                               ylab=ylab,
+                               xlab=xlab,
+                               point=point,
+                               theme=theme,
+                               posi=posi,
+                               textsize=textsize,
+                               se=errorbar,
+                               family=family,
+                               DFres = num(tab[2*i,1]),
+                               SSq=num(tab[2*i,2]))
             grafico=grafico[[1]]}
             graficos[[i+1]]=grafico
 
@@ -483,7 +502,9 @@ PSUBDIC=function(f1,
             duncangrafico=c()
             ordem=c()
             for (i in 1:nv2) {
-                duncan=duncan(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
+                duncan=duncan(resp[fat[,2]==l2[i]],
+                              fat[,1][fat[,2]==l2[i]],
+                              num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
                 colnames(duncan$groups)=c("resp","groups")
                 if(transf !="1"){duncan$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(duncan$groups)]}
                 duncangrafico[[i]]=duncan$groups[as.character(unique(fat[,1][fat[,2]==l2[i]])),2]
@@ -516,9 +537,17 @@ PSUBDIC=function(f1,
                     # trati=fatores[, 1][Fator2 == lf2[i]]
                     trati=factor(trati,levels = unique(trati))
                     # respi=resp[Fator2 == lf2[i]]
-                    sk=sk(respi,trati,
-                                 num(tab.f1f2[nv2+1,1]),
-                                 num(tab.f1f2[nv2+1,2]),alpha.t)
+                    nrep=table(trati)[1]
+                    medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+                    sk=scottknott(means = medias,
+                                  df1 = num(tab.f1f2[nv2 +1, 1]),
+                                  nrep = nrep,
+                                  QME = num(tab.f1f2[nv2 + 1, 3]),
+                                  alpha = alpha.t)
+                    sk=data.frame(resp=medias,groups=sk)
+                    # sk=sk(respi,trati,
+                    #              num(tab.f1f2[nv2+1,1]),
+                    #              num(tab.f1f2[nv2+1,2]),alpha.t)
                     if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
                                                      trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
                     skgrafico[[i]]=sk[levels(trati),2]
@@ -611,9 +640,17 @@ PSUBDIC=function(f1,
                     respi=resp[fat[, 1] == l1[i]]
                     trati=fat[,2][fat[, 1] == l1[i]]
                     trati=factor(trati,unique(trati))
-                    sk=sk(respi,trati,
-                                 num(tab.f2f1[nv1 +1, 1]),
-                                 num(tab.f2f1[nv1 + 1, 2]),alpha.t)
+                    nrep=table(trati)[1]
+                    medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+                    sk=scottknott(means = medias,
+                                     df1 = num(tab.f2f1[nv1 +1, 1]),
+                                     nrep = nrep,
+                                     QME = num(tab.f2f1[nv1 + 1, 3]),
+                                     alpha = alpha.t)
+                    sk=data.frame(resp=medias,groups=sk)
+                    # sk=sk(respi,trati,
+                    #              num(tab.f2f1[nv1 +1, 1]),
+                    #              num(tab.f2f1[nv1 + 1, 2]),alpha.t)
                     if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
                                                    mean, na.rm=TRUE)[rownames(sk)]}
                     skgrafico1[[i]]=sk[levels(trati),2]
@@ -724,7 +761,8 @@ PSUBDIC=function(f1,
                     }
                 if (mcomp == "lsd"){
                     for (i in 1:nv2) {
-                        lsd=LSD(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
+                        lsd=LSD(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],
+                                num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
                         colnames(lsd$groups)=c("resp","groups")
                         if(transf !="1"){lsd$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(lsd$groups)]}
                         cat("\n----------------------\n")
@@ -737,9 +775,17 @@ PSUBDIC=function(f1,
                         respi=resp[fat[,2]==l2[i]]
                         trati=fat[,1][fat[,2]==l2[i]]
                         trati=factor(trati,levels = unique(trati))
-                        sk=sk(respi,trati,
-                                     num(tab.f1f2[nv2+1,1]),
-                                     num(tab.f1f2[nv2+1,2]),alpha.t)
+                        nrep=table(trati)[1]
+                        medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+                        sk=scottknott(means = medias,
+                                      df1 = num(tab.f1f2[nv2 +1, 1]),
+                                      nrep = nrep,
+                                      QME = num(tab.f1f2[nv2 + 1, 3]),
+                                      alpha = alpha.t)
+                        sk=data.frame(resp=medias,groups=sk)
+                        # sk=sk(respi,trati,
+                        #              num(tab.f2f1[nv1+1,1]),
+                        #              num(tab.f2f1[nv1+1,2]),alpha.t)
                         if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
                                                          trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
                         cat("\n----------------------\n")
@@ -761,7 +807,9 @@ PSUBDIC=function(f1,
                                     posi=posi,
                                     ylim=ylim,
                                     textsize=textsize,
-                                    family=family)
+                                    family=family,
+                                    DFres = num(tab.f1f2[nv2+1,1]),
+                                    SSq = num(tab.f1f2[nv2+1,2]))
                 if(quali[1]==FALSE & quali[2]==FALSE){
                     graf=list(grafico,NA)}
                 }
@@ -817,9 +865,18 @@ PSUBDIC=function(f1,
                         respi=resp[fat[, 1] == l1[i]]
                         trati=fat[,2][fat[, 1] == l1[i]]
                         trati=factor(trati,unique(trati))
-                        sk=sk(respi,trati,
-                                     num(tab.f2f1[nv1 +1, 1]),
-                                     num(tab.f2f1[nv1 + 1, 2]),alpha.t)
+                        nrep=table(trati)[1]
+                        medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+                        sk=scottknott(means = medias,
+                                      df1 = num(tab.f2f1[nv1 +1, 1]),
+                                      nrep = nrep,
+                                      QME = num(tab.f2f1[nv1 + 1, 3]),
+                                      alpha = alpha.t)
+                        sk=data.frame(resp=medias,groups=sk)
+
+                        # sk=sk(respi,trati,
+                        #              num(tab.f2f1[nv1 +1, 1]),
+                        #              num(tab.f2f1[nv1 + 1, 2]),alpha.t)
                         if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
                                                        mean, na.rm=TRUE)[rownames(sk)]}
                         cat("\n----------------------\n")
@@ -841,7 +898,9 @@ PSUBDIC=function(f1,
                                     posi=posi,
                                     ylim=ylim,
                                     textsize=textsize,
-                                    family=family)
+                                    family=family,
+                                    DFres = num(tab.f2f1[nv1+1,1]),
+                                    SSq = num(tab.f2f1[nv1+1,2]))
                 if(quali[1]==FALSE & quali[2]==FALSE){
                     graf[[2]]=grafico
                     grafico=graf}
@@ -851,7 +910,8 @@ PSUBDIC=function(f1,
             if(quali[2]==FALSE){
                 if (mcomp == "tukey"){
                     for (i in 1:nv2) {
-                        tukey=TUKEY(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
+                        tukey=TUKEY(resp[fat[,2]==l2[i]],fat[,1][fat[,2]==l2[i]],
+                                    num(tab.f1f2[nv2+1,1]),num(tab.f1f2[nv2+1,2])/num(tab.f1f2[nv2+1,1]),alpha.t)
                         colnames(tukey$groups)=c("resp","groups")
                         if(transf !="1"){tukey$groups$respo=tapply(response[Fator2 == l2[i]],fat[,1][fat[,2]==l2[i]],mean, na.rm=TRUE)[rownames(tukey$groups)]}
                         cat("\n----------------------\n")
@@ -886,9 +946,18 @@ PSUBDIC=function(f1,
                         respi=resp[fat[,2]==l2[i]]
                         trati=fat[,1][fat[,2]==l2[i]]
                         trati=factor(trati,levels = unique(trati))
-                        sk=sk(respi,trati,
-                                     num(tab.f1f2[nv2+1,1]),
-                                     num(tab.f1f2[nv2+1,2]),alpha.t)
+                        nrep=table(trati)[1]
+                        medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+                        sk=scottknott(means = medias,
+                                      df1 = num(tab.f1f2[nv2 +1, 1]),
+                                      nrep = nrep,
+                                      QME = num(tab.f1f2[nv2 + 1, 3]),
+                                      alpha = alpha.t)
+                        sk=data.frame(resp=medias,groups=sk)
+
+                        # sk=sk(respi,trati,
+                        #              num(tab.f1f2[nv2+1,1]),
+                        #              num(tab.f1f2[nv2+1,2]),alpha.t)
                         if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
                                                          trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
                         cat("\n----------------------\n")
@@ -909,7 +978,9 @@ PSUBDIC=function(f1,
                                           posi=posi,
                                           ylim=ylim,
                                           textsize=textsize,
-                                          family=family)
+                                          family=family,
+                                          DFres = num(tab.f1f2[nv2 +1, 1]),
+                                          SSq = num(tab.f1f2[nv2 + 1, 2]))
             if(quali[1]==FALSE & quali[2]==FALSE){
                     graf=list(grafico,NA)}
             }
@@ -965,9 +1036,18 @@ PSUBDIC=function(f1,
                         respi=resp[fat[, 1] == l1[i]]
                         trati=fat[,2][fat[, 1] == l1[i]]
                         trati=factor(trati,unique(trati))
-                        sk=sk(respi,trati,
-                                     num(tab.f2f1[nv1 +1, 1]),
-                                     num(tab.f2f1[nv1 + 1, 2]),alpha.t)
+                        nrep=table(trati)[1]
+                        medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+                        sk=scottknott(means = medias,
+                                      df1 = num(tab.f2f1[nv1 +1, 1]),
+                                      nrep = nrep,
+                                      QME = num(tab.f2f1[nv1 + 1, 3]),
+                                      alpha = alpha.t)
+                        sk=data.frame(resp=medias,groups=sk)
+
+                        # sk=sk(respi,trati,
+                        #              num(tab.f2f1[nv1 +1, 1]),
+                        #              num(tab.f2f1[nv1 + 1, 2]),alpha.t)
                         if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
                                                        mean, na.rm=TRUE)[rownames(sk)]}
                         cat("\n----------------------\n")
@@ -990,7 +1070,9 @@ PSUBDIC=function(f1,
                                           posi=posi,
                                           ylim=ylim,
                                           textsize=textsize,
-                                          family=family)
+                                          family=family,
+                                          DFres = num(tab.f2f1[nv1 +1, 1]),
+                                          SSq = num(tab.f2f1[nv1 + 1, 2]))
                 if(quali[1]==FALSE & quali[2]==FALSE){
                     graf[[2]]=grafico
                     grafico=graf}

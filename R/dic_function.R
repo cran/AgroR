@@ -14,6 +14,7 @@
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
 #' @param transf Applies data transformation (\emph{default} is 1; for log consider 0)
+#' @param constant Add a constant for transformation (enter value)
 #' @param test "parametric" - Parametric test or "noparametric" - non-parametric test
 #' @param p.adj Method for adjusting p values for Kruskal-Wallis ("none","holm","hommel", "hochberg", "bonferroni", "BH", "BY", "fdr")
 #' @param geom Graph type (columns, boxes or segments)
@@ -23,6 +24,7 @@
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param textsize Font size
+#' @param labelsize Label size
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
 #' @param angle x-axis scale text rotation
 #' @param family Font family
@@ -30,12 +32,11 @@
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param posi Legend position
-#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se"). Only for quali=F.
+#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se"). For quali=FALSE or quali=TRUE.
 #' @param angle.label label angle
 #' @import ggplot2
 #' @import stats
 #' @import multcompView
-#' @import ScottKnott
 #' @importFrom crayon green
 #' @importFrom crayon bold
 #' @importFrom crayon italic
@@ -54,16 +55,12 @@
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom emmeans emmeans
 #' @importFrom multcomp cld
-#' @importFrom ARTool artlm
-#' @importFrom ARTool art
 #' @importFrom lme4 lmer
 #' @importFrom graphics par
 #' @importFrom utils read.table
-#' @importFrom stringr str_trim
-#' @importFrom reshape2 melt
-#' @importFrom Hmisc rcorr
 #' @importFrom cowplot plot_grid
 #' @importFrom lmtest dwtest
+#' @importFrom stats cor.test
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @note Post hoc test in nonparametric is using the criterium Fisher's least significant difference (p-adj="holm").
 #' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
@@ -82,7 +79,7 @@
 #'
 #' Mendiburu, F., and de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
 #'
-#' HOTHORN, Torsten et al. Package ‘lmtest’. Testing linear regression models. https://cran. r-project. org/web/packages/lmtest/lmtest. pdf. Accessed, v. 6, 2015.
+#' Hothorn, T. et al. Package ‘lmtest’. Testing linear regression models. https://cran. r-project. org/web/packages/lmtest/lmtest. pdf. Accessed, v. 6, 2015.
 #'
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Kruskal-Wallis test. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 #' @keywords DIC
@@ -127,24 +124,26 @@ DIC <- function(trat,
                 response,
                 norm="sw",
                 homog="bt",
-                mcomp="tukey",
-                quali=TRUE,
                 alpha.f=0.05,
                 alpha.t=0.05,
+                quali=TRUE,
+                mcomp="tukey",
                 grau=1,
                 transf=1,
+                constant=0,
                 test="parametric",
                 p.adj="holm",
                 geom="bar",
                 theme=theme_classic(),
+                ylab="Response",
                 sup=NA,
                 CV=TRUE,
-                ylab="Response",
                 xlab="",
                 fill="lightblue",
                 angle=0,
                 family="sans",
                 textsize=12,
+                labelsize=4,
                 dec=3,
                 addmean=TRUE,
                 errorbar=TRUE,
@@ -154,300 +153,15 @@ DIC <- function(trat,
   if(is.na(sup==TRUE)){sup=0.1*mean(response)}
   if(angle.label==0){hjust=0.5}else{hjust=0}
   requireNamespace("nortest")
-  requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
-  #=====================================================================
-  # duncan
-  #=====================================================================
-  duncan <- function(y,
-                     trt,
-                     DFerror,
-                     MSerror,
-                     alpha = 0.05,
-                     group = TRUE,
-                     main = NULL,
-                     console = FALSE)
-  {name.y <- paste(deparse(substitute(y)))
-  name.t <- paste(deparse(substitute(trt)))
-  if(is.null(main))main<-paste(name.y,"~", name.t)
-  clase<-c("aov","lm")
-  if("aov"%in%class(y) | "lm"%in%class(y)){
-    if(is.null(main))main<-y$call
-    A<-y$model
-    DFerror<-df.residual(y)
-    MSerror<-deviance(y)/DFerror
-    y<-A[,1]
-    ipch<-pmatch(trt,names(A))
-    nipch<- length(ipch)
-    for(i in 1:nipch){
-      if (is.na(ipch[i]))
-        return(if(console)cat("Name: ", trt, "\n", names(A)[-1], "\n"))}
-    name.t<- names(A)[ipch][1]
-    trt <- A[, ipch]
-    if (nipch > 1){
-      trt <- A[, ipch[1]]
-      for(i in 2:nipch){
-        name.t <- paste(name.t,names(A)[ipch][i],sep=":")
-        trt <- paste(trt,A[,ipch[i]],sep=":")
-      }}
-    name.y <- names(A)[1]
-  }
-  junto <- subset(data.frame(y, trt), is.na(y) == FALSE)
-  Mean<-mean(junto[,1])
-  CV<-sqrt(MSerror)*100/Mean
-  medians<-mean.stat(junto[,1],junto[,2],stat="median")
-  for(i in c(1,5,2:4)) {
-    x <- mean.stat(junto[,1],junto[,2],function(x)quantile(x)[i])
-    medians<-cbind(medians,x[,2])
-  }
-  medians<-medians[,3:7]
-  names(medians)<-c("Min","Max","Q25","Q50","Q75")
-  means <- mean.stat(junto[,1],junto[,2],stat="mean") # change
-  sds <-   mean.stat(junto[,1],junto[,2],stat="sd") #change
-  nn <-   mean.stat(junto[,1],junto[,2],stat="length") # change
-  means<-data.frame(means,std=sds[,2],r=nn[,2],medians)
-  names(means)[1:2]<-c(name.t,name.y)
-  ntr<-nrow(means)
-  Tprob<-NULL
-  k<-0
-  for(i in 2:ntr){
-    k<-k+1
-    x <- suppressWarnings(warning(qtukey((1-alpha)^(i-1), i, DFerror)))
-    if(x=="NaN")break
-    else Tprob[k]<-x
-  }
-  if(k<(ntr-1)){
-    for(i in k:(ntr-1)){
-      f <- Vectorize(function(x)ptukey(x,i+1,DFerror)-(1-alpha)^i)
-      Tprob[i]<-uniroot(f, c(0,100))$root
-    }
-  }
-  Tprob<-as.numeric(Tprob)
-  nr <- unique(nn[,2])
-  # Critical Value of Studentized Range
-  if(console){
-    cat("\nStudy:", main)
-    cat("\n\nDuncan's new multiple range test\nfor",name.y,"\n")
-    cat("\nMean Square Error: ",MSerror,"\n\n")
-    cat(paste(name.t,",",sep="")," means\n\n")
-    print(data.frame(row.names = means[,1], means[,2:6]))
-  }
-  if(length(nr) == 1 ) sdtdif <- sqrt(MSerror/nr)
-  else {
-    nr1 <-  1/mean(1/nn[,2])
-    sdtdif <- sqrt(MSerror/nr1)
-  }
-  DUNCAN <- Tprob * sdtdif
-  names(DUNCAN)<-2:ntr
-  duncan<-data.frame(Table=Tprob,CriticalRange=DUNCAN)
-  if ( group & length(nr) == 1 & console){
-    cat("\nAlpha:",alpha,"; DF Error:",DFerror,"\n")
-    cat("\nCritical Range\n")
-    print(DUNCAN)}
-  if ( group & length(nr) != 1 & console) cat("\nGroups according to probability of means differences and alpha level(",alpha,")\n")
-  if ( length(nr) != 1) duncan<-NULL
-  Omeans<-order(means[,2],decreasing = TRUE) #correccion 2019, 1 abril.
-  Ordindex<-order(Omeans)
-  comb <-utils::combn(ntr,2)
-  nn<-ncol(comb)
-  dif<-rep(0,nn)
-  DIF<-dif
-  LCL<-dif
-  UCL<-dif
-  pvalue<-dif
-  odif<-dif
-  sig<-NULL
-  for (k in 1:nn) {
-    i<-comb[1,k]
-    j<-comb[2,k]
-    dif[k]<-means[i,2]-means[j,2]
-    DIF[k]<-abs(dif[k])
-    nx<-abs(i-j)+1
-    odif[k] <- abs(Ordindex[i]- Ordindex[j])+1
-    pvalue[k]<- round(1-ptukey(DIF[k]/sdtdif,odif[k],DFerror)^(1/(odif[k]-1)),4)
-    LCL[k] <- dif[k] - DUNCAN[odif[k]-1]
-    UCL[k] <- dif[k] + DUNCAN[odif[k]-1]
-    sig[k]<-" "
-    if (pvalue[k] <= 0.001) sig[k]<-"***"
-    else  if (pvalue[k] <= 0.01) sig[k]<-"**"
-    else  if (pvalue[k] <= 0.05) sig[k]<-"*"
-    else  if (pvalue[k] <= 0.1) sig[k]<-"."
-  }
-  if(!group){
-    tr.i <- means[comb[1, ],1]
-    tr.j <- means[comb[2, ],1]
-    comparison<-data.frame("difference" = dif, pvalue=pvalue,"signif."=sig,LCL,UCL)
-    rownames(comparison)<-paste(tr.i,tr.j,sep=" - ")
-    if(console){cat("\nComparison between treatments means\n\n")
-      print(comparison)}
-    groups=NULL
-  }
-  if (group) {
-    comparison=NULL
-    Q<-matrix(1,ncol=ntr,nrow=ntr)
-    p<-pvalue
-    k<-0
-    for(i in 1:(ntr-1)){
-      for(j in (i+1):ntr){
-        k<-k+1
-        Q[i,j]<-p[k]
-        Q[j,i]<-p[k]
-      }
-    }
-    groups <- ordenacao(means[, 1], means[, 2],alpha, Q,console)
-    names(groups)[1]<-name.y
-    if(console) {
-      cat("\nMeans with the same letter are not significantly different.\n\n")
-      print(groups)
-    }
-  }
-  parameters<-data.frame(test="Duncan",name.t=name.t,ntr = ntr,alpha=alpha)
-  statistics<-data.frame(MSerror=MSerror,Df=DFerror,Mean=Mean,CV=CV)
-  rownames(parameters)<-" "
-  rownames(statistics)<-" "
-  rownames(means)<-means[,1]
-  means<-means[,-1]
-  output<-list(statistics=statistics,parameters=parameters, duncan=duncan,
-               means=means,comparison=comparison,groups=groups)
-  class(output)<-"group"
-  invisible(output)
-  }
-
-  #=====================================================================
-  # HSD.test
-  #=====================================================================
-
-  HSD.test <- function(y, trt, DFerror,
-                       MSerror, alpha=0.05, group=TRUE,
-                       main = NULL,unbalanced=FALSE,console=FALSE){
-    name.y <- paste(deparse(substitute(y)))
-    name.t <- paste(deparse(substitute(trt)))
-    if(is.null(main))main<-paste(name.y,"~", name.t)
-    clase<-c("aov","lm")
-    if("aov"%in%class(y) | "lm"%in%class(y)){
-      if(is.null(main))main<-y$call
-      A<-y$model
-      DFerror<-df.residual(y)
-      MSerror<-deviance(y)/DFerror
-      y<-A[,1]
-      ipch<-pmatch(trt,names(A))
-      nipch<- length(ipch)
-      for(i in 1:nipch){
-        if (is.na(ipch[i]))
-          return(if(console)cat("Name: ", trt, "\n", names(A)[-1], "\n"))
-      }
-      name.t<- names(A)[ipch][1]
-      trt <- A[, ipch]
-      if (nipch > 1){
-        trt <- A[, ipch[1]]
-        for(i in 2:nipch){
-          name.t <- paste(name.t,names(A)[ipch][i],sep=":")
-          trt <- paste(trt,A[,ipch[i]],sep=":")
-        }}
-      name.y <- names(A)[1]
-    }
-    junto <- subset(data.frame(y, trt), is.na(y) == FALSE)
-    Mean<-mean(junto[,1])
-    CV<-sqrt(MSerror)*100/Mean
-    medians<-mean.stat(junto[,1],junto[,2],stat="median")
-    for(i in c(1,5,2:4)) {
-      x <- mean.stat(junto[,1],junto[,2],function(x)quantile(x)[i])
-      medians<-cbind(medians,x[,2])
-    }
-    medians<-medians[,3:7]
-    names(medians)<-c("Min","Max","Q25","Q50","Q75")
-    means <- mean.stat(junto[,1],junto[,2],stat="mean") # change
-    sds <-   mean.stat(junto[,1],junto[,2],stat="sd") #change
-    nn <-   mean.stat(junto[,1],junto[,2],stat="length") # change
-    means<-data.frame(means,std=sds[,2],r=nn[,2],medians)
-    names(means)[1:2]<-c(name.t,name.y)
-    #   row.names(means)<-means[,1]
-    ntr<-nrow(means)
-    Tprob <- qtukey(1-alpha,ntr, DFerror)
-    nr<-unique(nn[, 2])
-    nr1<-1/mean(1/nn[,2])
-    if(console){
-      cat("\nStudy:", main)
-      cat("\n\nHSD Test for",name.y,"\n")
-      cat("\nMean Square Error: ",MSerror,"\n\n")
-      cat(paste(name.t,",",sep="")," means\n\n")
-      print(data.frame(row.names = means[,1], means[,2:6]))
-      cat("\nAlpha:",alpha,"; DF Error:",DFerror,"\n")
-      cat("Critical Value of Studentized Range:", Tprob,"\n")
-    }
-    HSD <- Tprob * sqrt(MSerror/nr)
-    statistics<-data.frame(MSerror=MSerror,Df=DFerror,Mean=Mean,CV=CV,MSD=HSD)
-    if ( group & length(nr) == 1 & console) cat("\nMinimun Significant Difference:",HSD,"\n")
-    if ( group & length(nr) != 1 & console) cat("\nGroups according to probability of means differences and alpha level(",alpha,")\n")
-    if ( length(nr) != 1) statistics<-data.frame(MSerror=MSerror,Df=DFerror,Mean=Mean,CV=CV)
-    comb <-utils::combn(ntr,2)
-    nn<-ncol(comb)
-    dif<-rep(0,nn)
-    sig<-NULL
-    LCL<-dif
-    UCL<-dif
-    pvalue<-rep(0,nn)
-    for (k in 1:nn) {
-      i<-comb[1,k]
-      j<-comb[2,k]
-      dif[k]<-means[i,2]-means[j,2]
-      sdtdif<-sqrt(MSerror * 0.5*(1/means[i,4] + 1/means[j,4]))
-      if(unbalanced)sdtdif<-sqrt(MSerror /nr1)
-      pvalue[k]<- round(1-ptukey(abs(dif[k])/sdtdif,ntr,DFerror),4)
-      LCL[k] <- dif[k] - Tprob*sdtdif
-      UCL[k] <- dif[k] + Tprob*sdtdif
-      sig[k]<-" "
-      if (pvalue[k] <= 0.001) sig[k]<-"***"
-      else  if (pvalue[k] <= 0.01) sig[k]<-"**"
-      else  if (pvalue[k] <= 0.05) sig[k]<-"*"
-      else  if (pvalue[k] <= 0.1) sig[k]<-"."
-    }
-    if(!group){
-      tr.i <- means[comb[1, ],1]
-      tr.j <- means[comb[2, ],1]
-      comparison<-data.frame("difference" = dif, pvalue=pvalue,"signif."=sig,LCL,UCL)
-      rownames(comparison)<-paste(tr.i,tr.j,sep=" - ")
-      if(console){cat("\nComparison between treatments means\n\n")
-        print(comparison)}
-      groups=NULL
-    }
-    if (group) {
-      comparison=NULL
-      Q<-matrix(1,ncol=ntr,nrow=ntr)
-      p<-pvalue
-      k<-0
-      for(i in 1:(ntr-1)){
-        for(j in (i+1):ntr){
-          k<-k+1
-          Q[i,j]<-p[k]
-          Q[j,i]<-p[k]
-        }
-      }
-      groups <- ordenacao(means[, 1], means[, 2],alpha, Q,console)
-      names(groups)[1]<-name.y
-      if(console) {
-        cat("\nTreatments with the same letter are not significantly different.\n\n")
-        print(groups)
-      }
-    }
-    parameters<-data.frame(test="Tukey",name.t=name.t,ntr = ntr, StudentizedRange=Tprob,alpha=alpha)
-    rownames(parameters)<-" "
-    rownames(statistics)<-" "
-    rownames(means)<-means[,1]
-    means<-means[,-1]
-    output<-list(statistics=statistics,parameters=parameters,
-                 means=means,comparison=comparison,groups=groups)
-    class(output)<-"group"
-    invisible(output)
-  }
 
   if(test=="parametric"){
-  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf==0){resp=log(response)}
-  if(transf==0.5){resp=sqrt(response)}
-  if(transf==-0.5){resp=1/sqrt(response)}
-  if(transf==-1){resp=1/response}
+  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==0){resp=log(response+constant)}
+  if(transf==0.5){resp=sqrt(response+constant)}
+  if(transf==-0.5){resp=1/sqrt(response+constant)}
+  if(transf==-1){resp=1/(response+constant)}
   trat1=trat
   trat=as.factor(trat)
   a = anova(aov(resp ~ trat))
@@ -553,9 +267,16 @@ DIC <- function(trat,
     letra <- TUKEY(b, "trat", alpha=alpha.t)
     letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
   if(mcomp=="sk"){
-    letra=SK(b,"trat",sig.level=alpha.t)
-    letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-    }
+    # letra=SK(b,"trat",sig.level=alpha.t)
+    # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
+    nrep=table(trat)[1]
+    medias=sort(tapply(resp,trat,mean),decreasing = TRUE)
+    letra=scottknott(means = medias,
+             df1 = a$Df[2],
+             nrep = nrep,
+             QME = a$`Mean Sq`[2],
+             alpha = alpha.t)
+    letra1=data.frame(resp=medias,groups=letra)}
   if(mcomp=="duncan"){
     letra <- duncan(b, "trat", alpha=alpha.t)
     letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
@@ -597,9 +318,9 @@ DIC <- function(trat,
       geom_col(aes(fill=trats),fill=fill,color=1)}
   if(errorbar==TRUE){grafico=grafico+
     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                  label=letra),family=family,angle=angle.label,size=labelsize, hjust=hjust)}
   if(errorbar==FALSE){grafico=grafico+
-    geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
+    geom_text(aes(y=media+sup,label=letra),family=family,size=labelsize,angle=angle.label, hjust=hjust)}
   if(errorbar==TRUE){grafico=grafico+
     geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                   ymax=media+desvio,color=1),
@@ -608,10 +329,10 @@ DIC <- function(trat,
                                               y=media))
   if(errorbar==TRUE){grafico=grafico+
     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                  label=letra),family=family,angle=angle.label,size=labelsize, hjust=hjust)}
   if(errorbar==FALSE){grafico=grafico+
     geom_text(aes(y=media+sup,
-                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                  label=letra),family=family,angle=angle.label, size=labelsize,hjust=hjust)}
   if(errorbar==TRUE){grafico=grafico+
     geom_errorbar(data=dadosm,
                   aes(ymin=media-desvio,
@@ -647,7 +368,7 @@ DIC <- function(trat,
     geom_text(data=dadosm2,
               aes(y=superior,
                   label=letra),
-              family = family,angle=angle.label, hjust=hjust)}
+              family = family,size=labelsize,angle=angle.label, hjust=hjust)}
   grafico=grafico+
     theme+
     ylab(ylab)+
@@ -659,7 +380,7 @@ DIC <- function(trat,
   if(angle !=0){grafico=grafico+
     theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
   if(CV==TRUE){grafico=grafico+
-    labs(caption=paste("p-value = ", if(a$`Pr(>F)`[1]<0.0001){paste("<", 0.0001)}
+    labs(caption=paste("p-value", if(a$`Pr(>F)`[1]<0.0001){paste("<", 0.0001)}
                                                   else{paste("=", round(a$`Pr(>F)`[1],4))},"; CV = ",
                                                   round(abs(sqrt(a$`Mean Sq`[2])/mean(resp))*100,2),"%"))}
   grafico=as.list(grafico)
@@ -863,9 +584,9 @@ DIC <- function(trat,
         geom_col(aes(fill=trats),fill=fill,color=1)}
     if(errorbar==TRUE){grafico=grafico+
       geom_text(aes(y=media+sup+if(sup<0){-std}else{std},
-                    label=letra),family=family,angle=angle.label, hjust=hjust)}
+                    label=letra),family=family,size=labelsize,angle=angle.label, hjust=hjust)}
     if(errorbar==FALSE){grafico=grafico+
-      geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
+      geom_text(aes(y=media+sup,label=letra),size=labelsize,family=family,angle=angle.label, hjust=hjust)}
     if(errorbar==TRUE){grafico=grafico+
       geom_errorbar(data=dadosm,aes(ymin=response-std,
                                     ymax=response+std,
@@ -877,11 +598,11 @@ DIC <- function(trat,
     if(errorbar==TRUE){grafico=grafico+
       geom_text(aes(y=media+sup+if(sup<0){-std}else{std},
                     label=letra),
-                family=family,angle=angle.label, hjust=hjust)}
+                family=family,angle=angle.label,size=labelsize, hjust=hjust)}
     if(errorbar==FALSE){grafico=grafico+
       geom_text(aes(y=media+sup,
                     label=letra),
-                family=family,angle=angle.label, hjust=hjust)}
+                family=family,angle=angle.label, size=labelsize,hjust=hjust)}
     if(errorbar==TRUE){grafico=grafico+
       geom_errorbar(data=dadosm,
                     aes(ymin=response-std,
@@ -920,7 +641,7 @@ DIC <- function(trat,
       geom_text(data=dadosm2,
                 aes(y=superior,
                     label=letra),
-                family = family,angle=angle.label, hjust=hjust)}
+                family = family,angle=angle.label, size=labelsize,hjust=hjust)}
     grafico=grafico+theme+
       ylab(ylab)+
       xlab(xlab)+

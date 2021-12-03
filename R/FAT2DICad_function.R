@@ -16,6 +16,7 @@
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
 #' @param transf Applies data transformation (default is 1; for log consider 0)
+#' @param constant Add a constant for transformation (enter value)
 #' @param geom Graph type (columns or segments (For simple effect only))
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
@@ -51,7 +52,6 @@
 #' @keywords DIC
 #' @keywords Factorial
 #' @keywords Aditional
-#' @seealso \link{FAT2DIC.art}
 #' @seealso \link{FAT2DIC}
 #' @seealso \link{dunnett}
 #' @references
@@ -74,7 +74,7 @@
 #' data(cloro)
 #' respAd=c(268, 322, 275, 350, 320)
 #' with(cloro, FAT2DIC.ad(f1, f2, bloco, resp, respAd, ylab="Number of nodules", legend = "Stages"))
-
+#'
 FAT2DIC.ad=function(f1,
                     f2,
                     repe,
@@ -82,12 +82,13 @@ FAT2DIC.ad=function(f1,
                     responseAd,
                     norm="sw",
                     homog="bt",
-                    mcomp="tukey",
                     alpha.f=0.05,
                     alpha.t=0.05,
                     quali=c(TRUE,TRUE),
+                    mcomp="tukey",
                     grau=NA,
                     transf=1,
+                    constant=0,
                     geom="bar",
                     theme=theme_classic(),
                     ylab="Response",
@@ -109,7 +110,6 @@ FAT2DIC.ad=function(f1,
                     ylim=NA,
                     angle.label=0){
   if(angle.label==0){hjust=0.5}else{hjust=0}
-  requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
@@ -121,16 +121,16 @@ FAT2DIC.ad=function(f1,
   # ================================
   # Transformacao de dados
   # ================================
-  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf==0){resp=log(response)}
-  if(transf==0.5){resp=sqrt(response)}
-  if(transf==-0.5){resp=1/sqrt(response)}
-  if(transf==-1){resp=1/response}
-  if(transf==1){respAd=responseAd}else{respAd=(responseAd^transf-1)/transf}
-  if(transf==0){respAd=log(responseAd)}
-  if(transf==0.5){respAd=sqrt(responseAd)}
-  if(transf==-0.5){respAd=1/sqrt(responseAd)}
-  if(transf==-1){respAd=1/responseAd}
+  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==0){resp=log(response+constant)}
+  if(transf==0.5){resp=sqrt(response+constant)}
+  if(transf==-0.5){resp=1/sqrt(response+constant)}
+  if(transf==-1){resp=1/(response+constant)}
+  if(transf==1){respAd=responseAd+constant}else{respAd=((responseAd+constant)^transf-1)/transf}
+  if(transf==0){respAd=log(responseAd+constant)}
+  if(transf==0.5){respAd=sqrt(responseAd+constant)}
+  if(transf==-0.5){respAd=1/sqrt(responseAd+constant)}
+  if(transf==-1){respAd=1/(responseAd+constant)}
 
   if(is.na(sup==TRUE)){sup=0.1*mean(response)}
   Fator1=factor(fator1, levels = unique(fator1))
@@ -301,8 +301,16 @@ FAT2DIC.ad=function(f1,
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if (mcomp == "sk"){
-          letra=sk(resp, fatores[,i], anava$Df[5],anava$`Sum Sq`[5],alpha.t)
-          letra1 <- letra; colnames(letra1)=c("resp","groups")
+          nrep=table(fatores[i])[1]
+          medias=sort(tapply(resp,fatores[i],mean, na.rm=TRUE),decreasing = TRUE)
+          sk=scottknott(means = medias,
+                        df1 = anava$Df[5],
+                        nrep = nrep,
+                        QME = anava$`Mean Sq`[5],
+                        alpha = alpha.t)
+          letra1=data.frame(resp=medias,groups=sk)
+          # letra=sk(resp, fatores[,i], anava$Df[5],anava$`Sum Sq`[5],alpha.t)
+          # letra1 <- letra; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="duncan"){
           letra <- duncan(resp, fatores[,i],anava$Df[5],anava$`Mean Sq`[5], alpha=alpha.t)
@@ -528,7 +536,15 @@ FAT2DIC.ad=function(f1,
           trati=fatores[, 1][Fator2 == lf2[i]]
           trati=factor(trati,levels = unique(trati))
           respi=resp[Fator2 == lf2[i]]
-          sk=sk(respi,trati,anava$Df[5],anava$`Sum Sq`[5],alpha.t)
+          nrep=table(trati)[1]
+          medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+          sk=scottknott(means = medias,
+                        df1 = anava$Df[5],
+                        nrep = nrep,
+                        QME = anava$`Mean Sq`[5],
+                        alpha = alpha.t)
+          sk=data.frame(respi=medias,groups=sk)
+          # sk=sk(respi,trati,anava$Df[5],anava$`Sum Sq`[5],alpha.t)
           if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
           skgrafico[[i]]=sk[levels(trati),2]
           ordem[[i]]=rownames(sk[levels(trati),])
@@ -607,7 +623,15 @@ FAT2DIC.ad=function(f1,
           trati=fatores[, 2][Fator1 == lf1[i]]
           trati=factor(trati,levels = unique(trati))
           respi=resp[Fator1 == lf1[i]]
-          sk=sk(respi,trati,anava$Df[6],anava$`Sum Sq`[6],alpha.t)
+          nrep=table(trati)[1]
+          medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+          sk=scottknott(means = medias,
+                        df1 = anava$Df[5],
+                        nrep = nrep,
+                        QME = anava$`Mean Sq`[5],
+                        alpha = alpha.t)
+          sk=data.frame(respi=medias,groups=sk)
+          # sk=sk(respi,trati,anava$Df[6],anava$`Sum Sq`[6],alpha.t)
           if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
           skgrafico1[[i]]=sk[levels(trati),2]
         }

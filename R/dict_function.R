@@ -25,7 +25,8 @@
 #' @param legend Legend title
 #' @param posi Legend position
 #' @param ylim y-axis scale
-#' @param width.bar width errorbar
+#' @param width.bar width error bar
+#' @param size.bar size error bar
 #' @param xnumeric Declare x as numeric (\emph{default} is FALSE)
 #' @param p.adj Method for adjusting p values for Kruskal-Wallis ("none","holm","hommel", "hochberg", "bonferroni", "BH", "BY", "fdr")
 #' @param all.letters Adds all label letters regardless of whether it is significant or not.
@@ -75,11 +76,11 @@ DICT=function(trat,
               addmean=FALSE,
               legend="Legend",
               ylim=NA,
-              width.bar=0.1,
+              width.bar=0.2,
+              size.bar=0.8,
               posi=c(0.1,0.8),
               xnumeric=FALSE,
               all.letters=FALSE){
-  requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
@@ -206,10 +207,17 @@ for(i in 1:length(levels(time))){
   norm=shapiro.test(mod$residuals)
   homo=with(dados[dados$time==levels(dados$time)[i],], bartlett.test(mod$residuals~trat))
   indep=dwtest(mod)
-  letra=SK(mod,"trat",sig.level = alpha.t)
-  data=data.frame(sk=letters[letra$groups])
-  rownames(data)=rownames(letra$m.inf)
-  data=data[unique(as.character(trat)),]
+  nrep=with(dados[dados$time==levels(dados$time)[i],], table(trat)[1])
+  ao=anova(mod)
+  medias=sort(tapply(resp,trat,mean),decreasing = TRUE)
+  letra=scottknott(means = medias,
+                   df1 = ao$Df[2],
+                   nrep = nrep,
+                   QME = ao$`Mean Sq`[2],
+                   alpha = alpha.t)
+  letra1=data.frame(resp=medias,groups=letra)
+  letra1=letra1[unique(as.character(trat)),]
+  data=letra1$groups
   if(all.letters==FALSE){
     if(anova(mod)$`Pr(>F)`[1]>alpha.f){data=c("ns",rep(" ",length(unique(trat))-1))}}
   data=data
@@ -450,7 +458,7 @@ grafico=ggplot(dadosm,aes(y=media,
 if(error==TRUE){grafico=grafico+
   geom_errorbar(aes(ymin=media-desvio,
                     ymax=media+desvio),
-                width=width.bar)}
+                width=width.bar,size=size.bar)}
 if(addmean==FALSE && error==FALSE){grafico=grafico+
   geom_text_repel(aes(y=media+sup,label=letra),family=family,size=labelsize)}
 if(addmean==TRUE && error==FALSE){grafico=grafico+
@@ -480,7 +488,7 @@ grafico=ggplot(dadosm,aes(y=media,
 if(error==TRUE){grafico=grafico+
   geom_errorbar(aes(ymin=media-desvio,
                     ymax=media+desvio),
-                width=width.bar,
+                width=width.bar,size=size.bar,
                 position = position_dodge(width=0.9))}
 if(addmean==FALSE && error==FALSE){grafico=grafico+
   geom_text(aes(y=media+sup,label=letra),

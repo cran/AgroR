@@ -14,6 +14,7 @@
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param transf Applies data transformation (default is 1; for log consider 0)
+#' @param constant Add a constant for transformation (enter value)
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
 #' @param geom Graph type (columns or segments (For simple effect only))
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
@@ -47,7 +48,7 @@
 #' @importFrom crayon red
 #' @importFrom crayon blue
 #' @import stats
-#' @seealso \link{FAT2DBC.ad}, \link{FAT2DBC.art}
+#' @seealso \link{FAT2DBC.ad}
 #' @references
 #'
 #' Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
@@ -62,7 +63,6 @@
 #'
 #' Mendiburu, F., and de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
 #'
-#' @seealso \link{FAT2DBC.art}
 #' @export
 #' @examples
 #'
@@ -73,7 +73,7 @@
 #' data(cloro)
 #' attach(cloro)
 #' FAT2DBC(f1, f2, bloco, resp, ylab="Number of nodules", legend = "Stages")
-#'
+#' FAT2DBC(f1, f2, bloco, resp, mcomp="sk", ylab="Number of nodules", legend = "Stages")
 #' #================================================
 #' # Example covercrops
 #' #================================================
@@ -82,40 +82,42 @@
 #' attach(covercrops)
 #' FAT2DBC(A, B, Bloco, Resp, ylab=expression("Yield"~(Kg~"100 m"^2)),
 #' legend = "Cover crops")
+#' FAT2DBC(A, B, Bloco, Resp, mcomp="sk", ylab=expression("Yield"~(Kg~"100 m"^2)),
+#' legend = "Cover crops")
 
 FAT2DBC=function(f1,
                  f2,
                  block,
-                  response,
-                  transf=1,
-                  norm="sw",
-                  homog="bt",
-                  mcomp = "tukey",
-                  alpha.f=0.05,
-                  alpha.t=0.05,
-                  quali=c(TRUE,TRUE),
-                  grau=NA,
-                  geom="bar",
-                  theme=theme_classic(),
-                  ylab="Response",
-                  xlab="",
-                  legend="Legend",
-                  fill="lightblue",
-                  angle=0,
-                  textsize=12,
-                  dec=3,
-                  family="sans",
-                  point="mean_sd",
-                  addmean=TRUE,
-                  errorbar=TRUE,
-                  CV=TRUE,
-                  sup=NA,
-                  color="rainbow",
-                  posi="right",
-                  ylim=NA,
+                 response,
+                 norm = "sw",
+                 homog = "bt",
+                 alpha.f = 0.05,
+                 alpha.t = 0.05,
+                 quali = c(TRUE, TRUE),
+                 mcomp = "tukey",
+                 grau = NA,
+                 transf = 1,
+                 constant = 0,
+                 geom = "bar",
+                 theme = theme_classic(),
+                 ylab = "Response",
+                 xlab = "",
+                 legend = "Legend",
+                 fill = "lightblue",
+                 angle = 0,
+                 textsize = 12,
+                 dec = 3,
+                 family = "sans",
+                 point = "mean_sd",
+                 addmean = TRUE,
+                 errorbar = TRUE,
+                 CV = TRUE,
+                 sup = NA,
+                 color = "rainbow",
+                 posi = "right",
+                 ylim = NA,
                  angle.label=0){
   if(angle.label==0){hjust=0.5}else{hjust=0}
-  requireNamespace("ScottKnott")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
@@ -134,16 +136,14 @@ FAT2DBC=function(f1,
   lf2 <- levels(Fator2)
   fac.names = c("F1", "F2")
   fatores <- data.frame(Fator1, Fator2)
-  # ================================
-  # Transformacao de dados
-  # ================================
-  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf==0){resp=log(response)}
-  if(transf==0.5){resp=sqrt(response)}
-  if(transf==-0.5){resp=1/sqrt(response)}
-  if(transf==-1){resp=1/response}
+  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==0){resp=log(response+constant)}
+  if(transf==0.5){resp=sqrt(response+constant)}
+  if(transf==-0.5){resp=1/sqrt(response+constant)}
+  if(transf==-1){resp=1/(response+constant)}
   graph=data.frame(Fator1,Fator2,resp)
   a=anova(aov(resp~Fator1*Fator2+bloco))
+  ab=anova(aov(response~Fator1*Fator2+bloco))
   b=aov(resp~Fator1*Fator2+bloco)
   anava=a
   colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
@@ -185,7 +185,6 @@ FAT2DBC=function(f1,
     theme_classic()+theme(axis.text.y = element_text(size=12),
                           axis.text.x = element_blank())+
     geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
-  # print(residplot)
 
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Normality of errors")))
@@ -246,7 +245,7 @@ FAT2DBC=function(f1,
   if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 &&homog1$p.value<0.05){
     message("\n Your analysis is not valid, suggests using a non-parametric test and try to transform the data\n")}else{}
   if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){
-    message("\n Your analysis is not valid, suggests using a FAT2DBC.art\n")}else{}
+    message("\n Your analysis is not valid\n")}else{}
 
   if (a$`Pr(>F)`[4] > alpha.f){
     cat(green(bold("-----------------------------------------------------------------\n")))
@@ -270,9 +269,16 @@ FAT2DBC=function(f1,
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="sk"){
-        letra=SK(b,colnames(fatores[i]))
-        letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-        #letra1$resp=as.numeric(as.character(letra1$resp))
+          nrep=table(fatores[i])[1]
+          medias=sort(tapply(resp,fatores[i],mean, na.rm=TRUE),decreasing = TRUE)
+          sk=scottknott(means = medias,
+                        df1 = a$Df[5],
+                        nrep = nrep,
+                        QME = a$`Mean Sq`[5],
+                        alpha = alpha.t)
+          letra1=data.frame(resp=medias,groups=sk)
+        # letra=SK(b,colnames(fatores[i]))
+        # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
         if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="duncan"){
           letra <- duncan(b, colnames(fatores[i]), alpha=alpha.t)
@@ -348,7 +354,7 @@ FAT2DBC=function(f1,
               axis.text = element_text(size=textsize,color="black",family=family),
               axis.title = element_text(size=textsize,color="black",family=family),
               legend.position = "none")}
-      if(CV==TRUE){grafico=grafico+labs(caption=paste("p-value = ", if(a$`Pr(>F)`[i]<0.0001){paste("<", 0.0001)}
+      if(CV==TRUE){grafico=grafico+labs(caption=paste("p-value ", if(a$`Pr(>F)`[i]<0.0001){paste("<", 0.0001)}
                                                       else{paste("=", round(a$`Pr(>F)`[i],4))},"; CV = ",
                                                       round(abs(sqrt(a$`Mean Sq`[5])/mean(resp))*100,2),"%"))}
       grafico=grafico
@@ -357,7 +363,6 @@ FAT2DBC=function(f1,
       cat("\n\n")
       }
       if(quali[i]==FALSE){
-        # dose=as.numeric(as.character(as.vector(unlist(fatores[i]))))
         dose=as.vector(unlist(fatoresa[i]))
         grafico=polynomial(dose,
                            resp,
@@ -368,7 +373,9 @@ FAT2DBC=function(f1,
                            theme=theme,
                            textsize=textsize,
                            point=point,
-                           family=family)
+                           family=family,
+                           SSq=ab$`Sum Sq`[5],
+                           DFres = ab$Df[5])
         grafico=grafico[[1]]}
     graficos[[i+1]]=grafico}}
     graficos[[1]]=residplot
@@ -471,7 +478,15 @@ FAT2DBC=function(f1,
           trati=fatores[, 1][Fator2 == lf2[i]]
           trati=factor(trati,levels = unique(trati))
           respi=resp[Fator2 == lf2[i]]
-          sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
+          nrep=table(trati)[1]
+          medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+          sk=scottknott(means = medias,
+                        df1 = a$Df[5],
+                        nrep = nrep,
+                        QME = a$`Mean Sq`[5],
+                        alpha = alpha.t)
+          sk=data.frame(respi=medias,groups=sk)
+          # sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
           if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
                                            trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
           skgrafico[[i]]=sk[levels(trati),2]
@@ -545,7 +560,16 @@ FAT2DBC=function(f1,
           trati=fatores[, 2][Fator1 == lf1[i]]
           trati=factor(trati,levels = unique(trati))
           respi=resp[Fator1 == lf1[i]]
-          sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
+          nrep=table(trati)[1]
+          medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+          sk=scottknott(means = medias,
+                        df1 = a$Df[5],
+                        nrep = nrep,
+                        QME = a$`Mean Sq`[5],
+                        alpha = alpha.t)
+          sk=data.frame(respi=medias,groups=sk)
+          #
+          # sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
           if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
                                          mean, na.rm=TRUE)[rownames(sk)]}
           skgrafico1[[i]]=sk[levels(trati),2]
@@ -601,7 +625,15 @@ FAT2DBC=function(f1,
             trati=fatores[, 1][Fator2 == lf2[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator2 == lf2[i]]
-            sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
+            nrep=table(trati)[1]
+            medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+            sk=scottknott(means = medias,
+                          df1 = a$Df[5],
+                          nrep = nrep,
+                          QME = a$`Mean Sq`[5],
+                          alpha = alpha.t)
+            sk=data.frame(respi=medias,groups=sk)
+            # sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
             if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
                                              trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
             cat("\n----------------------\n")
@@ -623,7 +655,9 @@ FAT2DBC=function(f1,
                             posi=posi,
                             ylim=ylim,
                             textsize=textsize,
-                            family=family)
+                            family=family,
+                            SSq=ab$`Sum Sq`[5],
+                            DFres = ab$Df[5])
         if(quali[1]==FALSE & quali[2]==FALSE){
           graf=list(grafico,NA)}
 
@@ -672,7 +706,15 @@ FAT2DBC=function(f1,
             trati=fatores[, 2][Fator1 == lf1[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator1 == lf1[i]]
-            sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
+            nrep=table(trati)[1]
+            medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+            sk=scottknott(means = medias,
+                          df1 = a$Df[5],
+                          nrep = nrep,
+                          QME = a$`Mean Sq`[5],
+                          alpha = alpha.t)
+            sk=data.frame(respi=medias,groups=sk)
+            # sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
             if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
                                            mean, na.rm=TRUE)[rownames(sk)]}
             cat("\n----------------------\n")
@@ -695,7 +737,9 @@ FAT2DBC=function(f1,
                             point=point,
                             textsize=textsize,
                             family=family,
-                            ylim=ylim)
+                            ylim=ylim,
+                            SSq=ab$`Sum Sq`[5],
+                            DFres = ab$Df[5])
         if(quali[1]==FALSE & quali[2]==FALSE){
           graf[[2]]=grafico
           grafico=graf}
@@ -749,7 +793,15 @@ FAT2DBC=function(f1,
             trati=fatores[, 1][Fator2 == lf2[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator2 == lf2[i]]
-            sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
+            nrep=table(trati)[1]
+            medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+            sk=scottknott(means = medias,
+                          df1 = a$Df[5],
+                          nrep = nrep,
+                          QME = a$`Mean Sq`[5],
+                          alpha = alpha.t)
+            sk=data.frame(respi=medias,groups=sk)
+            # sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
             if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
                                              trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
             cat("\n----------------------\n")
@@ -771,7 +823,9 @@ FAT2DBC=function(f1,
                                   posi=posi,
                                   ylim=ylim,
                                   textsize=textsize,
-                                  family=family)
+                                  family=family,
+                                  SSq=ab$`Sum Sq`[5],
+                                  DFres = ab$Df[5])
         if(quali[1]==FALSE & quali[2]==FALSE){
           graf=list(grafico,NA)}
 
@@ -820,7 +874,15 @@ FAT2DBC=function(f1,
             trati=fatores[, 2][Fator1 == lf1[i]]
             trati=factor(trati,levels = unique(trati))
             respi=resp[Fator1 == lf1[i]]
-            sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
+            nrep=table(trati)[1]
+            medias=sort(tapply(respi,trati,mean),decreasing = TRUE)
+            sk=scottknott(means = medias,
+                          df1 = a$Df[5],
+                          nrep = nrep,
+                          QME = a$`Mean Sq`[5],
+                          alpha = alpha.t)
+            sk=data.frame(respi=medias,groups=sk)
+            # sk=sk(respi,trati,a$Df[5], a$`Sum Sq`[5],alpha.t)
             if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
                                            mean, na.rm=TRUE)[rownames(sk)]}
             cat("\n----------------------\n")
@@ -844,7 +906,9 @@ FAT2DBC=function(f1,
                                   posi=posi,
                                   ylim=ylim,
                                   textsize=textsize,
-                                  family=family)
+                                  family=family,
+                                  SSq=ab$`Sum Sq`[5],
+                                  DFres = ab$Df[5])
         if(quali[1]==FALSE & quali[2]==FALSE){
           graf[[2]]=grafico
           grafico=graf}
