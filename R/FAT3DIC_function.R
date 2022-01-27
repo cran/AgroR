@@ -210,9 +210,6 @@ FAT3DIC=function(f1,
                         QME = anavaF3[8,3],
                         alpha = alpha.t)
           letra1=data.frame(resp=medias,groups=sk)
-          # ad=data.frame(Fator1,Fator2,Fator3)
-          # letra=SK(anava,colnames(ad[i]))
-          # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="duncan"){
           ad=data.frame(Fator1,Fator2,Fator3)
@@ -310,7 +307,8 @@ FAT3DIC=function(f1,
       if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
         cat(fac.names[i])
         dose=as.numeric(as.vector(unlist(fatores[,i])))
-        grafico=polynomial(dose,resp,grau = grau)
+        grafico=polynomial(dose,resp,grau = grau,
+                           DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = xlab)
         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command\n"))
         cat(green(bold("\n------------------------------------------")))}
 
@@ -411,7 +409,6 @@ FAT3DIC=function(f1,
                         QME = anavaF3$`Mean Sq`[8],
                         alpha = alpha.t)
           sk=data.frame(respi=medias,groups=sk)
-          # sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
           if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
                                                   trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
           skgrafico[[i]]=sk[levels(trati),2]
@@ -603,7 +600,6 @@ FAT3DIC=function(f1,
                             QME = anavaF3$`Mean Sq`[8],
                             alpha = alpha.t)
               sk=data.frame(respi=medias,groups=sk)
-              # sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
               if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,
                                                 mean, na.rm=TRUE)[rownames(sk)]}
               cat("\n----------------------\n")
@@ -619,7 +615,8 @@ FAT3DIC=function(f1,
                                 grau = grau,
                                 ylab=ylab,
                                 xlab=xlab,
-                                theme=theme)}
+                                theme=theme,
+                                DFres= anavaF3[8,1],SSq = anavaF3[8,2])}
         if(quali[2]==FALSE){
           if (mcomp == "tukey"){
             for (i in 1:nv2) {
@@ -674,7 +671,6 @@ FAT3DIC=function(f1,
                             QME = anavaF3$`Mean Sq`[8],
                             alpha = alpha.t)
               sk=data.frame(respi=medias,groups=sk)
-              # sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
               if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
                                                       trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
               cat("\n----------------------\n")
@@ -691,7 +687,8 @@ FAT3DIC=function(f1,
                                 grau = grau,
                                 ylab=ylab,
                                 xlab=xlab,
-                                theme=theme)}
+                                theme=theme,
+                                DFres= anavaF3[8,1],SSq = anavaF3[8,2])}
         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))
         }
       if(anavaF3[5,5]>alpha.f && anavaF3[6,5]>alpha.f) {
@@ -715,9 +712,6 @@ FAT3DIC=function(f1,
                             QME = anavaF3[8,3],
                             alpha = alpha.t)
               letra1=data.frame(resp=medias,groups=sk)
-              # letra=SK(anava,colnames(ad[i]))
-              # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-              # letra1$resp=as.numeric(as.character(letra1$resp))
               if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
             if(mcomp=="duncan"){
               ad=data.frame(Fator1,Fator2,Fator3)
@@ -775,7 +769,8 @@ FAT3DIC=function(f1,
             cat('Analyzing the simple effects of the factor ',fac.names[3])
             cat(green(bold("\n------------------------------------------\n")))
             cat(fac.names[i])
-            grafico1=polynomial(fatores[,i], resp)
+            grafico1=polynomial(fatores[,i], resp,grau=grau,
+                                DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = xlab)
             cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))}
         }
 
@@ -872,7 +867,6 @@ FAT3DIC=function(f1,
                           QME = anavaF3$`Mean Sq`[8],
                           alpha = alpha.t)
             sk=data.frame(respi=medias,groups=sk)
-            # sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
             if(transf !=1){sk$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
             skgrafico[[i]]=sk[levels(trati),2]
             ordem[[i]]=rownames(sk[levels(trati),])
@@ -952,7 +946,6 @@ FAT3DIC=function(f1,
                             QME = anavaF3$`Mean Sq`[8],
                             alpha = alpha.t)
               sk=data.frame(respi=medias,groups=sk)
-              # sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
               if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
               skgrafico1[[i]]=sk[levels(trati),2]
               }
@@ -1053,8 +1046,6 @@ FAT3DIC=function(f1,
                               QME = anavaF3$`Mean Sq`[8],
                               alpha = alpha.t)
                 sk=data.frame(respi=medias,groups=sk)
-                # mod=aov(respi~trati)
-                # sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
                 if(transf !=1){sk$respo=tapply(response[Fator1 == lf1[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F3 within level",lf1[i],"of F1")
@@ -1069,7 +1060,8 @@ FAT3DIC=function(f1,
                                   grau = grau,
                                   ylab=ylab,
                                   xlab=xlab,
-                                  theme=theme)}
+                                  theme=theme,
+                                  DFres= anavaF3[8,1],SSq = anavaF3[8,2])}
           if(quali[3]==FALSE){
             if (mcomp == "tukey"){
               for (i in 1:nv3) {
@@ -1120,7 +1112,6 @@ FAT3DIC=function(f1,
                               QME = anavaF3$`Mean Sq`[8],
                               alpha = alpha.t)
                 sk=data.frame(respi=medias,groups=sk)
-                # sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
                 if(transf !=1){sk$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
                 cat("\n----------------------\n")
                 cat("Multiple comparison of F1 within level",lf3[i],"of F3")
@@ -1134,7 +1125,8 @@ FAT3DIC=function(f1,
                                   grau = grau,
                                   ylab=ylab,
                                   xlab=xlab,
-                                  theme=theme)}
+                                  theme=theme,
+                                  DFres= anavaF3[8,1],SSq = anavaF3[8,2])}
           cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))
           }
 
@@ -1162,9 +1154,6 @@ FAT3DIC=function(f1,
                               QME = anavaF3[8,3],
                               alpha = alpha.t)
                 letra1=data.frame(resp=medias,groups=sk)
-                # letra=SK(anava,colnames(ad[i]))
-                # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-                # letra1$resp=as.numeric(as.character(letra1$resp))
                 if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
               if(mcomp=="duncan"){
                 ad=data.frame(Fator1,Fator2,Fator3)
@@ -1221,7 +1210,8 @@ FAT3DIC=function(f1,
               cat('Analyzing the simple effects of the factor ',fac.names[2])
               cat(green(bold("\n------------------------------------------\n")))
               cat(fac.names[i])
-              grafico2=polynomial(fatores[,i], resp)
+              grafico2=polynomial(fatores[,i], resp,grau=grau,
+                                  DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = xlab)
               cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
             }
 
@@ -1320,7 +1310,6 @@ FAT3DIC=function(f1,
                           QME = anavaF3$`Mean Sq`[8],
                           alpha = alpha.t)
             sk=data.frame(respi=medias,groups=sk)
-            # sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
             if(transf !=1){sk$respo=tapply(response[Fator3 == lf3[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
             skgrafico[[i]]=sk[levels(trati),2]
             ordem[[i]]=rownames(sk[levels(trati),])
@@ -1400,7 +1389,6 @@ FAT3DIC=function(f1,
                             QME = anavaF3$`Mean Sq`[8],
                             alpha = alpha.t)
               sk=data.frame(respi=medias,groups=sk)
-              # sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Sum Sq`[8],alpha.t)
               if(transf !=1){sk$respo=tapply(response[Fator2 == lf2[i]],trati,mean, na.rm=TRUE)[rownames(sk)]}
               skgrafico1[[i]]=sk[levels(trati),2]
               }
@@ -1516,7 +1504,8 @@ FAT3DIC=function(f1,
                                   grau = grau,
                                   ylab=ylab,
                                   xlab=xlab,
-                                  theme=theme)}
+                                  theme=theme,
+                                  DFres= anavaF3[8,1],SSq = anavaF3[8,2])}
           if(quali[3]==FALSE){
             if (mcomp == "tukey"){
               for (i in 1:nv3) {
@@ -1580,7 +1569,8 @@ FAT3DIC=function(f1,
                                   grau = grau,
                                   ylab=ylab,
                                   xlab=xlab,
-                                  theme=theme)}
+                                  theme=theme,
+                                  DFres= anavaF3[8,1],SSq = anavaF3[8,2])}
           cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command"))
           }
 
@@ -1605,9 +1595,6 @@ FAT3DIC=function(f1,
                               QME = anavaF3[8,3],
                               alpha = alpha.t)
                 letra1=data.frame(resp=medias,groups=sk)
-                # letra=SK(anava,colnames(ad[i]))
-                # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-                # letra1$resp=as.numeric(as.character(letra1$resp))
                 if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
               if(mcomp=="duncan"){
                 ad=data.frame(Fator1,Fator2,Fator3)
@@ -1665,7 +1652,8 @@ FAT3DIC=function(f1,
               cat('Analyzing the simple effects of the factor ',fac.names[2])
               cat(green(bold("\n------------------------------------------\n")))
               cat(fac.names[i])
-              polynomial(fatores[,i], resp)
+              polynomial(fatores[,i], resp,grau=grau,
+                         DFres= anavaF3[8,1],SSq = anavaF3[8,2])
               cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
             }
 
@@ -1699,7 +1687,6 @@ FAT3DIC=function(f1,
       for(i in 1:nv2) {
         for(j in 1:nv3) {
           ii<-ii+1
-          # if(1-pf(QM/QME,glf,glE)[ii]<=alpha.f){
           if(quali[1]==TRUE){
             cat('\n',fac.names[1],' within the combination of levels ',lf2[i],' of  ',fac.names[2],' and ',lf3[j],' of  ',fac.names[3],"\n")
             if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
@@ -1745,11 +1732,7 @@ FAT3DIC=function(f1,
                             QME = anavaF3$`Mean Sq`[8],
                             alpha = alpha.t)
               sk=data.frame(respi=medias,groups=sk)
-              # sk=sk(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
-              #              fat1,
-              #              anavaF3$Df[8],
-              #              anavaF3$`Sum Sq`[8],
-              #              alpha.t)
+
             colnames(sk)=c("resp","letters")
             sk=sk[as.character(unique(fat1)),]
             rownames(sk)=unique(fat)
@@ -1757,7 +1740,12 @@ FAT3DIC=function(f1,
                                                      fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                                            mean, na.rm=TRUE)[rownames(sk)]}
             print(sk)}
-            }
+          }
+          if(quali[1]==FALSE){
+            cat('\n',fac.names[1],' within the combination of levels ',lf2[i],' of  ',fac.names[2],' and ',lf3[j],' of  ',fac.names[3],"\n")
+            polynomial(fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
+                       resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],grau=grau,
+                       DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab=ylab,xlab=xlab)}
           }
       }
 
@@ -1828,18 +1816,19 @@ FAT3DIC=function(f1,
                             alpha = alpha.t)
               sk=data.frame(respi=medias,groups=sk)
 
-              # sk=sk(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
-              #             fat1,
-              #             anavaF3$Df[8],
-              #             anavaF3$`Sum Sq`[8],
-              #             alpha.t)
             colnames(sk)=c("resp","letters")
             sk=sk[as.character(unique(fat1)),]
             rownames(sk)=unique(fat)
             if(transf !=1){sk$respo=tapply(response[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                                                      fatores[,2][Fator1==lf1[k]  & fatores[,3]==lf3[j]],mean, na.rm=TRUE)[rownames(sk)]}
             print(sk)}
-            }
+          }
+          if(quali[2]==FALSE){
+            cat('\n\n',fac.names[2],' within the combination of levels ',lf1[k],' of  ',fac.names[1],' and ',lf3[j],' of  ',fac.names[3],'\n')
+            polynomial(fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
+                       resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
+                       DFres= anavaF3[8,1],SSq = anavaF3[8,2],grau=grau,
+                       ylab = ylab,xlab = xlab)}
           }
       }
 
@@ -1869,7 +1858,6 @@ FAT3DIC=function(f1,
       for(k in 1:nv1) {
         for(i in 1:nv2) {
           ii<-ii+1
-          # if(1-pf(QM/QME,glf,glE)[ii]<=alpha.f){
           if(quali[3]==TRUE){
             cat('\n\n',fac.names[3],' within the combination of levels ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of  ',fac.names[2],'\n')
             if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
@@ -1927,9 +1915,12 @@ FAT3DIC=function(f1,
                                                      fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                                      mean, na.rm=TRUE)[rownames(sk)]}
             print(sk)}
-            }
-          # else{cat('\n\n',fac.names[3],' within the combination of levels ',lf1[k],' of  ',fac.names[1],' and ',lf2[i],' of  ',fac.names[2])
-          #   reg.poly(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]], an[8,1], an[8,2], nv3-1, SQ[ii])}
+          }
+          if(quali[3]==FALSE){
+            cat('\n\n',fac.names[3],' inside of each level of ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of ',fac.names[2],'\n')
+            polynomial(fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
+                       resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],grau=grau,
+                       DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = xlab)}
           }
       }
 

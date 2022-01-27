@@ -8,6 +8,7 @@ test_two(
   trat,
   resp,
   paired = FALSE,
+  correct = TRUE,
   test = "t",
   alternative = c("two.sided", "less", "greater"),
   conf.level = 0.95,
@@ -16,6 +17,8 @@ test_two(
   xlab = "",
   var.equal = FALSE,
   pointsize = 2,
+  yposition.p = NA,
+  xposition.p = NA,
   fill = "white"
 )
 }
@@ -25,6 +28,8 @@ test_two(
 \item{resp}{Numeric vector with the response}
 
 \item{paired}{A logical indicating whether you want a paired t-test.}
+
+\item{correct}{A logical indicating whether to apply continuity correction in the normal approximation for the p-value.}
 
 \item{test}{Test used (t for test t or w for Wilcoxon test)}
 
@@ -41,6 +46,10 @@ test_two(
 \item{var.equal}{A logical variable indicating whether to treat the two variances as being equal. If TRUE then the pooled variance is used to estimate the variance otherwise the Welch (or Satterthwaite) approximation to the degrees of freedom is used.}
 
 \item{pointsize}{Point size}
+
+\item{yposition.p}{Position p-value in y}
+
+\item{xposition.p}{Position p-value in x}
 
 \item{fill}{fill box}
 }

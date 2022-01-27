@@ -4,7 +4,22 @@
 \alias{sketch}
 \title{Utils: Experimental sketch}
 \usage{
-sketch(trat, trat1 = NULL, trat2 = NULL, r, design = "dic", pos = "line")
+sketch(
+  trat,
+  trat1 = NULL,
+  trat2 = NULL,
+  r,
+  design = "DIC",
+  pos = "line",
+  color.sep = "all",
+  ID = FALSE,
+  add.streets.y = NA,
+  add.streets.x = NA,
+  label.x = "",
+  label.y = "",
+  export.csv = FALSE,
+  comment.caption = NULL
+)
 }
 \arguments{
 \item{trat}{Vector with factor A levels}
@@ -17,7 +32,23 @@ sketch(trat, trat1 = NULL, trat2 = NULL, r, design = "dic", pos = "line")
 
 \item{design}{Experimental design ("dic", "dbc", "dql","psubdic","psubdbc","fat2dic","fat2dbc")}
 
-\item{pos}{Repeat position (line or column)}
+\item{pos}{Repeat position (line or column),}
+
+\item{color.sep}{Color box}
+
+\item{ID}{plot Add only identification in sketch}
+
+\item{add.streets.y}{Adds streets by separating treatments in row or column. The user must supply a numeric vector grouping the rows or columns that must be together. See the example.}
+
+\item{add.streets.x}{Adds streets by separating treatments in row or column. The user must supply a numeric vector grouping the rows or columns that must be together. See the example.}
+
+\item{label.x}{text in x}
+
+\item{label.y}{text in y}
+
+\item{export.csv}{Save table template based on sketch in csv}
+
+\item{comment.caption}{Add comment in caption}
 }
 \value{
 Returns an experimental sketch according to the specified design.
@@ -27,6 +58,34 @@ Experimental sketching function
 }
 \note{
 The sketches have only a rectangular shape, and the blocks (in the case of randomized blocks) can be in line or in a column.
+
+For the design argument, you can choose from the following options:
+  \describe{
+  \item{\code{design="DIC"}}{Completely randomized design}
+  \item{\code{design="DBC"}}{Randomized block design}
+  \item{\code{design="DQL"}}{Latin square design}
+  \item{\code{design="FAT2DIC"}}{DIC experiments in double factorial}
+  \item{\code{design="FAT2DBC"}}{DBC experiments in double factorial}
+  \item{\code{design="FAT3DIC"}}{DIC experiments in triple factorial}
+  \item{\code{design="FAT3DBC"}}{DBC experiments in triple factorial}
+  \item{\code{design="PSUBDIC"}}{DIC experiments in split-plot}
+  \item{\code{design="PSUBDBC"}}{DBC experiments in split-plot}
+  \item{\code{design="PSUBSUBDBC"}}{DBC experiments in split-split-plot}
+  }
+
+For the color.sep argument, you can choose from the following options:
+  \describe{
+  \item{\code{design="DIC"}}{use "all" or "none"}
+  \item{\code{design="DBC"}}{use "all","bloco" or "none"}
+  \item{\code{design="DQL"}}{use "all", "column", "line" or "none"}
+  \item{\code{design="FAT2DIC"}}{use "all", "f1", "f2" or "none"}
+  \item{\code{design="FAT2DBC"}}{use "all", "f1", "f2", "block" or "none"}
+  \item{\code{design="FAT3DIC"}}{use "all", "f1", "f2", "f3" or "none"}
+  \item{\code{design="FAT3DBC"}}{use "all", "f1", "f2", "f3", "block" or "none"}
+  \item{\code{design="PSUBDIC"}}{use "all", "f1", "f2" or "none"}
+  \item{\code{design="PSUBDBC"}}{use "all", "f1", "f2", "block" or "none"}
+  \item{\code{design="PSUBSUBDBC"}}{use "all", "f1", "f2", "f3", "block" or "none"}
+  }
 }
 \examples{
 Trat=paste("Tr",1:6)
@@ -36,24 +95,27 @@ Trat=paste("Tr",1:6)
 #=============================
 sketch(Trat,r=3)
 sketch(Trat,r=3,pos="column")
+sketch(Trat,r=3,color.sep="none")
+sketch(Trat,r=3,color.sep="none",ID=TRUE)
+sketch(Trat,r=3,pos="column",add.streets.x=c(1,1,2,2,3,3))
 
 #=============================
 # Randomized block design
 #=============================
-sketch(Trat, r=3, design="dbc")
-sketch(Trat, r=3, design="dbc",pos="column")
-
+sketch(Trat, r=3, design="DBC")
+sketch(Trat, r=3, design="DBC",pos="column")
+sketch(Trat, r=3, design="DBC",pos="column",add.streets.x=c(1,1,2))
 #=============================
 # Completely randomized experiments in double factorial
 #=============================
 sketch(trat=c("A","B"),
        trat1=c("A","B","C"),
-       design = "fat2dic",
+       design = "FAT2DIC",
        r=3)
 
 sketch(trat=c("A","B"),
        trat1=c("A","B","C"),
-       design = "fat2dic",
+       design = "FAT2DIC",
        r=3,
        pos="column")
 }

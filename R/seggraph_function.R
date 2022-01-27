@@ -40,7 +40,7 @@ seg_graph=function(model,
       geom_point(size=pointsize,shape=21, fill=fill, color="black")+
       geom_text(aes(x=media+desvio+1/15*as.vector(media),
                     y=trats,
-                    label = letra),hjust=0)+
+                    label = letra),hjust=0,family=model[[1]]$plot$family)+
       labs(y=model[[1]]$labels$x,
            x=model[[1]]$labels$y)+
       theme(axis.text = element_text(size=12,color="black"),
@@ -57,7 +57,7 @@ seg_graph=function(model,
       geom_point(fill=fill,size=pointsize,shape=21,color="black")+
       geom_text(aes(y=media+desvio+1/15*media,
                     x=trats,
-                    label = letra),vjust=0)+
+                    label = letra),vjust=0,family=model[[1]]$plot$family)+
       labs(x=model[[1]]$labels$x,
            y=model[[1]]$labels$y)+
       theme(axis.text = element_text(size=12,color="black"),

@@ -190,7 +190,7 @@ DIC <- function(trat,
     statistic=homog1$`F value`[1]
     phomog=homog1$`Pr(>F)`[1]
     method="Levene's Test (center = median)(F)"
-    names(homog1)=c("Df", "F value","p.value")}
+    names(homog1)=c("Df", "statistic","p.value")}
   indep = dwtest(b)
   resids=b$residuals/sqrt(a$`Mean Sq`[2])
   Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")

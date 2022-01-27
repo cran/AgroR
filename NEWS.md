@@ -1,3 +1,9 @@
+# AgroR 1.2.6
+
+* The bargraph_onefactor and bargraph_twofactor functions have been implemented
+
+* The bug of sorting to FAT3DBC in case of significant interaction has been fixed
+
 # AgroR 1.2.5 
 
 * The FAT2DIC.art and FAT2DBC.art functions have been discontinued 

@@ -388,7 +388,6 @@ PSUBSUBDBC=function(f1,
                       QME = qmres[2],
                       alpha = alpha.t)
         sk=data.frame(respi=medias,groups=sk)
-        # sk=sk(respi,trati,GL[2],qmres[2]/GL[2],alpha.t)
         skgrafico1[[i]]=sk[levels(trati),2]
       }
       letra1=unlist(skgrafico1)
@@ -609,7 +608,6 @@ PSUBSUBDBC=function(f1,
                       QME = qmresf1f3,
                       alpha = alpha.t)
         sk=data.frame(respi=medias,groups=sk)
-        # sk=sk(respi,trati,nf1f3,qmresf1f3/nf1f3,alpha.t)
         skgrafico[[i]]=sk[levels(trati),2]
         ordem[[i]]=rownames(sk[levels(trati),])}
       letra=unlist(skgrafico)
@@ -631,7 +629,6 @@ PSUBSUBDBC=function(f1,
                       QME = qmres[3],
                       alpha = alpha.t)
         sk=data.frame(respi=medias,groups=sk)
-        # sk=sk(respi,trati,GL[3],qmres[3]/GL[3],alpha.t)
         skgrafico1[[i]]=sk[levels(trati),2]}
       letra1=unlist(skgrafico1)
       letra1=toupper(letra1)}
@@ -832,7 +829,6 @@ PSUBSUBDBC=function(f1,
                       QME = qmresf2f3,
                       alpha = alpha.t)
         sk=data.frame(respi=medias,groups=sk)
-        # sk=sk(respi,trati,nf2f3,qmresf2f3/nf2f3,alpha.t)
         skgrafico[[i]]=sk[levels(trati),2]
         ordem[[i]]=rownames(sk[levels(trati),])}
       letra=unlist(skgrafico)
@@ -853,7 +849,6 @@ PSUBSUBDBC=function(f1,
                       QME = qmres[3],
                       alpha = alpha.t)
         sk=data.frame(respi=medias,groups=sk)
-        # sk=sk(respi,trati,GL[3],qmres[3]/GL[3],alpha.t)
         skgrafico1[[i]]=sk[levels(trati),2]}
       letra1=unlist(skgrafico1)
       letra1=toupper(letra1)}
@@ -990,11 +985,6 @@ PSUBSUBDBC=function(f1,
                         QME = qmresf1f3,
                         alpha = alpha.t)
           sk=data.frame(respi=medias,groups=sk)
-          # sk=sk(response[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
-          #               fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
-          #               nf1f3,
-          #               qmresf1f3,
-          #               alpha.t);colnames(sk)=c("resp","letters")
           print(sk)}
 
         }
@@ -1082,12 +1072,6 @@ PSUBSUBDBC=function(f1,
                         QME = qmresf2f3,
                         alpha = alpha.t)
           sk=data.frame(respi=medias,groups=sk)
-
-          # sk=sk(response[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
-          #               fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
-          #               nf2f3,
-          #               qmresf2f3/nf2f3,
-          #               alpha.t);colnames(sk)=c("resp","letters")
           print(sk)}
       }
     }
@@ -1154,13 +1138,6 @@ PSUBSUBDBC=function(f1,
                       QME = qmresf1f3,
                       alpha = alpha.t)
         sk=data.frame(respi=medias,groups=sk)
-          #
-          # sk=sk(response[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
-          #               fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
-          #               GL[3],
-          #               qmres[3]/GL[3],
-          #               alpha.t)
-          # colnames(sk)=c("resp","letters")
           print(sk)}
 
         }

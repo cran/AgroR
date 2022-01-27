@@ -45,6 +45,6 @@ f3=rep(c("c1", "c2", "c3", "c4"), e = 5,6);f3=factor(f3,unique(f3))
 bloco=rep(paste("B",1:5),24); bloco=factor(bloco,unique(bloco))
 set.seed(10)
 resp=rnorm(120,50,5)
-PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.5) # para soltar interaÃ§Ã£o tripla
-PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.4) # para soltar interaÃ§Ã£o dupla
+PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.5) # para soltar interação tripla
+PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.4) # para soltar interação dupla
 }

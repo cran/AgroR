@@ -96,24 +96,17 @@ FAT3DBC=function(f1,
     fator2a=fator2
     fator3a=fator3
 
-
     bloco=block
     fac.names=names.fat
     requireNamespace("crayon")
     requireNamespace("ggplot2")
     requireNamespace("nortest")
-    # ================================
-    # Transformacao de dados
-    # ================================
     if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
     if(transf==0){resp=log(response+constant)}
     if(transf==0.5){resp=sqrt(response+constant)}
     if(transf==-0.5){resp=1/sqrt(response+constant)}
     if(transf==-1){resp=1/(response+constant)}
 
-    # =================================
-    ## Reconstruindo vetores
-    # =================================
     fatores<-data.frame(fator1,fator2,fator3)
     Fator1<-factor(fator1,levels=unique(fator1));
     Fator2<-factor(fator2,levels=unique(fator2));
@@ -123,9 +116,6 @@ FAT3DBC=function(f1,
     lf1<-levels(Fator1); lf2<-levels(Fator2); lf3<-levels(Fator3)
     bloco=as.factor(bloco)
 
-    # =================================
-    ## Anova
-    # =================================
     anava<-aov(resp~Fator1*Fator2*Fator3+bloco)
     anavaF3<-anova(anava)
     anovaF3=anavaF3
@@ -145,11 +135,6 @@ FAT3DBC=function(f1,
                               axis.text.x = element_blank())+
         geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
 
-    # =================================
-    ## Saída inicial
-    # =================================
-
-    #Teste de normalidade
     norm1<-shapiro.test(anava$residuals)
     cat(green(bold("\n------------------------------------------")))
     cat(green(bold("\nNormality of errors")))
@@ -159,7 +144,6 @@ FAT3DBC=function(f1,
         black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered normal")}
         else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors do not follow a normal distribution"})
 
-    # Teste de homogeneidade das variâncias
     homog1=bartlett.test(anava$residuals~paste(Fator1,Fator2,Fator3))
     cat(green(bold("\n------------------------------------------")))
     cat(green(bold("\nHomogeneity of Variances")))
@@ -169,7 +153,6 @@ FAT3DBC=function(f1,
         black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, the variances can be considered homogeneous")}
         else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, the variances are not homogeneous"})
 
-    # Independencia dos erros
     indep=dwtest(anava)
     cat(green(bold("\n------------------------------------------")))
     cat(green(bold("\nIndependence from errors")))
@@ -201,9 +184,6 @@ FAT3DBC=function(f1,
         message("\n Your analysis is not valid, suggests using the function FATDIC.art\n")}else{}
     message(if(transf !=1){blue("\nNOTE: resp = transformed means; respO = averages without transforming\n")})
 
-    ################################################################################################
-    # Efeitos simples
-    ################################################################################################
     if(anavaF3[5,5]>alpha.f && anavaF3[6,5]>alpha.f && anavaF3[7,5]>alpha.f && anavaF3[8,5]>alpha.f) {
         graficos=list(1,2,3)
         cat(green(bold("\n------------------------------------------\n")))
@@ -212,7 +192,6 @@ FAT3DBC=function(f1,
         fatores<-data.frame('fator 1'=fator1,'fator 2' = fator2,'fator 3' = fator3)
 
         for(i in 1:3){
-            # Comparação múltipla
             if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
                 cat(green(bold("\n------------------------------------------\n")))
                 cat(fac.names[i])
@@ -229,10 +208,6 @@ FAT3DBC=function(f1,
                                   QME = anavaF3[9,3],
                                   alpha = alpha.t)
                     letra1=data.frame(resp=medias,groups=sk)
-                    #
-                    # ad=data.frame(Fator1,Fator2,Fator3)
-                    # letra=SK(anava,colnames(ad[i]))
-                    # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
                     if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
                 if(mcomp=="duncan"){
                     ad=data.frame(Fator1,Fator2,Fator3)
@@ -286,9 +261,6 @@ FAT3DBC=function(f1,
                           legend.position = "none")
                 print(grafico)}
 
-                # ================================
-                # grafico de segmentos
-                # ================================
                 if(geom=="point"){grafico=ggplot(dadosm,
                                                  aes(x=Tratamentos,
                                                      y=media))
@@ -329,7 +301,8 @@ FAT3DBC=function(f1,
             if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
                 cat(fac.names[i])
                 dose=as.numeric(as.vector(unlist(fatores[,i])))
-                grafico=polynomial(dose,resp,grau = grau)
+                grafico=polynomial(dose,resp,grau = grau,
+                                   DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)
                 cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
                 cat(green(bold("\n------------------------------------------")))}
             graficos[[1]]=residplot
@@ -337,15 +310,10 @@ FAT3DBC=function(f1,
         }
     }
 
-    #####################################################################
-    #Interacao Fator1*Fator2      +     Fator3
-    #####################################################################
     if(anavaF3[8,5]>alpha.f && anavaF3[5,5]<=alpha.f){
     cat(green(bold("\n------------------------------------------\n")))
         cat(green(bold("Interaction",paste(fac.names[1],'*',fac.names[2],sep='')," significant: unfolding the interaction")))
     cat(green(bold("\n------------------------------------------\n")))
-
-        #Desdobramento de FATOR 1 dentro do niveis de FATOR 2
         cat(green(bold("\n------------------------------------------\n")))
         cat("Analyzing ", fac.names[1], ' within the combination of levels ', fac.names[2])
         cat(green(bold("\n------------------------------------------\n")))
@@ -358,10 +326,9 @@ FAT3DBC=function(f1,
             l[[j]]<-v
             v<-numeric(0)}
         des1<-summary(des,split=list('Fator2:Fator1'=l))[[1]]
-        des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+        des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
         print(des1a)
 
-        # Teste de Tukey
         if(quali[1]==TRUE & quali[2]==TRUE){
             if (mcomp == "tukey"){
                 tukeygrafico=c()
@@ -370,8 +337,7 @@ FAT3DBC=function(f1,
                     trati=fatores[, 1][Fator2 == lf2[i]]
                     trati=factor(trati,levels = unique(trati))
                     respi=resp[Fator2 == lf2[i]]
-                    mod=aov(respi~trati)
-                    tukey=TUKEY(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                    tukey=TUKEY(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                     if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                     tukeygrafico[[i]]=tukey$groups[levels(trati),2]
                     ordem[[i]]=rownames(tukey$groups[levels(trati),])
@@ -441,14 +407,11 @@ FAT3DBC=function(f1,
                 datag=datag[order(datag$ordem),]
                 letra=datag$letra}}
 
-        # Desdobramento de F2 dentro de F1
-
         cat(green(bold("\n------------------------------------------\n")))
         cat("Analyzing ", fac.names[2], " inside of the level of ",fac.names[1])
         cat(green(bold("\n------------------------------------------\n")))
 
-        # Desdobramento de F1 dentro de F2
-        des<-aov(resp~Fator1/Fator2+Fator3+Fator1+Fator1:Fator3+Fator1:Fator2:Fator3)
+        des<-aov(resp~Fator1/Fator2+Fator3+Fator1+Fator1:Fator3+Fator1:Fator2:Fator3+bloco)
         l<-vector('list',nv1)
         names(l)<-names(summary(Fator1))
         v<-numeric(0)
@@ -457,20 +420,17 @@ FAT3DBC=function(f1,
                 l[[j]]<-v
                 v<-numeric(0)}
         des1<-summary(des,split=list('Fator1:Fator2'=l))[[1]]
-        des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+        des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
         print(des1a)
 
-        #-------------------------------------
-        # Teste de Tukey
-        #-------------------------------------
         if(quali[1]==TRUE & quali[2]==TRUE){
                 if (mcomp == "tukey"){
                     tukeygrafico1=c()
                     for (i in 1:nv1) {
-                        trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
+                        trati=fatores[, 2][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator1 == lf1[i]]
-                        mod=aov(respi~trati)
-                        tukey=TUKEY(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        tukey=TUKEY(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                         tukeygrafico1[[i]]=tukey$groups[levels(trati),2]
                         }
@@ -479,7 +439,8 @@ FAT3DBC=function(f1,
                 if (mcomp == "duncan"){
                     duncangrafico1=c()
                     for (i in 1:nv1) {
-                        trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
+                        trati=fatores[, 2][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator1 == lf1[i]]
                         duncan=duncan(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         if(transf !="1"){duncan$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
@@ -490,7 +451,8 @@ FAT3DBC=function(f1,
                 if (mcomp == "lsd"){
                     lsdgrafico1=c()
                     for (i in 1:nv1) {
-                        trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
+                        trati=fatores[, 2][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator1 == lf1[i]]
                         lsd=LSD(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         if(transf !="1"){lsd$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
@@ -512,16 +474,12 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                        # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                         if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
                         skgrafico1[[i]]=sk[levels(trati),2]
                         }
                     letra1=unlist(skgrafico1)
                     letra1=toupper(letra1)}}
 
-        # -----------------------------
-        # Gráfico de colunas
-        #------------------------------
         if(quali[1] & quali[2]==TRUE){
                     f1=rep(levels(Fator1),e=length(levels(Fator2)))
                     f2=rep(unique(as.character(Fator2)),length(levels(Fator2)))
@@ -569,10 +527,10 @@ FAT3DBC=function(f1,
             if(quali[1]==FALSE){
                 if (mcomp == "tukey"){
                     for (i in 1:nv1) {
-                        trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
+                        trati=fatores[, 2][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator1 == lf1[i]]
-                        mod=aov(respi~trati)
-                        tukey=TUKEY(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        tukey=TUKEY(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                         cat("\n----------------------\n")
                         cat("Multiple comparison of F2 within level",lf1[i],"of F1")
@@ -580,7 +538,8 @@ FAT3DBC=function(f1,
                         print(tukey$groups)}}
                 if (mcomp == "duncan"){
                     for (i in 1:nv1) {
-                        trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
+                        trati=fatores[, 2][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator1 == lf1[i]]
                         duncan=duncan(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         if(transf !="1"){duncan$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(duncan$groups)]}
@@ -590,7 +549,8 @@ FAT3DBC=function(f1,
                         print(duncan$groups)}}
                 if (mcomp == "lsd"){
                     for (i in 1:nv1) {
-                        trati=as.factor(fatores[, 2][Fator1 == lf1[i]])
+                        trati=fatores[, 2][Fator1 == lf1[i]]
+                        trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator1 == lf1[i]]
                         lsd=LSD(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         if(transf !="1"){lsd$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(lsd$groups)]}
@@ -611,7 +571,6 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                        # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                         if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
                         cat("\n----------------------\n")
                         cat("Multiple comparison of F2 within level",lf1[i],"of F1")
@@ -625,15 +584,15 @@ FAT3DBC=function(f1,
                                     grau = grau,
                                     ylab=ylab,
                                     xlab=xlab,
-                                    theme=theme)}
+                                    theme=theme,
+                                    DFres= anavaF3[9,1],SSq = anavaF3[9,2])}
             if(quali[2]==FALSE){
                 if (mcomp == "tukey"){
                     for (i in 1:nv2) {
                         trati=fatores[, 1][Fator2 == lf2[i]]
                         trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator2 == lf2[i]]
-                        mod=aov(respi~trati)
-                        tukey=TUKEY(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        tukey=TUKEY(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         cat("\n----------------------\n")
                         cat("Multiple comparison of F1 within level",lf2[i],"of F2")
                         cat("\n----------------------\n")
@@ -673,7 +632,6 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                        # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                         if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
                         cat("\n----------------------\n")
                         cat("Multiple comparison of F1 within level",lf2[i],"of F2")
@@ -688,16 +646,15 @@ FAT3DBC=function(f1,
                                     grau = grau,
                                     ylab=ylab,
                                     xlab=xlab,
-                                    theme=theme)}
+                                    theme=theme,
+                                    DFres= anavaF3[9,1],SSq = anavaF3[9,2])}
             cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))}
 
-        #Checar o Fator3
         if(anavaF3[6,5]>alpha.f && anavaF3[7,5]>alpha.f) {
 
 
                 i<-3
                 {
-                    #Para os fatores QUALITATIVOS, teste de Tukey
                     if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
                         cat(green(bold("\n------------------------------------------\n")))
                         cat(green(italic('Analyzing the simple effects of the factor ',fac.names[i])))
@@ -716,11 +673,6 @@ FAT3DBC=function(f1,
                                           QME = anavaF3[9,3],
                                           alpha = alpha.t)
                             letra1=data.frame(resp=medias,groups=sk)
-                            # ad=data.frame(Fator1,Fator2,Fator3)
-                            #
-                            # letra=SK(anava,colnames(ad[i]))
-                            # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-                            # letra1$resp=as.numeric(letra1$resp)
                             if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
                         if(mcomp=="duncan"){
                             ad=data.frame(Fator1,Fator2,Fator3)
@@ -775,30 +727,25 @@ FAT3DBC=function(f1,
 
                         }
 
-                    #Para os fatores QUANTITATIVOS, regressao
                     if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
                         cat(green(bold("\n------------------------------------------\n")))
                         cat('Analyzing the simple effects of the factor ',fac.names[3])
                         cat(green(bold("\n------------------------------------------\n")))
                         cat(fac.names[i])
-                        grafico1=polynomial(resp, fatores[,i])
+                        grafico1=polynomial(resp, fatores[,i],grau=grau,
+                                            DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)
                         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))}
                 }
             }
 
-    #####################################################################################################
-    #Interacao Fator1*Fator3       + fator2
-    #####################################################################################################
     if(anavaF3[8,5]>alpha.f && anavaF3[6,5]<=alpha.f){
     cat(green(bold("\n------------------------------------------\n")))
         cat(green(bold("Interaction",paste(fac.names[1],'*',fac.names[3],sep='')," significant: unfolding the interaction")))
     cat(green(bold("\n------------------------------------------")))
-
-        #Desdobramento de FATOR 1 dentro do niveis de FATOR 3
         cat(green(bold("\n------------------------------------------\n")))
         cat("Analyzing ", fac.names[1], ' within the combination of levels ', fac.names[3])
         cat(green(bold("\n------------------------------------------\n")))
-        des<-aov(resp~Fator3/Fator1+Fator2+Fator3+Fator2:Fator3+Fator1:Fator2:Fator3)
+        des<-aov(resp~Fator3/Fator1+Fator2+Fator3+Fator2:Fator3+Fator1:Fator2:Fator3+bloco)
         l<-vector('list',nv3)
         names(l)<-names(summary(Fator3))
         v<-numeric(0)
@@ -808,10 +755,9 @@ FAT3DBC=function(f1,
             v<-numeric(0)
         }
         des1<-summary(des,split=list('Fator3:Fator1'=l))[[1]]
-        des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+        des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
         print(des1a)
 
-        # Teste de Tukey
         if(quali[1]==TRUE & quali[3]==TRUE){
         if (mcomp == "tukey"){
             tukeygrafico=c()
@@ -876,7 +822,6 @@ FAT3DBC=function(f1,
                               QME = anavaF3$`Mean Sq`[9],
                               alpha = alpha.t)
                 sk=data.frame(respi=medias,groups=sk)
-                # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                 skgrafico[[i]]=sk[levels(trati),2]
                 ordem[[i]]=rownames(sk[levels(trati),])
                 }
@@ -886,12 +831,10 @@ FAT3DBC=function(f1,
             datag=datag[order(datag$ordem),]
             letra=datag$letra}}
 
-        # Desdobramento de F3 dentro de F1
-
         cat(green(bold("\n------------------------------------------\n")))
         cat("Analyzing ", fac.names[3], " inside of the level of ",fac.names[1])
         cat(green(bold("\n------------------------------------------\n")))
-        des<-aov(resp~Fator1/Fator3+Fator1+Fator2+Fator2:Fator1+Fator1:Fator2:Fator3)
+        des<-aov(resp~Fator1/Fator3+Fator1+Fator2+Fator2:Fator1+Fator1:Fator2:Fator3+bloco)
         l<-vector('list',nv1)
         names(l)<-names(summary(Fator1))
         v<-numeric(0)
@@ -901,12 +844,9 @@ FAT3DBC=function(f1,
                 v<-numeric(0)
             }
         des1<-summary(des,split=list('Fator1:Fator3'=l))[[1]]
-        des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+        des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
         print(des1a)
 
-        #-------------------------------------
-        # Teste de Tukey
-        #-------------------------------------
         if(quali[1]==TRUE & quali[3]==TRUE){
         if (mcomp == "tukey"){
                     tukeygrafico1=c()
@@ -914,8 +854,7 @@ FAT3DBC=function(f1,
                         trati=fatores[, 3][Fator1 == lf1[i]]
                         trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator1 == lf1[i]]
-                        mod=aov(respi~trati)
-                        tukey=TUKEY(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        tukey=TUKEY(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         tukeygrafico1[[i]]=tukey$groups[levels(trati),2]
                         }
                     letra1=unlist(tukeygrafico1)
@@ -964,16 +903,11 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                        # mod=aov(respi~trati)
-                        # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                         skgrafico1[[i]]=sk[levels(trati),2]
                         }
                     letra1=unlist(skgrafico1)
                     letra1=toupper(letra1)}}
 
-        # -----------------------------
-        # Gráfico de colunas
-        #------------------------------
         if(quali[1] & quali[3]==TRUE){
         f1=rep(levels(Fator1),e=length(levels(Fator3)))
         f3=rep(unique(as.character(Fator3)),length(levels(Fator1)))
@@ -1028,8 +962,7 @@ FAT3DBC=function(f1,
                         trati=fatores[, 3][Fator1 == lf1[i]]
                         trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator1 == lf1[i]]
-                        mod=aov(respi~trati)
-                        tukey=TUKEY(mod,"trati",anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
+                        tukey=TUKEY(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                         cat("\n----------------------\n")
                         cat("Multiple comparison of F3 within level",lf1[i],"of F1")
@@ -1070,8 +1003,6 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                        # mod=aov(respi~trati)
-                        # sk=sk(respi,trati,anavaF3$Df[8],anavaF3$`Mean Sq`[8],alpha.t)
                         if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
                         cat("\n----------------------\n")
                         cat("Multiple comparison of F3 within level",lf1[i],"of F1")
@@ -1085,7 +1016,8 @@ FAT3DBC=function(f1,
                                     grau = grau,
                                     ylab=ylab,
                                     xlab=xlab,
-                                    theme=theme)}
+                                    theme=theme,
+                                    DFres= anavaF3[9,1],SSq = anavaF3[9,2])}
             if(quali[3]==FALSE){
                 if (mcomp == "tukey"){
                     for (i in 1:nv3) {
@@ -1133,7 +1065,6 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                        # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
                         cat("\n----------------------\n")
                         cat("Multiple comparison of F1 within level",lf3[i],"of F3")
@@ -1147,17 +1078,16 @@ FAT3DBC=function(f1,
                                     grau = grau,
                                     ylab=ylab,
                                     xlab=xlab,
-                                    theme=theme)}
+                                    theme=theme,
+                                    DFres= anavaF3[9,1],SSq = anavaF3[9,2])}
         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))
         }
 
-        #Checar o Fator2
         if(anavaF3[5,5]>alpha.f && anavaF3[7,5]>alpha.f) {
 
 
                 i<-2
                 {
-                    #Para os fatores QUALITATIVOS, teste de Tukey
                     if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
                         cat(green(bold("\n------------------------------------------\n")))
                         cat(green(italic('Analyzing the simple effects of the factor ',fac.names[i])))
@@ -1175,10 +1105,6 @@ FAT3DBC=function(f1,
                                           QME = anavaF3[9,3],
                                           alpha = alpha.t)
                             letra1=data.frame(resp=medias,groups=sk)
-                            # ad=data.frame(Fator1,Fator2,Fator3)
-                            # letra=SK(anava,colnames(ad[i]))
-                            # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-                            # letra1$resp=as.numeric(letra1$resp)
                             if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
                         if(mcomp=="duncan"){
                             ad=data.frame(Fator1,Fator2,Fator3)
@@ -1230,13 +1156,13 @@ FAT3DBC=function(f1,
                         print(grafico2)}
                     }
 
-                    #Para os fatores QUANTITATIVOS, regressao
                     if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
                         cat(green(bold("\n------------------------------------------\n")))
                         cat('Analyzing the simple effects of the factor ',fac.names[2])
                         cat(green(bold("\n------------------------------------------\n")))
                         cat(fac.names[i])
-                        grafico2=polynomial(resp, fatores[,i])
+                        grafico2=polynomial(resp, fatores[,i],grau=grau,
+                                            DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)
                         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
                     }
 
@@ -1245,18 +1171,14 @@ FAT3DBC=function(f1,
             }
     }
 
-    ######################################################################################################################
-    #Interacao Fator2*Fator3     + fator1
-    ######################################################################################################################
     if(anavaF3[8,5]>alpha.f && anavaF3[7,5]<=alpha.f){
         cat(green(bold("\n------------------------------------------\n")))
         cat(green(bold("Interaction",paste(fac.names[2],'*',fac.names[3],sep='')," significant: unfolding the interaction")))
         cat(green(bold("\n------------------------------------------\n")))
-        #Desdobramento de FATOR 2 dentro do niveis de FATOR 3
         cat(green(bold("\n------------------------------------------\n")))
         cat("Analyzing ", fac.names[2], ' within the combination of levels ', fac.names[3])
         cat("\n-------------------------------------------------\n")
-        des<-aov(resp~Fator3/Fator2+Fator1+Fator3+Fator1:Fator3+Fator1:Fator2:Fator3)
+        des<-aov(resp~Fator3/Fator2+Fator1+Fator3+Fator1:Fator3+Fator1:Fator2:Fator3+bloco)
         l<-vector('list',nv3)
         names(l)<-names(summary(Fator3))
         v<-numeric(0)
@@ -1266,10 +1188,9 @@ FAT3DBC=function(f1,
             v<-numeric(0)
         }
         des1<-summary(des,split=list('Fator3:Fator2'=l))[[1]]
-        des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+        des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
         print(des1a)
 
-        # Teste de Tukey
         if(quali[2]==TRUE & quali[3]==TRUE){
             if (mcomp == "tukey"){
                 tukeygrafico=c()
@@ -1278,7 +1199,6 @@ FAT3DBC=function(f1,
                     trati=fatores[, 2][Fator3 == lf3[i]]
                     trati=factor(trati,levels = unique(trati))
                     respi=resp[Fator3 == lf3[i]]
-                    mod=aov(respi~trati)
                     tukey=TUKEY(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                     tukeygrafico[[i]]=tukey$groups[levels(trati),2]
                     ordem[[i]]=rownames(tukey$groups[levels(trati),])
@@ -1336,7 +1256,6 @@ FAT3DBC=function(f1,
                                   QME = anavaF3$`Mean Sq`[9],
                                   alpha = alpha.t)
                     sk=data.frame(respi=medias,groups=sk)
-                    # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                     skgrafico[[i]]=sk[levels(trati),2]
                     ordem[[i]]=rownames(sk[levels(trati),])
                     }
@@ -1346,13 +1265,11 @@ FAT3DBC=function(f1,
                 datag=datag[order(datag$ordem),]
                 letra=datag$letra}}
 
-        # Desdobramento de F2 dentro de F1
-
             cat(green(bold("\n------------------------------------------\n")))
             cat("Analyzing ", fac.names[3], " inside of the level of ",fac.names[2])
             cat(green(bold("\n------------------------------------------\n")))
             cat("\n")
-            des<-aov(resp~Fator2/Fator3+Fator1+Fator2+Fator1:Fator2+Fator1:Fator2:Fator3)
+            des<-aov(resp~Fator2/Fator3+Fator1+Fator2+Fator1:Fator2+Fator1:Fator2:Fator3+bloco)
             l<-vector('list',nv2)
             names(l)<-names(summary(Fator2))
             v<-numeric(0)
@@ -1362,12 +1279,9 @@ FAT3DBC=function(f1,
                 v<-numeric(0)
             }
             des1<-summary(des,split=list('Fator2:Fator3'=l))[[1]]
-            des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+            des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
             print(des1a)
 
-            #-------------------------------------
-            # Teste de Tukey
-            #-------------------------------------
             if(quali[2]==TRUE & quali[3]==TRUE){
                 if (mcomp == "tukey"){
                     tukeygrafico1=c()
@@ -1375,7 +1289,6 @@ FAT3DBC=function(f1,
                         trati=fatores[, 3][Fator2 == lf2[i]]
                         trati=factor(trati,levels = unique(trati))
                         respi=resp[Fator2 == lf2[i]]
-                        mod=aov(respi~trati)
                         tukey=TUKEY(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                         tukeygrafico1[[i]]=tukey$groups[levels(trati),2]
                         }
@@ -1417,15 +1330,11 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                        # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                         skgrafico1[[i]]=sk[levels(trati),2]
                         }
                     letra1=unlist(skgrafico1)
                     letra1=toupper(letra1)}}
 
-            # -----------------------------
-            # Gráfico de colunas
-            #------------------------------
             if(quali[2] & quali[3]==TRUE){
                 f2=rep(levels(Fator2),e=length(levels(Fator3)))
                 f3=rep(unique(as.character(Fator3)),length(levels(Fator2)))
@@ -1477,7 +1386,6 @@ FAT3DBC=function(f1,
                             trati=fatores[, 3][Fator2 == lf2[i]]
                             trati=factor(trati,levels = unique(trati))
                             respi=resp[Fator2 == lf2[i]]
-                            mod=aov(respi~trati)
                             tukey=TUKEY(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                             if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                             cat("\n----------------------\n")
@@ -1519,7 +1427,6 @@ FAT3DBC=function(f1,
                                           QME = anavaF3$`Mean Sq`[9],
                                           alpha = alpha.t)
                             sk=data.frame(respi=medias,groups=sk)
-                            # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                             if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
                             cat("\n----------------------\n")
                             cat("Multiple comparison of F3 within level",lf2[i],"of F2")
@@ -1533,14 +1440,14 @@ FAT3DBC=function(f1,
                                         grau = grau,
                                         ylab=ylab,
                                         xlab=xlab,
-                                        theme=theme)}
+                                        theme=theme,
+                                        DFres= anavaF3[9,1],SSq = anavaF3[9,2])}
                 if(quali[3]==FALSE){
                     if (mcomp == "tukey"){
                         for (i in 1:nv3) {
                             trati=fatores[, 2][Fator3 == lf3[i]]
                             trati=factor(trati,levels = unique(trati))
                             respi=resp[Fator3 == lf3[i]]
-                            mod=aov(respi~trati)
                             tukey=TUKEY(respi,trati,anavaF3$Df[9],anavaF3$`Mean Sq`[9],alpha.t)
                             if(transf !="1"){tukey$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(tukey$groups)]}
                             cat("\n----------------------\n")
@@ -1582,7 +1489,6 @@ FAT3DBC=function(f1,
                                           QME = anavaF3$`Mean Sq`[9],
                                           alpha = alpha.t)
                             sk=data.frame(respi=medias,groups=sk)
-                            # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
                             if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
                             cat("\n----------------------\n")
                             cat("Multiple comparison of F2 within level",lf3[i],"of F3")
@@ -1596,7 +1502,8 @@ FAT3DBC=function(f1,
                                         grau = grau,
                                         ylab=ylab,
                                         xlab=xlab,
-                                        theme=theme)}
+                                        theme=theme,
+                                        DFres= anavaF3[9,1],SSq = anavaF3[9,2])}
 
                 cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))
             }
@@ -1607,7 +1514,6 @@ FAT3DBC=function(f1,
 
                 i<-1
                 {
-                    #Para os fatores QUALITATIVOS, teste de Tukey
                     if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
                         cat(green(bold("\n------------------------------------------\n")))
                         cat(green(italic('Analyzing the simple effects of the factor ',fac.names[i])))
@@ -1625,10 +1531,6 @@ FAT3DBC=function(f1,
                                           QME = anavaF3[9,3],
                                           alpha = alpha.t)
                             letra1=data.frame(resp=medias,groups=sk)
-                            # ad=data.frame(Fator1,Fator2,Fator3)
-                            # letra=SK(anava,colnames(ad[i]))
-                            # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-                            # letra1$resp=as.numeric(letra1$resp)
                             if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
                         if(mcomp=="duncan"){
                             ad=data.frame(Fator1,Fator2,Fator3)
@@ -1681,13 +1583,13 @@ FAT3DBC=function(f1,
                         print(grafico3)}
                     }
 
-                    #Para os fatores QUANTITATIVOS, regressao
                     if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
                         cat(green(bold("\n------------------------------------------\n")))
                         cat('\nAnalyzing the simple effects of the factor ',fac.names[1],'\n')
                         cat(green(bold("\n------------------------------------------\n")))
                         cat(fac.names[i])
-                        grafico3=polynomial(resp, fatores[,i])
+                        grafico3=polynomial(resp, fatores[,i],grau=grau,
+                                            DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)
                         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
                     }
 
@@ -1696,17 +1598,10 @@ FAT3DBC=function(f1,
             }
         }
 
-    #########################################################################################################################
-    #Para interacao tripla significativa, desdobramento
-    #########################################################################################################################
     if(anavaF3[8,5]<=alpha.f){
         cat(green(bold("\n------------------------------------------\n")))
         cat(green(bold("\nInteraction",paste(fac.names[1],'*',fac.names[2],'*',fac.names[3],sep='')," significant: unfolding the interaction\n")))
         cat(green(bold("\n------------------------------------------\n")))
-        #===================================================================
-        #Desdobramento de FATOR 1 dentro do niveis de FATOR 2 e do FATOR3
-        #===================================================================
-
         cat(green(bold("\n------------------------------------------\n")))
         cat("Analyzing ", fac.names[1], ' within the combination of levels ', fac.names[2], 'and',fac.names[3])
         cat(green(bold("\n------------------------------------------\n")))
@@ -1729,7 +1624,6 @@ FAT3DBC=function(f1,
         for(i in 1:nv2) {
             for(j in 1:nv3) {
                 ii<-ii+1
-                # if(1-pf(QM/QME,glf,glE)[ii]<=alpha.f){
                 if(quali[1]==TRUE){
                     cat('\n\n',fac.names[1],' inside of each level of ',lf2[i],' of ',fac.names[2],' and ',lf3[j],' of ',fac.names[3],"\n")
                     if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
@@ -1772,27 +1666,22 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                    #     sk=sk(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
-                    #                 fat1,
-                    #                 anavaF3$Df[9],
-                    #                 anavaF3$`Sum Sq`[9],
-                    #                 alpha.t)
-                    # colnames(sk)=c("resp","letters")
                     sk=sk[as.character(unique(fat1)),]
                     rownames(sk)=unique(fat)
                     if(transf !=1){sk$respo=tapply(response[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                                                    fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],mean, na.rm=TRUE)[rownames(sk)]}
-                    # rownames(tukey)=levels(Fator1)[as.numeric(as.character(rownames(tukey)))]
                     print(sk)}
-                    }
+                }
+                if(quali[1]==FALSE){
+                    cat('\n',fac.names[1],' within the combination of levels ',lf2[i],' of  ',fac.names[2],' and ',lf3[j],' of  ',fac.names[3],"\n")
+                    polynomial(fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
+                               resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
+                               grau=grau,
+                               DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)}
                 }
         }
 
         cat('\n\n')
-
-        #===================================================================
-        #Desdobramento de FATOR 2 dentro do niveis de FATOR 1 e FATOR 3
-        #===================================================================
 
         cat("\n------------------------------------------\n")
         cat("Analyzing ", fac.names[2], ' within the combination of levels ', fac.names[1], 'and',fac.names[3])
@@ -1815,7 +1704,6 @@ FAT3DBC=function(f1,
         for(k in 1:nv1) {
             for(j in 1:nv3) {
                 ii<-ii+1
-                #if(1-pf(QM/QME,glf,glE)[ii]<=alpha.f){
                 if(quali[2]==TRUE){
                     cat('\n\n',fac.names[2],' inside of each level of ',lf1[k],' of ',fac.names[1],' and ',lf3[j],' of ',fac.names[3],'\n')
                     if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
@@ -1859,26 +1747,21 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                    #
-                    #     sk=sk(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
-                    #                               fat1,
-                    #                               anavaF3$`Sum Sq`[9],
-                    #                               anavaF3$`Sum Sq`[9],
-                    #                               alpha.t)
-                    # colnames(sk)=c("resp","letters")
                     sk=sk[as.character(unique(fat1)),]
                     rownames(sk)=unique(fat)
                     if(transf !=1){sk$respo=tapply(response[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                                                    fatores[,2][Fator1==lf1[k]  & fatores[,3]==lf3[j]],mean, na.rm=TRUE)[rownames(sk)]}
                     print(sk)}
 
-                    }
+                }
+                if(quali[2]==FALSE){
+                    cat('\n\n',fac.names[2],' within the combination of levels ',lf1[k],' of  ',fac.names[1],' and ',lf3[j],' of  ',fac.names[3],'\n')
+                    polynomial(fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
+                               resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
+                               grau=grau,
+                               DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)}
                 }
         }
-
-        #===================================================================
-        #Desdobramento de FATOR 3 dentro do niveis de FATOR 1 e FATOR 2
-        #===================================================================
 
         cat(green(bold("\n------------------------------------------\n")))
         cat("Analyzing ", fac.names[3], ' within the combination of levels ', fac.names[1], 'and',fac.names[2])
@@ -1902,7 +1785,6 @@ FAT3DBC=function(f1,
         for(k in 1:nv1) {
             for(i in 1:nv2) {
                 ii<-ii+1
-                # if(1-pf(QM/QME,glf,glE)[ii]<=alpha.f){
                 if(quali[3]==TRUE){
                     cat('\n\n',fac.names[3],' inside of each level of ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of ',fac.names[2],'\n')
                     if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
@@ -1948,11 +1830,6 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                        # sk=sk(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
-                        #                          fat1,
-                        #                          anavaF3$Df[9],
-                        #                          anavaF3$`Sum Sq`[9],
-                        #                          alpha.t)
                     colnames(sk)=c("resp","letters")
                     sk=sk[as.character(unique(fat1)),]
                     rownames(sk)=unique(fat)
@@ -1961,7 +1838,13 @@ FAT3DBC=function(f1,
                                                    mean, na.rm=TRUE)[rownames(sk)]}
                     print(sk)}
 
-                    }
+                }
+                if(quali[3]==FALSE){
+                    cat('\n\n',fac.names[3],' inside of each level of ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of ',fac.names[2],'\n')
+                    polynomial(fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
+                               resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
+                               grau=grau,
+                               DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)}
                 }
         }
 

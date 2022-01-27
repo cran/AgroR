@@ -192,7 +192,7 @@ FAT2DIC.ad=function(f1,
     statistic=homog1$`F value`[1]
     phomog=homog1$`Pr(>F)`[1]
     method="Levene's Test (center = median)(F)"
-    names(homog1)=c("Df", "F value","p.value")}
+    names(homog1)=c("Df", "statistic","p.value")}
 
   indep = dwtest(b)
   resids=b$residuals/sqrt(an$`Mean Sq`[4])
@@ -273,11 +273,6 @@ FAT2DIC.ad=function(f1,
     message("\nYour analysis is not valid, suggests using the function FATDIC.art\n")}else{}
   message(if(transf !=1){blue("NOTE: resp = transformed means; respO = averages without transforming\n")})
 
-
-  #------------------------------------
-  # Fatores isolados
-  #------------------------------------
-
   if (anava$`Pr(>F)`[3] > alpha.f)
   { cat(green(bold("-----------------------------------------------------------------\n")))
     cat(green(bold("No significant interaction")))
@@ -309,8 +304,6 @@ FAT2DIC.ad=function(f1,
                         QME = anava$`Mean Sq`[5],
                         alpha = alpha.t)
           letra1=data.frame(resp=medias,groups=sk)
-          # letra=sk(resp, fatores[,i], anava$Df[5],anava$`Sum Sq`[5],alpha.t)
-          # letra1 <- letra; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="duncan"){
           letra <- duncan(resp, fatores[,i],anava$Df[5],anava$`Mean Sq`[5], alpha=alpha.t)
@@ -359,9 +352,6 @@ FAT2DIC.ad=function(f1,
                 axis.text = element_text(size=textsize,color="black",family=family),
                 axis.title = element_text(size=textsize,color="black",family=family))}
 
-        # ================================
-        # grafico de pontos
-        # ================================
         if(geom=="point"){grafico=ggplot(dadosm,
                                          aes(x=trats,
                                              y=media))
@@ -387,7 +377,7 @@ FAT2DIC.ad=function(f1,
                 axis.text = element_text(size=textsize,color="black",family=family),
                 axis.title = element_text(size=textsize,color="black",family=family))}
         grafico=grafico+
-          geom_hline(aes(color=ad.label,group=ad.label,yintercept=mean(responseAd,na.rm=T)),lty=2)+
+          geom_hline(aes(color=ad.label,group=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
           scale_color_manual(values = "black")+labs(color="")
 
         if(CV==TRUE){grafico=grafico+labs(caption=paste("p-value = ", if(anava$`Pr(>F)`[i]<0.0001){paste("<", 0.0001)}
@@ -442,21 +432,11 @@ FAT2DIC.ad=function(f1,
       print(tapply(response,list(fator1,fator2),mean, na.rm=TRUE))}
   }
 
-  #-----------------------------------
-  # Interação
-  #-----------------------------------
-
-  # Desdobramento de F1 dentro de F2
-
   if (anava$`Pr(>F)`[3]  <= alpha.f) {
     fatores <- data.frame(Fator1, Fator2)
     cat(green(bold("-----------------------------------------------------------------\n")))
     cat(green(bold("Significant interaction: analyzing the interaction")))
     cat(green(bold("\n-----------------------------------------------------------------\n")))
-    # cat("\n-----------------------------------------------------------------\n")
-    # cat("Analyzing ", fac.names[1], " inside of each level of ",fac.names[2])
-    # cat("\n-----------------------------------------------------------------\n")
-    # cat("\n")
     des1<-aov(resp~Fator2/Fator1)
 
     l1<-vector('list',nv2)
@@ -475,9 +455,6 @@ FAT2DIC.ad=function(f1,
     print(des1.tab)
     desdobramento1=des1.tab
     if(quali[1]==TRUE & quali[2]==TRUE){
-      #-------------------------------------
-      # Teste de comparação
-      #-------------------------------------
       if (mcomp == "tukey"){
         tukeygrafico=c()
         ordem=c()
@@ -544,7 +521,6 @@ FAT2DIC.ad=function(f1,
                         QME = anava$`Mean Sq`[5],
                         alpha = alpha.t)
           sk=data.frame(respi=medias,groups=sk)
-          # sk=sk(respi,trati,anava$Df[5],anava$`Sum Sq`[5],alpha.t)
           if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
           skgrafico[[i]]=sk[levels(trati),2]
           ordem[[i]]=rownames(sk[levels(trati),])
@@ -555,8 +531,6 @@ FAT2DIC.ad=function(f1,
         datag=datag[order(datag$ordem),]
         letra=datag$letra}
     }
-
-    # Desdobramento de F2 dentro de F1
 
     cat("\n-----------------------------------------------------------------\n")
     cat("Analyzing ", fac.names[2], " inside of the level of ",fac.names[1])
@@ -580,9 +554,6 @@ FAT2DIC.ad=function(f1,
     print(des1.tab)
     desdobramento2=des1.tab
 
-    #-------------------------------------
-    # Teste de comparação
-    #-------------------------------------
     if(quali[1]==TRUE & quali[2]==TRUE){
       if (mcomp == "tukey"){
         tukeygrafico1=c()
@@ -631,7 +602,6 @@ FAT2DIC.ad=function(f1,
                         QME = anava$`Mean Sq`[5],
                         alpha = alpha.t)
           sk=data.frame(respi=medias,groups=sk)
-          # sk=sk(respi,trati,anava$Df[6],anava$`Sum Sq`[6],alpha.t)
           if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
           skgrafico1[[i]]=sk[levels(trati),2]
         }
@@ -640,7 +610,7 @@ FAT2DIC.ad=function(f1,
 
     if(quali[1]==FALSE && color=="gray"| quali[2]==FALSE && color=="gray"){
       if(quali[2]==FALSE){
-        Fator2=fator2a#as.numeric(as.character(Fator2))
+        Fator2=fator2a
         grafico=polynomial2(Fator2,response,Fator1,
                             grau = grau,
                             ylab=ylab,
@@ -653,7 +623,7 @@ FAT2DIC.ad=function(f1,
                             family=family,
                             ylim=ylim)}
       if(quali[2]==TRUE){
-        Fator1=fator1a#as.numeric(as.character(Fator1))
+        Fator1=fator1a
         grafico=polynomial2(Fator1,
                             response,
                             Fator2,
@@ -670,7 +640,7 @@ FAT2DIC.ad=function(f1,
     }
     if(quali[1]==FALSE && color=="rainbow"| quali[2]==FALSE && color=="rainbow"){
       if(quali[2]==FALSE){
-        Fator2=fator2a#as.numeric(as.character(Fator2))
+        Fator2=fator2a
         grafico=polynomial2_color(Fator2,
                                   response,
                                   Fator1,
@@ -685,7 +655,7 @@ FAT2DIC.ad=function(f1,
                                   family=family,
                                   ylim=ylim)}
       if(quali[2]==TRUE){
-        Fator1=fator1a#as.numeric(as.character(Fator1))
+        Fator1=fator1a
         grafico=polynomial2_color(Fator1,
                                   response,
                                   Fator2,
@@ -700,9 +670,6 @@ FAT2DIC.ad=function(f1,
                                   family=family,
                                   ylim=ylim)}
     }
-    # -----------------------------
-    # Gráfico de colunas
-    #------------------------------
     if(quali[1] & quali[2]==TRUE){
       media=tapply(response,list(Fator1,Fator2), mean, na.rm=TRUE)
       desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)
@@ -758,7 +725,7 @@ FAT2DIC.ad=function(f1,
                           legend.text = element_text(family = family,size=textsize),
                           legend.title = element_text(family = family,size=textsize),
                           legend.position = posi)+labs(fill=legend)+
-        geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=T)),lty=2)+
+        geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
         scale_color_manual(values = "black")+labs(color="")
       if(CV==TRUE){colint=colint+labs(caption=paste("p-value ", if(anava$`Pr(>F)`[3]<0.0001){paste("<", 0.0001)}
                                                     else{paste("=", round(anava$`Pr(>F)`[3],4))},"; CV = ",

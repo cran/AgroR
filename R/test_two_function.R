@@ -8,12 +8,15 @@
 #' @param test Test used (t for test t or w for Wilcoxon test)
 #' @param alternative A character string specifying the alternative hypothesis, must be one of "two.sided" (default), "greater" or "less". You can specify just the initial letter.
 #' @param paired A logical indicating whether you want a paired t-test.
+#' @param correct A logical indicating whether to apply continuity correction in the normal approximation for the p-value.
 #' @param var.equal A logical variable indicating whether to treat the two variances as being equal. If TRUE then the pooled variance is used to estimate the variance otherwise the Welch (or Satterthwaite) approximation to the degrees of freedom is used.
 #' @param conf.level Confidence level of the interval.
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param pointsize Point size
+#' @param yposition.p Position p-value in y
+#' @param xposition.p Position p-value in x
 #' @param fill fill box
 #' @details Alternative = "greater" is the alternative that x has a larger mean than y. For the one-sample case: that the mean is positive.
 #' @details If paired is TRUE then both x and y must be specified and they must be the same length. Missing values are silently removed (in pairs if paired is TRUE). If var.equal is TRUE then the pooled estimate of the variance is used. By default, if var.equal is FALSE then the variance is estimated separately for both groups and the Welch modification to the degrees of freedom is used.
@@ -27,28 +30,34 @@
 #' test_two(trat,resp,paired = TRUE)
 
 test_two=function(trat,
-                resp,
-                paired=FALSE,
-                test="t",
-                alternative = c("two.sided", "less", "greater"),
-                conf.level=0.95,
-                theme=theme_classic(),
-                ylab="Response",
-                xlab="",
-                var.equal=FALSE,
-                pointsize=2,
-                fill="white"){
-  if(test=="t"){teste=t.test(resp~trat,
-                paired=paired,
-                alternative=alternative,
-                conf.level=conf.level,
-                var.equal=var.equal)}
+                  resp,
+                  paired = FALSE,
+                  correct = TRUE,
+                  test = "t",
+                  alternative = c("two.sided", "less", "greater"),
+                  conf.level = 0.95,
+                  theme = theme_classic(),
+                  ylab = "Response",
+                  xlab = "",
+                  var.equal = FALSE,
+                  pointsize = 2,
+                  yposition.p=NA,
+                  xposition.p=NA,
+                  fill = "white"){
+  if(test=="t"){teste = t.test(
+    resp ~ trat,
+    paired = paired,
+    correct = correct,
+    alternative = alternative,
+    conf.level = conf.level,
+    var.equal = var.equal)}
   if(test=="w"){teste=wilcox.test(resp~trat,
-                              paired=paired,
-                              alternative=alternative,
-                              conf.level=conf.level,
-                              var.equal=var.equal,
-                              exact=FALSE)}
+                                  paired = paired,
+                                  alternative = alternative,
+                                  conf.level = conf.level,
+                                  correct = correct,
+                                  var.equal = var.equal,
+                                  exact = FALSE)}
   dados=data.frame(resp,trat)
   media=data.frame(media=tapply(resp,trat,mean, na.rm=TRUE))
   media$trat=rownames(media)
@@ -63,11 +72,15 @@ test_two=function(trat,
                             label=round(media,2)),fill="lightyellow")+
   theme+ylab(ylab)+xlab(xlab)+
   theme(axis.text = element_text(size=12,color="black"))
-  if(teste$p.value<0.001){grafico=grafico+annotate(geom="text",
-           x=1.5,y=min(resp),hjust=0.5,vjust=0,
+
+  if(is.na(yposition.p)==TRUE){yposition.p=min(resp)}
+  if(is.na(xposition.p)==TRUE){xposition.p=1.5}
+  if(teste$p.value<0.001){grafico=grafico+
+    annotate(geom="text",
+           x=xposition.p,y=yposition.p,hjust=0.5,vjust=0,
            label="italic(\"p-value <0.001\")",parse=TRUE)}
   if(teste$p.value>0.001){grafico=grafico+
-    annotate(geom="text",x=1.5,y=min(resp),hjust=0.5,vjust=0,
+    annotate(geom="text",x=xposition.p,y=yposition.p,hjust=0.5,vjust=0,
              label=pvalor,parse=TRUE)}
   print(teste)
   print(grafico)

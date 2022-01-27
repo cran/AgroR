@@ -128,11 +128,6 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
  - `FAT2DIC.ad`: DIC experiment in double factorial design with an additional treatment
  - `FAT2DBC.ad`: DBC experiment in double factorial design with an additional treatment
  
-*Analysis of double factorial design experiments in DIC or DBC by non-parametric aligned ranks Anova method*
-
- - `FAT2DIC.art`: Analysis of Variance of Aligned Rank Transformed Data in FAT2DIC
- - `FAT2DBC.art`: Analysis of Variance of Aligned Rank Transformed Data in FAT2DBC
-
 *Analysis of DIC or DBC experiments in a factorial scheme with three factors*
 
  - `FAT3DIC`: DIC experiments in triple factorial
@@ -150,6 +145,10 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
 *Dunnett's Test for Comparison of Control vs. Treatments*
  
  - `dunnett`: Dunnett test
+
+* Dunn's non-parametric test
+
+- `dunn`: Dunn test
 
 *Logistic regression 3 or 4 parameters*
 
