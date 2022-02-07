@@ -16,18 +16,22 @@ FAT2DIC.ad(
   alpha.t = 0.05,
   quali = c(TRUE, TRUE),
   mcomp = "tukey",
-  grau = NA,
+  grau = c(NA, NA),
+  grau12 = NA,
+  grau21 = NA,
   transf = 1,
   constant = 0,
   geom = "bar",
   theme = theme_classic(),
   ylab = "Response",
   xlab = "",
+  xlab.factor = c("F1", "F2"),
   legend = "Legend",
   ad.label = "Additional",
   color = "rainbow",
   fill = "lightblue",
   textsize = 12,
+  labelsize = 4,
   addmean = TRUE,
   errorbar = TRUE,
   CV = TRUE,
@@ -64,7 +68,11 @@ FAT2DIC.ad(
 
 \item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD and Duncan)}
 
-\item{grau}{Degree of polynomial in case of quantitative factor (\emph{default} is 1)}
+\item{grau}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.}
+
+\item{grau12}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.}
+
+\item{grau21}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.}
 
 \item{transf}{Applies data transformation (default is 1; for log consider 0)}
 
@@ -78,6 +86,8 @@ FAT2DIC.ad(
 
 \item{xlab}{Treatments name (Accepts the \emph{expression}() function)}
 
+\item{xlab.factor}{Provide a vector with two observations referring to the x-axis name of factors 1 and 2, respectively, when there is an isolated effect of the factors. This argument uses `parse`.}
+
 \item{legend}{Legend title name}
 
 \item{ad.label}{Aditional label}
@@ -87,6 +97,8 @@ FAT2DIC.ad(
 \item{fill}{Defines chart color (to generate different colors for different treatments, define fill = "trat")}
 
 \item{textsize}{Font size}
+
+\item{labelsize}{Label Size}
 
 \item{addmean}{Plot the average value on the graph (\emph{default} is TRUE)}
 

@@ -15,17 +15,21 @@
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param transf Applies data transformation (default is 1; for log consider 0)
 #' @param constant Add a constant for transformation (enter value)
-#' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
+#' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.
+#' @param grau12 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.
+#' @param grau21 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.
 #' @param geom Graph type (columns or segments (For simple effect only))
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
+#' @param xlab.factor Provide a vector with two observations referring to the x-axis name of factors 1 and 2, respectively, when there is an isolated effect of the factors. This argument uses `parse`.
 #' @param posi Legend position
 #' @param legend Legend title name
 #' @param ylim y-axis scale
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
 #' @param angle x-axis scale text rotation
 #' @param textsize font size
+#' @param labelsize label size
 #' @param dec number of cells
 #' @param family font family
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
@@ -95,17 +99,21 @@ FAT2DBC=function(f1,
                  alpha.t = 0.05,
                  quali = c(TRUE, TRUE),
                  mcomp = "tukey",
-                 grau = NA,
+                 grau=c(NA,NA), # isolado e interação tripla
+                 grau12=NA, # F1/F2
+                 grau21=NA, # F2/F1
                  transf = 1,
                  constant = 0,
                  geom = "bar",
                  theme = theme_classic(),
                  ylab = "Response",
                  xlab = "",
+                 xlab.factor=c("F1","F2"),
                  legend = "Legend",
                  fill = "lightblue",
                  angle = 0,
                  textsize = 12,
+                 labelsize=4,
                  dec = 3,
                  family = "sans",
                  point = "mean_sd",
@@ -180,9 +188,9 @@ FAT2DBC=function(f1,
     geom_point(shape=21,color="gray",fill="gray",size=3)+
     labs(x="",y="Standardized residuals")+
     geom_text(x=1:length(resids),label=1:length(resids),
-              color=Ids,size=4)+
+              color=Ids,size=labelsize)+
     scale_x_continuous(breaks=1:length(resids))+
-    theme_classic()+theme(axis.text.y = element_text(size=12),
+    theme_classic()+theme(axis.text.y = element_text(size=textsize),
                           axis.text.x = element_blank())+
     geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
 
@@ -277,8 +285,6 @@ FAT2DBC=function(f1,
                         QME = a$`Mean Sq`[5],
                         alpha = alpha.t)
           letra1=data.frame(resp=medias,groups=sk)
-        # letra=SK(b,colnames(fatores[i]))
-        # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
         if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="duncan"){
           letra <- duncan(b, colnames(fatores[i]), alpha=alpha.t)
@@ -308,12 +314,12 @@ FAT2DBC=function(f1,
       else{grafico=grafico+geom_col(aes(fill=trats),fill=fill,color=1)}
       grafico=grafico+theme+
         ylab(ylab)+
-        xlab(xlab)
+        xlab(parse(text = xlab.factor[i]))
       if(errorbar==TRUE){grafico=grafico+
         geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                      label=letra),family=family,angle=angle.label, hjust=hjust)}
+                      label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
       if(errorbar==FALSE){grafico=grafico+geom_text(aes(y=media+sup,
-                                                        label=letra),family=family,angle=angle.label, hjust=hjust)}
+                                                        label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
       if(errorbar==TRUE){grafico=grafico+
         geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                       ymax=media+desvio,color=1),
@@ -335,14 +341,14 @@ FAT2DBC=function(f1,
         geom_point(aes(color=trats),fill="gray",pch=21,color="black",size=5)}
       grafico=grafico+theme+
         ylab(ylab)+
-        xlab(xlab)
+        xlab(parse(text = xlab.factor[i]))
       if(errorbar==TRUE){grafico=grafico+
         geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                      label=letra),
+                      label=letra,size=labelsize),
                   family=family,angle=angle.label, hjust=hjust)}
       if(errorbar==FALSE){grafico=grafico+
         geom_text(aes(y=media+sup,
-                      label=letra),family=family,angle=angle.label, hjust=hjust)}
+                      label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
       if(errorbar==TRUE){grafico=grafico+
         geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                       ymax=media+desvio,color=1),
@@ -366,9 +372,9 @@ FAT2DBC=function(f1,
         dose=as.vector(unlist(fatoresa[i]))
         grafico=polynomial(dose,
                            resp,
-                           grau = grau,
+                           grau = grau[i],
                            ylab=ylab,
-                           xlab=xlab,
+                           xlab=parse(text = xlab.factor[i]),
                            posi=posi,
                            theme=theme,
                            textsize=textsize,
@@ -647,7 +653,7 @@ FAT2DBC=function(f1,
         grafico=polynomial2(Fator2a,
                             response,
                             Fator1,
-                            grau = grau,
+                            grau = grau21,
                             ylab=ylab,
                             xlab=xlab,
                             theme=theme,
@@ -729,7 +735,7 @@ FAT2DBC=function(f1,
         grafico=polynomial2(Fator1a,
                             response,
                             Fator2,
-                            grau = grau,
+                            grau = grau12,
                             ylab=ylab,
                             xlab=xlab,
                             theme=theme,
@@ -815,7 +821,7 @@ FAT2DBC=function(f1,
         grafico=polynomial2_color(Fator2a,
                                   response,
                                   Fator1,
-                                  grau = grau,
+                                  grau = grau21,
                                   ylab=ylab,
                                   xlab=xlab,
                                   theme=theme,
@@ -897,7 +903,7 @@ FAT2DBC=function(f1,
         grafico=polynomial2_color(Fator1a,
                                   response,
                                   Fator2,
-                                  grau = grau,
+                                  grau = grau12,
                                   color=color,
                                   ylab=ylab,
                                   xlab=xlab,
@@ -956,13 +962,13 @@ FAT2DBC=function(f1,
     if(errorbar==TRUE){colint=colint+
       geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                     label=numero),
-                position = position_dodge(width=0.9),family = family,angle=angle.label, hjust=hjust)}
+                position = position_dodge(width=0.9),family = family,angle=angle.label, hjust=hjust,size=labelsize)}
     if(errorbar==FALSE){colint=colint+
       geom_text(aes(y=media+sup,label=numero),
-                position = position_dodge(width=0.9),family = family,angle=angle.label, hjust=hjust)}
-    colint=colint+theme(text=element_text(size=12, family = family),
-                        axis.text = element_text(size=12,color="black", family = family),
-                        axis.title = element_text(size=12,color="black", family = family),
+                position = position_dodge(width=0.9),family = family,angle=angle.label, hjust=hjust,size=labelsize)}
+    colint=colint+theme(text=element_text(size=textsize, family = family),
+                        axis.text = element_text(size=textsize,color="black", family = family),
+                        axis.title = element_text(size=textsize,color="black", family = family),
                         legend.text = element_text(family = family),
                         legend.title = element_text(family = family),
                         legend.position = posi)+labs(fill=legend)

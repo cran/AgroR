@@ -15,11 +15,14 @@
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
-#' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
+#' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.
+#' @param grau12 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.
+#' @param grau21 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.
 #' @param geom Graph type (columns or segments (For simple effect only))
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
+#' @param xlab.factor Provide a vector with two observations referring to the x-axis name of factors 1 and 2, respectively, when there is an isolated effect of the factors. This argument uses `parse`.
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
 #' @param angle x-axis scale text rotation
 #' @param family Font family (\emph{default} is sans)
@@ -28,6 +31,7 @@
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param textsize Font size (\emph{default} is 12)
+#' @param labelsize Label size (\emph{default} is 4)
 #' @param dec Number of cells (\emph{default} is 3)
 #' @param ylim y-axis limit
 #' @param posi Legend position
@@ -55,7 +59,7 @@
 #' Ramalho M.A.P., Ferreira D.F., Oliveira A.C. 2000. Experimentacao em Genetica e Melhoramento de Plantas. Editora UFLA.
 #'
 #' Scott R.J., Knott M. 1974. A cluster analysis method for grouping mans in the analysis of variance. Biometrics, 30, 507-512.
-#' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
+#' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett), the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 #' @examples
 #'
 #' #===================================
@@ -77,13 +81,16 @@ PSUBDIC=function(f1,
                  alpha.t=0.05,
                  quali=c(TRUE,TRUE),
                  mcomp = "tukey",
-                 grau=NA,
+                 grau=c(NA,NA), # isolado e interação tripla
+                 grau12=NA, # F1/F2
+                 grau21=NA, # F2/F1
                  transf=1,
                  constant=0,
                  geom="bar",
                  theme=theme_classic(),
                  ylab="Response",
                  xlab="",
+                 xlab.factor=c("F1","F2"),
                  fill="lightblue",
                  angle=0,
                  family="sans",
@@ -92,6 +99,7 @@ PSUBDIC=function(f1,
                  errorbar=TRUE,
                  addmean=TRUE,
                  textsize=12,
+                 labelsize=4,
                  dec=3,
                  ylim=NA,
                  posi="right",
@@ -153,9 +161,9 @@ PSUBDIC=function(f1,
         geom_point(shape=21,color="gray",fill="gray",size=3)+
         labs(x="",y="Standardized residuals")+
         geom_text(x=1:length(resids),label=1:length(resids),
-                  color=Ids,size=4)+
+                  color=Ids,size=labelsize)+
         scale_x_continuous(breaks=1:length(resids))+
-        theme_classic()+theme(axis.text.y = element_text(size=12),
+        theme_classic()+theme(axis.text.y = element_text(size=textsize),
                               axis.text.x = element_blank())+
         geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
     # Normalidade dos erros
@@ -330,12 +338,12 @@ PSUBDIC=function(f1,
                 grafico=grafico+
                     theme+ylim(ylim)+
                     ylab(ylab)+
-                    xlab(xlab)
+                    xlab(parse(text = xlab.factor[i]))
                 if(errorbar==TRUE){grafico=grafico+
                     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                 if(errorbar==FALSE){grafico=grafico+
-                    geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
+                    geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                 if(errorbar==TRUE){grafico=grafico+
                     geom_errorbar(data=dadosm,
                                   aes(ymin=media-desvio,
@@ -364,13 +372,13 @@ PSUBDIC=function(f1,
                 grafico=grafico+
                     theme+ylim(ylim)+
                     ylab(ylab)+
-                    xlab(xlab)
+                    xlab(parse(text = xlab.factor[i]))
                 if(errorbar==TRUE){grafico=grafico+
                     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                 if(errorbar==FALSE){grafico=grafico+
                     geom_text(aes(y=media+sup,
-                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                 if(errorbar==TRUE){grafico=grafico+
                     geom_errorbar(data=dadosm,
                                   aes(ymin=media-desvio,
@@ -397,9 +405,9 @@ PSUBDIC=function(f1,
 
             grafico=polynomial(dose,
                                resp,
-                               grau = grau,
+                               grau = grau[i],
                                ylab=ylab,
-                               xlab=xlab,
+                               xlab=parse(text = xlab.factor[i]),
                                point=point,
                                theme=theme,
                                posi=posi,
@@ -708,15 +716,15 @@ PSUBDIC=function(f1,
                 geom_text(aes(y=media+sup+
                                   if(sup<0){-desvio}else{desvio},
                               label=numero),
-                          position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)}
+                          position = position_dodge(width=0.9),angle=angle.label, hjust=hjust,size=labelsize)}
             if(errorbar==FALSE){colint=colint+
                 geom_text(aes(y=media+sup,
                               label=numero),
-                          position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)}
+                          position = position_dodge(width=0.9),angle=angle.label, hjust=hjust,size=labelsize)}
             colint=colint+
-                theme(text=element_text(size=12),
-                      axis.text = element_text(size=12,color="black"),
-                      axis.title = element_text(size=12,color="black"),
+                theme(text=element_text(size=textsize),
+                      axis.text = element_text(size=textsize,color="black"),
+                      axis.title = element_text(size=textsize,color="black"),
                       legend.position = posi)+labs(fill=legend)
             if(angle !=0){colint=colint+theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
             if(color=="gray"){colint=colint+scale_fill_grey()}
@@ -799,7 +807,7 @@ PSUBDIC=function(f1,
                 grafico=polynomial2(fator2a,
                                     resp,
                                     fator1,
-                                    grau = grau,
+                                    grau = grau21,
                                     ylab=ylab,
                                     xlab=xlab,
                                     theme=theme,
@@ -890,7 +898,7 @@ PSUBDIC=function(f1,
                 grafico=polynomial2(fator1a,
                                     resp,
                                     fator2,
-                                    grau = grau,
+                                    grau = grau12,
                                     ylab=ylab,
                                     xlab=xlab,
                                     theme=theme,
@@ -970,7 +978,7 @@ PSUBDIC=function(f1,
                 grafico=polynomial2_color(fator2a,
                                           resp,
                                           fator1,
-                                          grau = grau,
+                                          grau = grau21,
                                           ylab=ylab,
                                           xlab=xlab,
                                           theme=theme,
@@ -1062,7 +1070,7 @@ PSUBDIC=function(f1,
                 grafico=polynomial2_color(fator1a,
                                           resp,
                                           fator2,
-                                          grau = grau,
+                                          grau = grau12,
                                           ylab=ylab,
                                           xlab=xlab,
                                           theme=theme,

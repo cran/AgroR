@@ -1,3 +1,17 @@
+# AgroR 1.2.7
+
+* Add labelsize argument in FAT2DIC, FAT2DBC, PSUBDIC, PSUBDBC, FAT3DIC, FAT3DBC, FAT2DIC.ad, FAT2DBC.ad, FAT3DIC.ad and FAT3DBC.ad
+
+* Add xlab.factor argument in FAT2DIC, FAT2DBC, PSUBDIC, PSUBDBC, FAT3DIC, FAT3DBC, FAT2DIC.ad, FAT2DBC.ad, FAT3DIC.ad and FAT3DBC.ad
+
+* The output of the `desc3fat` function has been improved
+
+* The sketch of a strip-plot has been added to the `sketch` function
+
+* Analysis of variance of the strip-plot scheme has been added in `STRIPLOT`function 
+
+* It is now possible to add the degree of the polynomial for each type of interaction in the case of quantitative factor.
+
 # AgroR 1.2.6
 
 * The bargraph_onefactor and bargraph_twofactor functions have been implemented

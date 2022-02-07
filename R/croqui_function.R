@@ -15,6 +15,7 @@
 #' @param ID plot Add only identification in sketch
 #' @param label.x text in x
 #' @param label.y text in y
+#' @param labelsize Label size
 #' @param add.streets.x Adds streets by separating treatments in row or column. The user must supply a numeric vector grouping the rows or columns that must be together. See the example.
 #' @param add.streets.y Adds streets by separating treatments in row or column. The user must supply a numeric vector grouping the rows or columns that must be together. See the example.
 #' @param export.csv Save table template based on sketch in csv
@@ -36,6 +37,7 @@
 #'   \item{\code{design="PSUBDIC"}}{DIC experiments in split-plot}
 #'   \item{\code{design="PSUBDBC"}}{DBC experiments in split-plot}
 #'   \item{\code{design="PSUBSUBDBC"}}{DBC experiments in split-split-plot}
+#'   \item{\code{design="STRIP-PLOT"}}{Strip-plot DBC experiments}
 #'   }
 #' @note For the color.sep argument, you can choose from the following options:
 #'   \describe{
@@ -98,6 +100,7 @@ sketch=function(trat,
                 add.streets.x=NA,
                 label.x="",
                 label.y="",
+                labelsize=4,
                 export.csv=FALSE,
                 comment.caption=NULL){
   requireNamespace("ggplot2")
@@ -402,8 +405,8 @@ sketch=function(trat,
   if(color.sep=="none"){graph=graph+
     scale_fill_manual(values = "white",label="plots")+
     labs(fill="")}
-  if(ID==FALSE){graph=graph+geom_text(aes(label=trat))}
-  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(trat)))}
+  if(ID==FALSE){graph=graph+geom_text(aes(label=trat),size=labelsize)}
+  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(trat)),size=labelsize)}
   tabela=data.frame("ID"=data$plots,
                     "trat"=data$trat)}
 
@@ -482,8 +485,8 @@ sketch=function(trat,
     scale_fill_manual(values = "white",label="plots")+
     labs(fill="")}
   if(color.sep=="block"){graph=graph+labs(fill="block")}
-  if(ID==FALSE){graph=graph+geom_text(aes(label=trat))}
-  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(trat)))}
+  if(ID==FALSE){graph=graph+geom_text(aes(label=trat),size=labelsize)}
+  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(trat)),size=labelsize)}
   tabela=data.frame("ID"=data$plots,
                     "block"=data$block,
                     "trat"=data$trat)}
@@ -527,8 +530,8 @@ sketch=function(trat,
   if(color.sep=="line"){graph=graph+labs(fill="Line")}
   if(color.sep=="column"){graph=graph+labs(fill="Column")}
 
-  if(ID==FALSE){graph=graph+geom_text(aes(label=trat))}
-  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(trat)))}
+  if(ID==FALSE){graph=graph+geom_text(aes(label=trat),size=labelsize)}
+  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(trat)),size=labelsize)}
   tabela=data.frame("ID"=data$plots,
                     "line"=data$row,
                     "column"=data$col,
@@ -610,8 +613,8 @@ sketch=function(trat,
   if(color.sep=="none"){graph=graph+
     scale_fill_manual(values = "white",label="plots")+
     labs(fill="")}
-  if(ID==FALSE){graph=graph+geom_text(aes(label=paste(trat,trat1)))}
-  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(paste(trat,trat1))))}
+  if(ID==FALSE){graph=graph+geom_text(aes(label=paste(trat,trat1)),size=labelsize)}
+  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(paste(trat,trat1))),size=labelsize)}
   tabela=data.frame("ID"=1:length(data$plots),
                     "plot"=data$trat,
                     "split_plot"=data$trat1,
@@ -693,13 +696,73 @@ sketch=function(trat,
     scale_fill_manual(values = "white",label="plots")+
     labs(fill="")}
   if(color.sep=="block"){graph=graph+labs(fill="block")}
-  if(ID==FALSE){graph=graph+geom_text(aes(label=paste(trat,trat1)))}
-  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(paste(trat,trat1))))}
+  if(ID==FALSE){graph=graph+geom_text(aes(label=paste(trat,trat1)),size=labelsize)}
+  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(paste(trat,trat1))),size=labelsize)}
   tabela=data.frame("ID"=1:length(data$plots),
                     "plot"=data$trat,
                     "split_plot"=data$trat1,
                     "Block"=data$block)}
 
+  faixas=function(t1,t2,r){
+    faixas.design=function (trt1, trt2, r, serie = 2, seed = 0, kinds = "Super-Duper",
+                            randomization = TRUE){
+      number <- 10
+      if (serie > 0)
+        number <- 10^serie
+      n1 <- length(trt1)
+      n2 <- length(trt2)
+      if (seed == 0) {
+        genera <- runif(1)
+        seed <- .Random.seed[3]}
+      set.seed(seed, kinds)
+      a <- trt1[1:n1]
+      b <- trt2[1:n2]
+      if (randomization) {
+        a <- sample(trt1, n1)
+        b <- sample(trt2, n2)}
+      fila <- rep(b, n1)
+      columna <- a[gl(n1, n2)]
+      block <- rep(1, n1 * n2)
+      if (r > 1) {
+        for (i in 2:r) {
+          a <- trt1[1:n1]
+          b <- trt2[1:n2]
+          if (randomization){
+            a <- sample(trt1, n1)
+            b <- sample(trt2, n2)}
+          fila <- c(fila, rep(b, n1))
+          columna <- c(columna, a[gl(n1, n2)])
+          block <- c(block, rep(i, n1 * n2))
+        }
+      }
+      parameters <- list(design = "strip", trt1 = trt1, trt2 = trt2, r = r, serie = serie, seed = seed, kinds = kinds)
+      plots <- block * number + 1:(n1 * n2)
+      book <- data.frame(plots, block = as.factor(block), column = as.factor(columna),
+                         row = as.factor(fila))
+      names(book)[3] <- c(paste(deparse(substitute(trt1))))
+      names(book)[4] <- c(paste(deparse(substitute(trt2))))
+      outdesign <- list(parameters = parameters, book = book)
+      return(outdesign)
+    }
+    outdesign <-faixas.design(t1,t2,r, serie=2,seed=45,kinds ="Super-Duper") # seed = 45
+    book <-outdesign$book # field book
+    book$block=factor(book$block,levels = unique(book$block))
+    graphs=as.list(1:length(levels(book$block)))
+    for(i in 1:length(levels(book$block))){
+      d1=book[book$block==levels(book$block)[i],]
+      d1$t1=factor(d1$t1,unique(d1$t1))
+      d1$t2=factor(d1$t2,unique(d1$t2))
+      graphs[[i]]=ggplot(d1,aes(x=t1,y=t2,fill=paste(t1,t2)))+geom_tile(color="black",show.legend = FALSE)+
+        facet_wrap(~paste("Block",block))+
+        ylab("")+xlab("")+
+        geom_text(aes(label=paste(t1,t2)))+
+        theme_classic()+theme(axis.line = element_blank(),
+                              axis.text=element_text(size=12),
+                              strip.text = element_text(size=12))}
+    requireNamespace("cowplot")
+    graph=do.call("plot_grid", c(graphs, ncol=length(levels(book$block))))
+    print(graph)}
+  if(design=="STRIP-PLOT"){(graph=faixas(trat,trat1,r))}
   #=================
   if(design=="FAT2DIC"){sort=design.ab(c(length(trat),length(trat1)),r,design = "crd",serie=0)
   sort$book$A=as.factor(sort$book$A)
@@ -783,8 +846,8 @@ sketch=function(trat,
   if(color.sep=="none"){graph=graph+
     scale_fill_manual(values = "white",label="plots")+
     labs(fill="")}
-  if(ID==FALSE){graph=graph+geom_text(aes(label=paste(A,B)))}
-  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(paste(A,B))))}
+  if(ID==FALSE){graph=graph+geom_text(aes(label=paste(A,B)),size=labelsize)}
+  if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(paste(A,B))),size=labelsize)}
   tabela=data.frame("ID"=1:length(data$plots),
                     "Factor 1"=data$A,
                     "Factor 2"=data$B)}
@@ -873,8 +936,8 @@ sketch=function(trat,
       scale_fill_manual(values = "white",label="plots")+
       labs(fill="")}
     if(color.sep=="block"){graph=graph+labs(fill="block")}
-    if(ID==FALSE){graph=graph+geom_text(aes(label=paste(A,B)))}
-    if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(paste(A,B))))}
+    if(ID==FALSE){graph=graph+geom_text(aes(label=paste(A,B)),size=labelsize)}
+    if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(paste(A,B))),size=labelsize)}
     tabela=data.frame("ID"=1:length(data$plots),
                       "Factor 1"=data$A,
                       "Factor 2"=data$B,
@@ -960,8 +1023,8 @@ sketch=function(trat,
     if(color.sep=="none"){graph=graph+
       scale_fill_manual(values = "white",label="plots")+
       labs(fill="")}
-    if(ID==FALSE){graph=graph+geom_text(aes(label=sorteio))}
-    if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(sorteio)))}
+    if(ID==FALSE){graph=graph+geom_text(aes(label=sorteio),size=labelsize)}
+    if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(sorteio)),size=labelsize)}
     tabela=data.frame("ID"=1:length(data$plots),
                       "Factor 1"=sortd$X1,
                       "Factor 2"=sortd$X2,
@@ -1053,8 +1116,8 @@ sketch=function(trat,
       scale_fill_manual(values = "white",label="plots")+
       labs(fill="")}
     if(color.sep=="block"){graph=graph+labs(fill="block")}
-    if(ID==FALSE){graph=graph+geom_text(aes(label=sorteio))}
-    if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(sorteio)))}
+    if(ID==FALSE){graph=graph+geom_text(aes(label=sorteio),size=labelsize)}
+    if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(sorteio)),size=labelsize)}
   }
 
   if(design=="PSUBSUBDBC"){
@@ -1152,8 +1215,8 @@ sketch=function(trat,
       scale_fill_manual(values = "white",label="plots")+
       labs(fill="")}
     if(color.sep=="block"){graph=graph+labs(fill="block")}
-    if(ID==FALSE){graph=graph+geom_text(aes(label=sorteio))}
-    if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(sorteio)))}
+    if(ID==FALSE){graph=graph+geom_text(aes(label=sorteio),size=labelsize)}
+    if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(sorteio)),size=labelsize)}
     tabela=data.frame("ID"=1:length(data$plots),
                       "plot"=sorteiof1,
                       "split_plot"=sorteiof2,
@@ -1161,6 +1224,6 @@ sketch=function(trat,
   if(isTRUE(ID)==TRUE){print(data)}
   if(export.csv==TRUE){write.csv(tabela,"dataset.csv")}
   #=================
-  print(graph+labs(caption = comment.caption))
+  if(design!="STRIP-PLOT"){print(graph+labs(caption = comment.caption))}
 }
 

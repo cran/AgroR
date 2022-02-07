@@ -17,6 +17,7 @@ sketch(
   add.streets.x = NA,
   label.x = "",
   label.y = "",
+  labelsize = 4,
   export.csv = FALSE,
   comment.caption = NULL
 )
@@ -46,6 +47,8 @@ sketch(
 
 \item{label.y}{text in y}
 
+\item{labelsize}{Label size}
+
 \item{export.csv}{Save table template based on sketch in csv}
 
 \item{comment.caption}{Add comment in caption}
@@ -71,6 +74,7 @@ For the design argument, you can choose from the following options:
   \item{\code{design="PSUBDIC"}}{DIC experiments in split-plot}
   \item{\code{design="PSUBDBC"}}{DBC experiments in split-plot}
   \item{\code{design="PSUBSUBDBC"}}{DBC experiments in split-split-plot}
+  \item{\code{design="STRIP-PLOT"}}{Strip-plot DBC experiments}
   }
 
 For the color.sep argument, you can choose from the following options:

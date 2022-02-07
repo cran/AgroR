@@ -12,9 +12,19 @@
 #' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
 #' @param names.fat Allows labeling the factors 1, 2 and 3.
-#' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
+#' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.
+#' @param grau12 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.
+#' @param grau21 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.
+#' @param grau13 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 3, in the case of interaction f1 x f3 and qualitative factor 3 and quantitative factor 1.
+#' @param grau31 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f3 and qualitative factor 1 and quantitative factor 3.
+#' @param grau23 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 3, in the case of interaction f2 x f3 and qualitative factor 3 and quantitative factor 2.
+#' @param grau32 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f2 x f3 and qualitative factor 2 and quantitative factor 3.
+#' @param grau123 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 x f3 and quantitative factor 1.
+#' @param grau213 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 x f3 and quantitative factor 2.
+#' @param grau312 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 3, in the case of interaction f1 x f2 x f3 and quantitative factor 3.
 #' @param xlab Treatments name (Accepts the \emph{expression}() function)
 #' @param ylab Variable response name (Accepts the \emph{expression}() function)
+#' @param xlab.factor Provide a vector with two observations referring to the x-axis name of factors 1, 2 and 3, respectively, when there is an isolated effect of the factors. This argument uses `parse`.
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param norm Error normality test (\emph{default} is Shapiro-Wilk)
@@ -26,6 +36,7 @@
 #' @param fill Defines chart color (to generate different colors for different treatments, define fill = "trat")
 #' @param angulo x-axis scale text rotation
 #' @param textsize Font size
+#' @param labelsize Label Size
 #' @param dec Number of cells
 #' @param family Font family
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
@@ -75,8 +86,18 @@ FAT3DBC=function(f1,
                  names.fat=c("F1","F2","F3"),
                  ylab="Response",
                  xlab="",
+                 xlab.factor=c("F1","F2","F3"),
                  sup=NA,
-                 grau=NA,
+                 grau=c(NA,NA,NA), # isolado e interação tripla
+                 grau12=NA, # F1/F2
+                 grau13=NA, # F1/F3
+                 grau23=NA, # F2/F3
+                 grau21=NA, # F2/F1
+                 grau31=NA, # F3/F1
+                 grau32=NA, # F3/F2
+                 grau123=NA,
+                 grau213=NA,
+                 grau312=NA,
                  fill="lightblue",
                  theme=theme_classic(),
                  angulo=0,
@@ -86,6 +107,7 @@ FAT3DBC=function(f1,
                  dec=3,
                  geom="bar",
                  textsize=12,
+                 labelsize=4,
                  angle.label=0) {
     if(is.na(sup==TRUE)){sup=0.2*mean(response)}
     if(angle.label==0){hjust=0.5}else{hjust=0}
@@ -129,9 +151,9 @@ FAT3DBC=function(f1,
     residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
         geom_point(shape=21,color="gray",fill="gray",size=3)+
         labs(x="",y="Standardized residuals")+
-        geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
+        geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=labelsize)+
         scale_x_continuous(breaks=1:length(resids))+
-        theme_classic()+theme(axis.text.y = element_text(size=12),
+        theme_classic()+theme(axis.text.y = element_text(size=textsize),
                               axis.text.x = element_blank())+
         geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
 
@@ -254,7 +276,7 @@ FAT3DBC=function(f1,
                                   color="black",width=0.3)}
                 grafico=grafico+theme+
                     ylab(ylab)+
-                    xlab(xlab)+
+                    xlab(parse(text = xlab.factor[i]))+
                     theme(text = element_text(size=textsize,color="black", family = family),
                           axis.text = element_text(size=textsize,color="black", family = family),
                           axis.title = element_text(size=textsize,color="black", family = family),
@@ -281,7 +303,7 @@ FAT3DBC=function(f1,
                                   color="black",width=0.3)}
                 grafico=grafico+theme+
                     ylab(ylab)+
-                    xlab(xlab)+
+                    xlab(parse(text = xlab.factor[i]))+
                     theme(text = element_text(size=textsize,color="black", family = family),
                           axis.text = element_text(size=textsize,color="black", family = family),
                           axis.title = element_text(size=textsize,color="black", family = family),
@@ -301,8 +323,8 @@ FAT3DBC=function(f1,
             if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
                 cat(fac.names[i])
                 dose=as.numeric(as.vector(unlist(fatores[,i])))
-                grafico=polynomial(dose,resp,grau = grau,
-                                   DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)
+                grafico=polynomial(dose,resp,grau = grau[i],
+                                   DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=parse(text = xlab.factor[i]))
                 cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
                 cat(green(bold("\n------------------------------------------")))}
             graficos[[1]]=residplot
@@ -480,7 +502,7 @@ FAT3DBC=function(f1,
                     letra1=unlist(skgrafico1)
                     letra1=toupper(letra1)}}
 
-        if(quali[1] & quali[2]==TRUE){
+        if(quali[1]==TRUE & quali[2]==TRUE){
                     f1=rep(levels(Fator1),e=length(levels(Fator2)))
                     f2=rep(unique(as.character(Fator2)),length(levels(Fator2)))
                     f1=factor(f1,levels = unique(f1))
@@ -508,9 +530,9 @@ FAT3DBC=function(f1,
                         geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                                       label=numero),
                                   position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
-                        theme(text=element_text(size=12),
-                              axis.text = element_text(size=12,color="black"),
-                              axis.title = element_text(size=12,color="black"))
+                        theme(text=element_text(size=textsize,family=family),
+                              axis.text = element_text(size=textsize,color="black",family=family),
+                              axis.title = element_text(size=textsize,color="black",family=family))
                     colint1=colint
                     print(colint)
                     letras=paste(graph$letra,graph$letra1,sep="")
@@ -581,7 +603,7 @@ FAT3DBC=function(f1,
                 colint1=polynomial2(Fator1a,
                                     response,
                                     Fator3,
-                                    grau = grau,
+                                    grau = grau12,
                                     ylab=ylab,
                                     xlab=xlab,
                                     theme=theme,
@@ -643,7 +665,7 @@ FAT3DBC=function(f1,
                 colint1=polynomial2(Fator2a,
                                     response,
                                     Fator1,
-                                    grau = grau,
+                                    grau = grau21,
                                     ylab=ylab,
                                     xlab=xlab,
                                     theme=theme,
@@ -718,7 +740,7 @@ FAT3DBC=function(f1,
                                               ymax=media+desvio,color=1), color="black",width=0.3)}
                         grafico1=grafico+theme+
                             ylab(ylab)+
-                            xlab(xlab)+
+                            xlab(parse(text = xlab.factor[3]))+
                             theme(text = element_text(size=textsize,color="black", family = family),
                                   axis.text = element_text(size=textsize,color="black", family = family),
                                   axis.title = element_text(size=textsize,color="black", family = family),
@@ -732,8 +754,8 @@ FAT3DBC=function(f1,
                         cat('Analyzing the simple effects of the factor ',fac.names[3])
                         cat(green(bold("\n------------------------------------------\n")))
                         cat(fac.names[i])
-                        grafico1=polynomial(resp, fatores[,i],grau=grau,
-                                            DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)
+                        grafico1=polynomial(resp, fatores[,i],grau=grau[i],
+                                            DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=parse(text = xlab.factor[3]))
                         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))}
                 }
             }
@@ -908,7 +930,7 @@ FAT3DBC=function(f1,
                     letra1=unlist(skgrafico1)
                     letra1=toupper(letra1)}}
 
-        if(quali[1] & quali[3]==TRUE){
+        if(quali[1]==TRUE & quali[3]==TRUE){
         f1=rep(levels(Fator1),e=length(levels(Fator3)))
         f3=rep(unique(as.character(Fator3)),length(levels(Fator1)))
         f1=factor(f1,levels = unique(f1))
@@ -940,9 +962,9 @@ FAT3DBC=function(f1,
             geom_text(aes(y=media+desvio+sup,
                           label=numero),
                       position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
-            theme(text=element_text(size=12),
-                  axis.text = element_text(size=12,color="black"),
-                  axis.title = element_text(size=12,color="black"))
+            theme(text=element_text(size=textsize,family=family),
+                  axis.text = element_text(size=textsize,color="black",family=family),
+                  axis.title = element_text(size=textsize,color="black",family=family))
         colint2=colint
         print(colint)
         letras=paste(graph$letra,graph$letra1,sep="")
@@ -1013,7 +1035,7 @@ FAT3DBC=function(f1,
                 colint2=polynomial2(Fator1a,
                                     response,
                                     Fator3,
-                                    grau = grau,
+                                    grau = grau13,
                                     ylab=ylab,
                                     xlab=xlab,
                                     theme=theme,
@@ -1075,7 +1097,7 @@ FAT3DBC=function(f1,
                 colint2=polynomial2(Fator3a,
                                     response,
                                     Fator1,
-                                    grau = grau,
+                                    grau = grau31,
                                     ylab=ylab,
                                     xlab=xlab,
                                     theme=theme,
@@ -1148,7 +1170,7 @@ FAT3DBC=function(f1,
                                           color="black",width=0.3)
                         grafico2=grafico+theme+
                             ylab(ylab)+
-                            xlab(xlab)+
+                            xlab(parse(text = xlab.factor[2]))+
                             theme(text = element_text(size=textsize,color="black", family = family),
                                   axis.text = element_text(size=textsize,color="black", family = family),
                                   axis.title = element_text(size=textsize,color="black", family = family),
@@ -1161,8 +1183,8 @@ FAT3DBC=function(f1,
                         cat('Analyzing the simple effects of the factor ',fac.names[2])
                         cat(green(bold("\n------------------------------------------\n")))
                         cat(fac.names[i])
-                        grafico2=polynomial(resp, fatores[,i],grau=grau,
-                                            DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)
+                        grafico2=polynomial(resp, fatores[,i],grau=grau[i],
+                                            DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=parse(text = xlab.factor[2]))
                         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
                     }
 
@@ -1335,7 +1357,7 @@ FAT3DBC=function(f1,
                     letra1=unlist(skgrafico1)
                     letra1=toupper(letra1)}}
 
-            if(quali[2] & quali[3]==TRUE){
+            if(quali[2]==TRUE & quali[3]==TRUE){
                 f2=rep(levels(Fator2),e=length(levels(Fator3)))
                 f3=rep(unique(as.character(Fator3)),length(levels(Fator2)))
                 f2=factor(f2,levels = unique(f2))
@@ -1363,9 +1385,9 @@ FAT3DBC=function(f1,
                         geom_text(aes(y=media+desvio+sup,
                                       label=numero),
                                   position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
-                        theme(text=element_text(size=12),
-                              axis.text = element_text(size=12,color="black"),
-                              axis.title = element_text(size=12,color="black"))
+                        theme(text=element_text(size=textsize,family=family),
+                              axis.text = element_text(size=textsize,color="black",family=family),
+                              axis.title = element_text(size=textsize,color="black",family=family))
                     colint3=colint
                     print(colint)
                     letras=paste(graph$letra,graph$letra1,sep="")
@@ -1437,7 +1459,7 @@ FAT3DBC=function(f1,
                     colint3=polynomial2(Fator2a,
                                         response,
                                         Fator3,
-                                        grau = grau,
+                                        grau = grau23,
                                         ylab=ylab,
                                         xlab=xlab,
                                         theme=theme,
@@ -1499,7 +1521,7 @@ FAT3DBC=function(f1,
                     colint3=polynomial2(Fator3a,
                                         response,
                                         Fator2,
-                                        grau = grau,
+                                        grau = grau32,
                                         ylab=ylab,
                                         xlab=xlab,
                                         theme=theme,
@@ -1575,7 +1597,7 @@ FAT3DBC=function(f1,
                                           color="black",width=0.3)
                         grafico3=grafico+theme+
                             ylab(ylab)+
-                            xlab(xlab)+
+                            xlab(parse(text = xlab.factor[1]))+
                             theme(text = element_text(size=textsize,color="black", family = family),
                                   axis.text = element_text(size=textsize,color="black", family = family),
                                   axis.title = element_text(size=textsize,color="black", family = family),
@@ -1588,8 +1610,8 @@ FAT3DBC=function(f1,
                         cat('\nAnalyzing the simple effects of the factor ',fac.names[1],'\n')
                         cat(green(bold("\n------------------------------------------\n")))
                         cat(fac.names[i])
-                        grafico3=polynomial(resp, fatores[,i],grau=grau,
-                                            DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)
+                        grafico3=polynomial(resp, fatores[,i],grau=grau[i],
+                                            DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=parse(text = xlab.factor[1]))
                         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
                     }
 
@@ -1676,7 +1698,7 @@ FAT3DBC=function(f1,
                     cat('\n',fac.names[1],' within the combination of levels ',lf2[i],' of  ',fac.names[2],' and ',lf3[j],' of  ',fac.names[3],"\n")
                     polynomial(fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                                resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
-                               grau=grau,
+                               grau=grau123,
                                DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)}
                 }
         }
@@ -1758,7 +1780,7 @@ FAT3DBC=function(f1,
                     cat('\n\n',fac.names[2],' within the combination of levels ',lf1[k],' of  ',fac.names[1],' and ',lf3[j],' of  ',fac.names[3],'\n')
                     polynomial(fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                                resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
-                               grau=grau,
+                               grau=grau213,
                                DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)}
                 }
         }
@@ -1843,7 +1865,7 @@ FAT3DBC=function(f1,
                     cat('\n\n',fac.names[3],' inside of each level of ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of ',fac.names[2],'\n')
                     polynomial(fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
-                               grau=grau,
+                               grau=grau312,
                                DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=xlab)}
                 }
         }

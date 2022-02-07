@@ -10,8 +10,8 @@ desc3fat(
   f3,
   response,
   legend.title = "Legend",
-  xlab = "xlab",
-  ylab = "ylab",
+  xlab = "",
+  ylab = "Response",
   theme = theme_classic(),
   plot = "interaction"
 )

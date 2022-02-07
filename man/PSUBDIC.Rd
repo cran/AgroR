@@ -15,13 +15,16 @@ PSUBDIC(
   alpha.t = 0.05,
   quali = c(TRUE, TRUE),
   mcomp = "tukey",
-  grau = NA,
+  grau = c(NA, NA),
+  grau12 = NA,
+  grau21 = NA,
   transf = 1,
   constant = 0,
   geom = "bar",
   theme = theme_classic(),
   ylab = "Response",
   xlab = "",
+  xlab.factor = c("F1", "F2"),
   fill = "lightblue",
   angle = 0,
   family = "sans",
@@ -30,6 +33,7 @@ PSUBDIC(
   errorbar = TRUE,
   addmean = TRUE,
   textsize = 12,
+  labelsize = 4,
   dec = 3,
   ylim = NA,
   posi = "right",
@@ -58,7 +62,11 @@ PSUBDIC(
 
 \item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)}
 
-\item{grau}{Degree of polynomial in case of quantitative factor (\emph{default} is 1)}
+\item{grau}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.}
+
+\item{grau12}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.}
+
+\item{grau21}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.}
 
 \item{transf}{Applies data transformation (default is 1; for log consider 0)}
 
@@ -71,6 +79,8 @@ PSUBDIC(
 \item{ylab}{Variable response name (Accepts the \emph{expression}() function)}
 
 \item{xlab}{Treatments name (Accepts the \emph{expression}() function)}
+
+\item{xlab.factor}{Provide a vector with two observations referring to the x-axis name of factors 1 and 2, respectively, when there is an isolated effect of the factors. This argument uses `parse`.}
 
 \item{fill}{Defines chart color (to generate different colors for different treatments, define fill = "trat")}
 
@@ -88,6 +98,8 @@ PSUBDIC(
 
 \item{textsize}{Font size (\emph{default} is 12)}
 
+\item{labelsize}{Label size (\emph{default} is 4)}
+
 \item{dec}{Number of cells (\emph{default} is 3)}
 
 \item{ylim}{y-axis limit}
@@ -99,7 +111,7 @@ PSUBDIC(
 \item{angle.label}{Label angle}
 }
 \value{
-The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
+The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett), the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 }
 \description{
 Analysis of an experiment conducted in a completely randomized design in a split-plot scheme using fixed effects analysis of variance.

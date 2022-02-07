@@ -16,9 +16,9 @@ Type: Package
 
 Title: Experimental Statistics and Graphics for Agricultural Sciences 
 
-Version: 1.2.3
+Version: 1.2.7
 
-Date: 2021-08-21
+Date: 2022-02-04
 
 Authors: 
  
@@ -28,7 +28,7 @@ Authors:
 
 Maintainer: Gabriel Danilo Shimizu <shimizu@uel.br>
 
-Description: Performs the analysis of completely randomized experimental designs (CRD), randomized blocks (RBD) and Latin square (LSD), experiments in double and triple factorial scheme (in CRD and RBD), experiments in subdivided plot scheme (in CRD and RBD), subdivided and joint analysis of experiments in CRD and RBD, linear regression analysis, test for two samples. The package performs analysis of variance, ANOVA assumptions and multiple comparison test of means or regression, according to Pimentel-Gomes (2009, ISBN: 978-85-7133-055-9), nonparametric test (Conover, 1999, ISBN: 0471160687), test for two samples, joint analysis of experiments according to Ferreira (2018, ISBN: 978-85-7269-566-4), Anova of aligned ranks (Wobbrock, JO, Findlater, L., Gergle, D., Higgins , JJ (2011), <doi: 10.1145/1978942.1978963>) and generalized linear model (glm) for binomial and Poisson family in CRD and RBD (Carvalho, FJ (2019), <doi: 10.14393/ufu.te.2019.1244>). It can also be used to obtain descriptive measures and graphics, in addition to correlations and creative graphics used in agricultural sciences (Agronomy, Zootechnics, Food Science and related areas).
+Description: Performs the analysis of completely randomized experimental designs (CRD), randomized blocks (RBD) and Latin square (LSD), experiments in double and triple factorial scheme (in CRD and RBD), experiments in subdivided plot scheme (in CRD and RBD), subdivided and joint analysis of experiments in CRD and RBD, linear regression analysis, test for two samples. The package performs analysis of variance, ANOVA assumptions and multiple comparison test of means or regression, according to Pimentel-Gomes (2009, ISBN: 978-85-7133-055-9), nonparametric test (Conover, 1999, ISBN: 0471160687), test for two samples, joint analysis of experiments according to Ferreira (2018, ISBN: 978-85-7269-566-4) and generalized linear model (glm) for binomial and Poisson family in CRD and RBD (Carvalho, FJ (2019), <doi: 10.14393/ufu.te.2019.1244>). It can also be used to obtain descriptive measures and graphics, in addition to correlations and creative graphics used in agricultural sciences (Agronomy, Zootechnics, Food Science and related areas).
 
 Encoding: UTF-8
 
@@ -133,6 +133,11 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
  - `FAT3DIC`: DIC experiments in triple factorial
  - `FAT3DBC`: DBC experiments in triple factorial
 
+*Analysis of triple factorial design experiments in DIC or DBC with an additional treatment*
+
+ - `FAT3DIC.ad`: DIC experiment in double factorial design with an additional treatment
+ - `FAT3DBC.ad`: DBC experiment in double factorial design with an additional treatment
+ 
 *Split-plot scheme in DIC or DBC*
 
  - `PSUBDBC`: DBC experiments in split-plot
@@ -141,12 +146,16 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
 *Splitsplitplot parcels scheme in DBC*
 
  - `PSUBSUBDBC`: DBC experiments in split-split-plot
- 
+
+*Plot subdivided into randomized blocks with a subplot in a double factorial scheme*
+
+ - `PSUBFAT2DBC`: Plot subdivided into randomized blocks with a subplot in a double factorial scheme
+
 *Dunnett's Test for Comparison of Control vs. Treatments*
  
  - `dunnett`: Dunnett test
 
-* Dunn's non-parametric test
+*Dunn's non-parametric test*
 
 - `dunn`: Dunn test
 
@@ -181,6 +190,9 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
  - `sk_graph`: Scott-Knott graphics
  - `spider_graph`: Spider graph for sensorial analysis
  - `TBARPLOT.reverse`: Reverse graph of DICT, DBCT and DQL output when geom="bar"
+ - `barfacet`: Bar graph for one factor with facets
+ - `bargraph_onefactor`: Group DIC, DBC and DQL functions column charts
+ - `bargraph_twofactor`: Group FAT2DIC, FAT2DBC, PSUBDIC or PSUBDBC functions column charts
 
 ## Utils
 
@@ -188,3 +200,4 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
  - `aacp`: Area under the curve
  - `transf`: Data transformation (Box-Cox, 1964)
  - `summarise_anova`: Summary of analysis of variance and test of means
+ - `confinterval`: Interval of confidence for groups

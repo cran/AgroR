@@ -15,12 +15,22 @@ FAT3DIC(
   alpha.f = 0.05,
   quali = c(TRUE, TRUE, TRUE),
   mcomp = "tukey",
-  grau = NA,
+  grau = c(NA, NA, NA),
+  grau12 = NA,
+  grau13 = NA,
+  grau23 = NA,
+  grau21 = NA,
+  grau31 = NA,
+  grau32 = NA,
+  grau123 = NA,
+  grau213 = NA,
+  grau312 = NA,
   transf = 1,
   constant = 0,
   names.fat = c("F1", "F2", "F3"),
   ylab = "Response",
   xlab = "",
+  xlab.factor = c("F1", "F2", "F3"),
   sup = NA,
   fill = "lightblue",
   theme = theme_classic(),
@@ -31,6 +41,7 @@ FAT3DIC(
   dec = 3,
   geom = "bar",
   textsize = 12,
+  labelsize = 4,
   angle.label = 0
 )
 }
@@ -55,7 +66,25 @@ FAT3DIC(
 
 \item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)}
 
-\item{grau}{Degree of polynomial in case of quantitative factor (\emph{default} is 1)}
+\item{grau}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.}
+
+\item{grau12}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.}
+
+\item{grau13}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 3, in the case of interaction f1 x f3 and qualitative factor 3 and quantitative factor 1.}
+
+\item{grau23}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 3, in the case of interaction f2 x f3 and qualitative factor 3 and quantitative factor 2.}
+
+\item{grau21}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.}
+
+\item{grau31}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f3 and qualitative factor 1 and quantitative factor 3.}
+
+\item{grau32}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f2 x f3 and qualitative factor 2 and quantitative factor 3.}
+
+\item{grau123}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 x f3 and quantitative factor 1.}
+
+\item{grau213}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 x f3 and quantitative factor 2.}
+
+\item{grau312}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 3, in the case of interaction f1 x f2 x f3 and quantitative factor 3.}
 
 \item{transf}{Applies data transformation (\emph{default} is 1; for log consider 0)}
 
@@ -66,6 +95,8 @@ FAT3DIC(
 \item{ylab}{Variable response name (Accepts the \emph{expression}() function)}
 
 \item{xlab}{treatments name (Accepts the \emph{expression}() function)}
+
+\item{xlab.factor}{Provide a vector with two observations referring to the x-axis name of factors 1, 2 and 3, respectively, when there is an isolated effect of the factors. This argument uses `parse`.}
 
 \item{sup}{Number of units above the standard deviation or average bar on the graph}
 
@@ -86,6 +117,8 @@ FAT3DIC(
 \item{geom}{Graph type (columns or segments)}
 
 \item{textsize}{Font size}
+
+\item{labelsize}{Label Size}
 
 \item{angle.label}{label angle}
 }
