@@ -17,6 +17,7 @@ sketch(
   add.streets.x = NA,
   label.x = "",
   label.y = "",
+  axissize = 12,
   labelsize = 4,
   export.csv = FALSE,
   comment.caption = NULL
@@ -46,6 +47,8 @@ sketch(
 \item{label.x}{text in x}
 
 \item{label.y}{text in y}
+
+\item{axissize}{Axis size}
 
 \item{labelsize}{Label size}
 

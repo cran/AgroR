@@ -14,6 +14,7 @@ Performs the analysis of completely randomized experimental designs (CRD), rando
 Useful links:
 \itemize{
   \item \url{https://agronomiar.github.io/AgroR_package/index.html}
+  \item \url{https://agrorproject.shinyapps.io/agror_shiny/}
 }
 
 }

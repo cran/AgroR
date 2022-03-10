@@ -45,7 +45,7 @@
 #' @importFrom crayon red
 #' @importFrom crayon blue
 #' @import stats
-#' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+#' @note The order of the chart follows the alphabetical pattern. Please use `scale_x_discrete` from package ggplot2, `limits` argument to reorder x-axis. The bars of the column and segment graphs are standard deviation.
 #' @note The function does not perform multiple regression in the case of two quantitative factors.
 #' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.
@@ -123,6 +123,13 @@ FAT2DIC=function(f1,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
+  organiz=data.frame(f1,f2,response)
+  organiz=organiz[order(organiz$f2),]
+  organiz=organiz[order(organiz$f1),]
+  f1=organiz$f1
+  f2=organiz$f2
+  response=organiz$response
+
   fator1=f1
   fator2=f2
   fator1a=fator1

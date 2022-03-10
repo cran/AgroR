@@ -12,6 +12,8 @@ PSUBFAT2DBC(
   resp,
   alpha.f = 0.05,
   alpha.t = 0.05,
+  norm = "sw",
+  homog = "bt",
   mcomp = "tukey"
 )
 }
@@ -30,6 +32,10 @@ PSUBFAT2DBC(
 
 \item{alpha.t}{Significance level of the multiple comparison test (\emph{default} is 0.05)}
 
+\item{norm}{Error normality test (\emph{default} is Shapiro-Wilk)}
+
+\item{homog}{Homogeneity test of variances (\emph{default} is Bartlett)}
+
 \item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD and Duncan)}
 }
 \value{
@@ -45,6 +51,6 @@ f3=rep(c("c1", "c2", "c3", "c4"), e = 5,6);f3=factor(f3,unique(f3))
 bloco=rep(paste("B",1:5),24); bloco=factor(bloco,unique(bloco))
 set.seed(10)
 resp=rnorm(120,50,5)
-PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.5) # para soltar interação tripla
-PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.4) # para soltar interação dupla
+PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.5) # force triple interaction
+PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.4) # force double interaction
 }

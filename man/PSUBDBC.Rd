@@ -117,7 +117,7 @@ The table of analysis of variance, the test of normality of errors (Shapiro-Wilk
 Analysis of an experiment conducted in a randomized block design in a split-plot scheme using fixed effects analysis of variance.
 }
 \note{
-The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+The order of the chart follows the alphabetical pattern. Please use `scale_x_discrete` from package ggplot2, `limits` argument to reorder x-axis. The bars of the column and segment graphs are standard deviation.
 
 In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 }

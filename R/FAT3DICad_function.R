@@ -45,6 +45,7 @@
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param angle.label label angle
+#' @note The order of the chart follows the alphabetical pattern. Please use `scale_x_discrete` from package ggplot2, `limits` argument to reorder x-axis. The bars of the column and segment graphs are standard deviation.
 #' @return The analysis of variance table, the Shapiro-Wilk error normality test, the Bartlett homogeneity test of variances, the Durbin-Watson error independence test, multiple comparison test (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.For significant triple interaction only, no graph is returned.
 #' @note The function does not perform multiple regression in the case of two or more quantitative factors. The bars of the column and segment graphs are standard deviation.
 #' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
@@ -117,6 +118,15 @@ FAT3DIC.ad = function(f1,
                       angle.label = 0) {
   if(is.na(sup==TRUE)){sup=0.2*mean(response)}
   if(angle.label==0){hjust=0.5}else{hjust=0}
+  organiz=data.frame(f1,f2,f3,response)
+  organiz=organiz[order(organiz$f3),]
+  organiz=organiz[order(organiz$f2),]
+  organiz=organiz[order(organiz$f1),]
+  f1=organiz$f1
+  f2=organiz$f2
+  f3=organiz$f3
+  response=organiz$response
+
   fator1=f1
   fator2=f2
   fator3=f3

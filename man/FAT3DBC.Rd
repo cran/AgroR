@@ -132,6 +132,8 @@ The analysis of variance table, the Shapiro-Wilk error normality test, the Bartl
 Analysis of an experiment conducted in a randomized block design in a triple factorial scheme using analysis of variance of fixed effects.
 }
 \note{
+The order of the chart follows the alphabetical pattern. Please use `scale_x_discrete` from package ggplot2, `limits` argument to reorder x-axis. The bars of the column and segment graphs are standard deviation.
+
 The function does not perform multiple regression in the case of two or more quantitative factors. The bars of the column and segment graphs are standard deviation.
 
 In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.

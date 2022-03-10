@@ -6,8 +6,10 @@
 #' @param f2 Numeric or complex vector with splitplot levels
 #' @param f3 Numeric or complex vector with splitsplitplot levels
 #' @param block Numeric or complex vector with blocks
-#' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD and Duncan)
 #' @param resp Numeric vector with responses
+#' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD and Duncan)
+#' @param norm Error normality test (\emph{default} is Shapiro-Wilk)
+#' @param homog Homogeneity test of variances (\emph{default} is Bartlett)
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #'
@@ -21,8 +23,8 @@
 #' bloco=rep(paste("B",1:5),24); bloco=factor(bloco,unique(bloco))
 #' set.seed(10)
 #' resp=rnorm(120,50,5)
-#' PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.5) # para soltar interação tripla
-#' PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.4) # para soltar interação dupla
+#' PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.5) # force triple interaction
+#' PSUBFAT2DBC(f1,f2,f3,bloco,resp,alpha.f = 0.4) # force double interaction
 
 PSUBFAT2DBC=function(f1,
                      f2,
@@ -31,6 +33,8 @@ PSUBFAT2DBC=function(f1,
                      resp,
                      alpha.f=0.05,
                      alpha.t=0.05,
+                     norm="sw",
+                     homog="bt",
                      mcomp="tukey"){
   requireNamespace("crayon")
   fac.names=c("F1","F2","F3")
@@ -48,8 +52,88 @@ PSUBFAT2DBC=function(f1,
   j<-(length(resp))/(nv1*nv2*nv3)
   lf1<-levels(f1); lf2<-levels(f2); lf3<-levels(f3)
 
-  mod=aov(resp~f1 * f2 * f3 + Error(bloco:f1)+bloco)
+  mod=aov(resp ~ f1 * f2 * f3 + Error(bloco:f1)+bloco)
+  modres=aov(resp ~ f1 * f2 * f3 + bloco:f1 + bloco)
   a = summary(mod)
+  if(norm=="sw"){norm1 = shapiro.test(modres$res)}
+  if(norm=="li"){norm1=lillie.test(modres$residuals)}
+  if(norm=="ad"){norm1=ad.test(modres$residuals)}
+  if(norm=="cvm"){norm1=cvm.test(modres$residuals)}
+  if(norm=="pearson"){norm1=pearson.test(modres$residuals)}
+  if(norm=="sf"){norm1=sf.test(modres$residuals)}
+
+  trat=as.factor(paste(f1,f2,f3))
+  if(homog=="bt"){
+    homog1 = bartlett.test(modres$res ~ trat)
+    statistic=homog1$statistic
+    phomog=homog1$p.value
+    method=paste("Bartlett test","(",names(statistic),")",sep="")
+  }
+  if(homog=="levene"){
+    homog1 = levenehomog(modres$res~trat)[1,]
+    statistic=homog1$`F value`[1]
+    phomog=homog1$`Pr(>F)`[1]
+    method="Levene's Test (center = median)(F)"
+    names(homog1)=c("Df", "statistic","p.value")}
+  modresa=anova(modres)
+  resids=modres$residuals/sqrt(modresa$`Mean Sq`[10])
+  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
+  residplot=ggplot(data=data.frame(resids,Ids),
+                   aes(y=resids,x=1:length(resids)))+
+    geom_point(shape=21,color="gray",fill="gray",size=3)+
+    labs(x="",y="Standardized residuals")+
+    geom_text(x=1:length(resids),label=1:length(resids),
+              color=Ids,size=4.5)+
+    scale_x_continuous(breaks=1:length(resids))+
+    theme_classic()+theme(axis.text.y = element_text(size=12),
+                          axis.text.x = element_blank())+
+    geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
+
+
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(green(bold("Normality of errors")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  normal=data.frame(Method=paste(norm1$method,"(",names(norm1$statistic),")",sep=""),
+                    Statistic=norm1$statistic,
+                    "p-value"=norm1$p.value)
+  rownames(normal)=""
+  print(normal)
+  cat("\n")
+
+  message(if(norm1$p.value>0.05){
+    black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered normal")}
+    else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors do not follow a normal distribution"})
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(green(bold("Homogeneity of Variances")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  homoge=data.frame(Method=method,
+                    Statistic=statistic,
+                    "p-value"=phomog)
+  rownames(homoge)=""
+  print(homoge)
+  cat("\n")
+  respad=modres$residuals/sqrt(modresa$`Mean Sq`[10])
+  out=respad[respad>3 | respad<(-3)]
+  out=names(out)
+  out=if(length(out)==0)("No discrepant point")else{out}
+
+  message(if(homog1$p.value[1]>0.05){
+    black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, the variances can be considered homogeneous")}
+    else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, the variances are not homogeneous"})
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(green(bold("Additional Information")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  error1=data.frame(a$`Error: bloco:f1`[[1]])
+  error2=data.frame(a$`Error: Within`[[1]])
+  cat(paste("\nCV 1 (%) = ",round(sqrt(error1$Mean.Sq[3])/
+                                  mean(resp,na.rm=TRUE)*100,2)))
+  cat(paste("\nCV 2 (%) = ",round(sqrt(error2$Mean.Sq[7])/
+                                    mean(resp,na.rm=TRUE)*100,2)))
+  cat(paste("\nMean = ",round(mean(resp,na.rm=TRUE),4)))
+  cat(paste("\nMedian = ",round(median(resp,na.rm=TRUE),4)))
+  cat("\nPossible outliers = ", out)
+  cat("\n")
+
   anava = rbind(data.frame(a$`Error: bloco:f1`[[1]]),
                 data.frame(a$`Error: Within`[[1]]))
   rownames(anava) = c("F1",
@@ -64,9 +148,9 @@ PSUBFAT2DBC=function(f1,
                       "Residuals")
   colnames(anava) = c("df", "SS", "MS", "F-value", "p")
 
-  cat("\n==================================\n")
-  cat("Analysis of variance")
-  cat("\n==================================\n")
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
+  cat(green(bold("Analysis of Variance")))
+  cat(green(bold("\n-----------------------------------------------------------------\n")))
   print(as.matrix(anava), na.print = "")
   qmres = c(anava$MS[3], anava$MS[10])
   GLres = c(anava$df[3], anava$df[10])
@@ -389,13 +473,14 @@ PSUBFAT2DBC=function(f1,
       comp=comp[unique(as.character(f1)),]
       compf3f1[[i]]=comp$resp
       letterf3f1[[i]]=comp$groups
-      final=paste(round(unlist(compf1f3),3),
-                  paste(unlist(letterf1f3),
-                        toupper(c(t(matrix(unlist(letterf3f1),ncol=length(levels(f3)))))),sep = ""))
-      final=data.frame(matrix(final,ncol=length(unique(f1))))
-      colnames(final)=as.character(unique(f1))
-      rownames(final)=as.character(unique(f3))
     }
+    final=paste(round(unlist(compf1f3),3),
+                paste(unlist(letterf1f3),
+                      toupper(c(t(matrix(unlist(letterf3f1),ncol=length(levels(f3)))))),sep = ""))
+    final=data.frame(matrix(final,ncol=length(unique(f1))))
+    colnames(final)=as.character(unique(f1))
+    rownames(final)=as.character(unique(f3))
+
     cat("\n======================\n")
     cat("Multiple comparasion")
     cat("\n======================\n")
@@ -497,13 +582,14 @@ PSUBFAT2DBC=function(f1,
       comp=comp[unique(as.character(f2)),]
       compf3f2[[i]]=comp$resp
       letterf3f2[[i]]=comp$groups
-      final=paste(round(unlist(compf2f3),3),
-                  paste(unlist(letterf2f3),
-                        toupper(c(t(matrix(unlist(letterf3f2),ncol=length(levels(f3)))))),sep = ""))
-      final=data.frame(matrix(final,ncol=length(unique(f2))))
-      colnames(final)=as.character(unique(f2))
-      rownames(final)=as.character(unique(f3))
     }
+    final=paste(round(unlist(compf2f3),3),
+                paste(unlist(letterf2f3),
+                      toupper(c(t(matrix(unlist(letterf3f2),ncol=length(levels(f3)))))),sep = ""))
+    final=data.frame(matrix(final,ncol=length(unique(f2))))
+    colnames(final)=as.character(unique(f2))
+    rownames(final)=as.character(unique(f3))
+
     cat("\n======================\n")
     cat("Multiple comparasion")
     cat("\n======================\n")

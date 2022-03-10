@@ -41,7 +41,7 @@
 #' @param ylim y-axis scale
 #' @param point if quali=F, defines whether to plot all points ("all"), mean ("mean"), standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").
 #' @param angle.label label angle
-#' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+#' @note The order of the chart follows the alphabetical pattern. Please use `scale_x_discrete` from package ggplot2, `limits` argument to reorder x-axis. The bars of the column and segment graphs are standard deviation.
 #' @note The function does not perform multiple regression in the case of two quantitative factors.
 #' @note The assumptions of variance analysis disregard additional treatment
 #' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
@@ -114,6 +114,15 @@ FAT2DBC.ad=function(f1,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
+  organiz=data.frame(f1,f2,block,response)
+  organiz=organiz[order(organiz$block),]
+  organiz=organiz[order(organiz$f2),]
+  organiz=organiz[order(organiz$f1),]
+  f1=organiz$f1
+  f2=organiz$f2
+  block=organiz$block
+  response=organiz$response
+
   fator1=f1
   fator2=f2
   fator1a=fator1

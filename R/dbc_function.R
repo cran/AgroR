@@ -3,7 +3,7 @@
 #' @author Gabriel Danilo Shimizu, \email{shimizu@uel.br}
 #' @author Leandro Simoes Azeredo Goncalves
 #' @author Rodrigo Yudi Palhaci Marubayashi
-#' @description This is a function of the AgroR package for statistical analysis of experiments conducted in a randomized block and balanced design with a factor considering the fixed model.
+#' @description This is a function of the AgroR package for statistical analysis of experiments conducted in a randomized block and balanced design with a factor considering the fixed model. The function presents the option to use non-parametric method or transform the dataset.
 #' @param trat Numerical or complex vector with treatments
 #' @param block Numerical or complex vector with blocks
 #' @param response Numerical vector containing the response of the experiment.
@@ -32,8 +32,10 @@
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param posi Legend position
-#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se"). #' @param labelsize Label size
+#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
+#' @param labelsize Label size
 #' @param angle.label label angle
+#' @note Enable ggplot2 package to change theme argument.
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
 #' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
@@ -55,7 +57,7 @@
 #'
 #' @seealso \link{DIC}, \link{DQL}
 #' @export
-#' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
+#' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk ("sw"), Lilliefors ("li"), Anderson-Darling ("ad"), Cramer-von Mises ("cvm"), Pearson ("pearson") and Shapiro-Francia ("sf")), the test of homogeneity of variances (Bartlett ("bt") or Levene ("levene")), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey ("tukey"), LSD ("lsd"), Scott-Knott ("sk") or Duncan ("duncan")) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Friedman test. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 #' @examples
 #' library(AgroR)
 #'

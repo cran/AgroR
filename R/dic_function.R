@@ -1,6 +1,6 @@
 #' Analysis: Completely randomized design
 #'
-#' @description Statistical analysis of experiments conducted in a completely randomized and balanced design with a factor considering the fixed model.
+#' @description Statistical analysis of experiments conducted in a completely randomized and balanced design with a factor considering the fixed model. The function presents the option to use non-parametric method or transform the dataset.
 #' @author Gabriel Danilo Shimizu, \email{shimizu@uel.br}
 #' @author Leandro Simoes Azeredo Goncalves
 #' @author Rodrigo Yudi Palhaci Marubayashi
@@ -61,6 +61,7 @@
 #' @importFrom cowplot plot_grid
 #' @importFrom lmtest dwtest
 #' @importFrom stats cor.test
+#' @note Enable ggplot2 package to change theme argument.
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @note Post hoc test in nonparametric is using the criterium Fisher's least significant difference (p-adj="holm").
 #' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
@@ -81,7 +82,7 @@
 #'
 #' Hothorn, T. et al. Package ‘lmtest’. Testing linear regression models. https://cran. r-project. org/web/packages/lmtest/lmtest. pdf. Accessed, v. 6, 2015.
 #'
-#' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Kruskal-Wallis test. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
+#' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk ("sw"), Lilliefors ("li"), Anderson-Darling ("ad"), Cramer-von Mises ("cvm"), Pearson ("pearson") and Shapiro-Francia ("sf")), the test of homogeneity of variances (Bartlett ("bt") or Levene ("levene")), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey ("tukey"), LSD ("lsd"), Scott-Knott ("sk") or Duncan ("duncan")) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. Non-parametric analysis can be used by the Kruskal-Wallis test. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.
 #' @keywords DIC
 #' @keywords Experimental
 #' @seealso \link{DBC} \link{DQL}

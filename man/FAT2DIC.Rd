@@ -120,7 +120,7 @@ The table of analysis of variance, the test of normality of errors (Shapiro-Wilk
 Analysis of an experiment conducted in a completely randomized design in a double factorial scheme using analysis of variance of fixed effects.
 }
 \note{
-The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
+The order of the chart follows the alphabetical pattern. Please use `scale_x_discrete` from package ggplot2, `limits` argument to reorder x-axis. The bars of the column and segment graphs are standard deviation.
 
 The function does not perform multiple regression in the case of two quantitative factors.
 

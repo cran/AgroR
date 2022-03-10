@@ -1,8 +1,8 @@
 Package: AgroR
 Type: Package
 Title: Experimental Statistics and Graphics for Agricultural Sciences
-Version: 1.2.7
-Date: 2022-02-07
+Version: 1.2.8
+Date: 2022-03-10
 Authors@R: 
   c(person("Gabriel Danilo","Shimizu",
            role = c("aut", "cre"),
@@ -24,9 +24,10 @@ Imports: ggplot2, nortest, lme4, crayon, lmtest, emmeans, multcomp,
 Suggests: DT, knitr, rmarkdown, roxygen2
 Depends: R (>= 3.6.0)
 License: GPL (>= 2)
-URL: https://agronomiar.github.io/AgroR_package/index.html
+URL: https://agronomiar.github.io/AgroR_package/index.html,
+        https://agrorproject.shinyapps.io/agror_shiny/
 NeedsCompilation: no
-Packaged: 2022-02-07 20:19:08 UTC; Gabriel
+Packaged: 2022-03-10 19:39:14 UTC; Usuario
 Author: Gabriel Danilo Shimizu [aut, cre]
     (<https://orcid.org/0000-0001-8524-508X>),
   Rodrigo Yudi Palhaci Marubayashi [aut, ctb]
@@ -34,4 +35,4 @@ Author: Gabriel Danilo Shimizu [aut, cre]
   Leandro Simoes Azeredo Goncalves [aut, ctb]
     (<https://orcid.org/0000-0001-9700-9375>)
 Repository: CRAN
-Date/Publication: 2022-02-07 21:20:07 UTC
+Date/Publication: 2022-03-10 20:10:02 UTC
