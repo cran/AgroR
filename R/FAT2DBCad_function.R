@@ -17,7 +17,7 @@
 #' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.
 #' @param grau12 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.
 #' @param grau21 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.
-#' @param transf Applies data transformation (default is 1; for log consider 0)
+#' @param transf Applies data transformation (default is 1; for log consider 0; `angular` for angular transformation)
 #' @param constant Add a constant for transformation (enter value)
 #' @param geom Graph type (columns or segments (For simple effect only))
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
@@ -114,7 +114,22 @@ FAT2DBC.ad=function(f1,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
-  organiz=data.frame(f1,f2,block,response)
+  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==0){resp=log(response+constant)}
+  if(transf==0.5){resp=sqrt(response+constant)}
+  if(transf==-0.5){resp=1/sqrt(response+constant)}
+  if(transf==-1){resp=1/(response+constant)}
+  if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
+
+  if(transf==1){respAd=responseAd+constant}else{respAd=((responseAd+constant)^transf-1)/transf}
+  if(transf==0){respAd=log(responseAd+constant)}
+  if(transf==0.5){respAd=sqrt(responseAd+constant)}
+  if(transf==-0.5){respAd=1/sqrt(responseAd+constant)}
+  if(transf==-1){respAd=1/(responseAd+constant)}
+  if(transf=="angular"){respAd=asin(sqrt((responseAd+constant)/100))}
+
+  resp1=resp
+  organiz=data.frame(f1,f2,block,response,resp)
   organiz=organiz[order(organiz$block),]
   organiz=organiz[order(organiz$f2),]
   organiz=organiz[order(organiz$f1),]
@@ -122,22 +137,12 @@ FAT2DBC.ad=function(f1,
   f2=organiz$f2
   block=organiz$block
   response=organiz$response
-
+  resp=organiz$resp
   fator1=f1
   fator2=f2
   fator1a=fator1
   fator2a=fator2
   block=as.factor(block)
-  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
-  if(transf==0){resp=log(response+constant)}
-  if(transf==0.5){resp=sqrt(response+constant)}
-  if(transf==-0.5){resp=1/sqrt(response+constant)}
-  if(transf==-1){resp=1/(response+constant)}
-  if(transf==1){respAd=responseAd+constant}else{respAd=((responseAd+constant)^transf-1)/transf}
-  if(transf==0){respAd=log(responseAd+constant)}
-  if(transf==0.5){respAd=sqrt(responseAd+constant)}
-  if(transf==-0.5){respAd=1/sqrt(responseAd+constant)}
-  if(transf==-1){respAd=1/(responseAd+constant)}
 
   if(is.na(sup==TRUE)){sup=0.1*mean(response)}
   Fator1=factor(fator1, levels = unique(fator1))
@@ -173,7 +178,7 @@ FAT2DBC.ad=function(f1,
   }
   rownames(anava1)[5]="Ad x Factorial"
   anava=anava1
-  b=aov(resp ~ Fator1 * Fator2+block)
+  b=aov(resp1 ~ Fator1 * Fator2+block)
   an=anova(b)
   respad=b$residuals/sqrt(an$`Mean Sq`[5])
   out=respad[respad>3 | respad<(-3)]
@@ -202,15 +207,14 @@ FAT2DBC.ad=function(f1,
     names(homog1)=c("Df", "statistic","p.value")}
 
   indep = dwtest(b)
-  resids=b$residuals/sqrt(an$`Mean Sq`[5])
-  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
-  residplot=ggplot(data=data.frame(resids,Ids),
-                   aes(y=resids,x=1:length(resids)))+
+  Ids=ifelse(respad>3 | respad<(-3), "darkblue","black")
+  residplot=ggplot(data=data.frame(respad,Ids),
+                   aes(y=respad,x=1:length(respad)))+
     geom_point(shape=21,color="gray",fill="gray",size=3)+
     labs(x="",y="Standardized residuals")+
-    geom_text(x=1:length(resids),label=1:length(resids),
+    geom_text(x=1:length(respad),label=1:length(respad),
               color=Ids,size=labelsize)+
-    scale_x_continuous(breaks=1:length(resids))+
+    scale_x_continuous(breaks=1:length(respad))+
     theme_classic()+theme(axis.text.y = element_text(size=textsize),
                           axis.text.x = element_blank())+
     geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)

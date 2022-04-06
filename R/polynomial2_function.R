@@ -15,7 +15,7 @@
 #' @param legend.title Title legend
 #' @param textsize Font size (\emph{default} is 12)
 #' @param family Font family (\emph{default} is sans)
-#' @param point Defines whether to plot all points ("all"), mean ("mean"), mean with standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").
+#' @param point Defines whether to plot all points ("all"), mean ("mean"), mean with standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se").
 #' @param ylim y-axis scale
 #' @param posi Legend position
 #' @param width.bar width of the error bars of a regression graph.

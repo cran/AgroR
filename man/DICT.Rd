@@ -21,6 +21,7 @@ DICT(
   error = TRUE,
   textsize = 12,
   labelsize = 5,
+  pointsize = 4.5,
   family = "sans",
   sup = 0,
   addmean = FALSE,
@@ -66,6 +67,8 @@ DICT(
 
 \item{labelsize}{Font size of the labels}
 
+\item{pointsize}{Point size}
+
 \item{family}{Font family}
 
 \item{sup}{Number of units above the standard deviation or average bar on the graph}
@@ -101,6 +104,7 @@ data(simulate1)
 attach(simulate1)
 with(simulate1, DICT(trat, tempo, resp))
 with(simulate1, DICT(trat, tempo, resp,geom="bar",sup=40))
+with(simulate1, DICT(trat, tempo, resp,geom="point",sup=40,))
 }
 \references{
 

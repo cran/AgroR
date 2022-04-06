@@ -19,8 +19,31 @@
 #'
 #' Box, G. E., Cox, D. R. (1964). An analysis of transformations. Journal of the Royal Statistical Society: Series B (Methodological), 26(2), 211-243.
 #' @examples
+#'
+#' #================================================================
+#' # Completely randomized design
+#' #================================================================
 #' data("pomegranate")
-#' with(pomegranate, transf(WL,trat))
+#' with(pomegranate, transf(WL,f1=trat))
+#'
+#' #================================================================
+#' # Randomized block design
+#' #================================================================
+#' data(soybean)
+#' with(soybean, transf(prod, f1=cult, block=bloc))
+#'
+#' #================================================================
+#' # Completely randomized design in double factorial
+#' #================================================================
+#' data(cloro)
+#' with(cloro, transf(resp, f1=f1, f2=f2))
+#'
+#' #================================================================
+#' # Randomized block design in double factorial
+#' #================================================================
+#' data(cloro)
+#' with(cloro, transf(resp, f1=f1, f2=f2, block=bloco))
+
 
 transf=function(response,
                 f1,
@@ -32,38 +55,38 @@ transf=function(response,
   # DIC simples
   requireNamespace("MASS")
 
-  if(is.na(f2)==TRUE && is.na(f3)==TRUE && is.na(block)==TRUE &&
-     is.na(line)==TRUE && is.na(column)==TRUE){
+  if(is.na(f2[1])==TRUE && is.na(f3[1])==TRUE && is.na(block[1])==TRUE &&
+     is.na(line[1])==TRUE && is.na(column[1])==TRUE){
     vero=MASS::boxcox(response~f1)}
 
   # DBC simples
-  if(is.na(f2)==TRUE && is.na(f3)==TRUE && is.na(block)==FALSE &&
-     is.na(line)==TRUE && is.na(column)==TRUE){
+  if(is.na(f2[1])==TRUE && is.na(f3[1])==TRUE && is.na(block[1])==FALSE &&
+     is.na(line[1])==TRUE && is.na(column[1])==TRUE){
     vero=MASS::boxcox(response~f1+block)}
 
   # DQL
-  if(is.na(f2)==TRUE && is.na(f3)==TRUE && is.na(block)==TRUE &&
-     is.na(line)==FALSE && is.na(column)==FALSE){
+  if(is.na(f2[1])==TRUE && is.na(f3[1])==TRUE && is.na(block[1])==TRUE &&
+     is.na(line[1])==FALSE && is.na(column[1])==FALSE){
     vero=MASS::boxcox(response~f1+column+line)}
 
   # fat2.dic
-  if(is.na(f2)==FALSE && is.na(f3)==TRUE && is.na(block)==TRUE &&
-     is.na(line)==TRUE && is.na(column)==TRUE){
+  if(is.na(f2[1])==FALSE && is.na(f3[1])==TRUE && is.na(block[1])==TRUE &&
+     is.na(line[1])==TRUE && is.na(column[1])==TRUE){
     vero=MASS::boxcox(response~f1*f2)}
 
   #fat2dbc
-  if(is.na(f2)==FALSE && is.na(f3)==TRUE && is.na(block)==FALSE &&
-     is.na(line)==TRUE && is.na(column)==TRUE){
+  if(is.na(f2[1])==FALSE && is.na(f3[1])==TRUE && is.na(block[1])==FALSE &&
+     is.na(line[1])==TRUE && is.na(column[1])==TRUE){
     vero=MASS::boxcox(response~f1*f2+block)}
 
   # fat3dic
-  if(is.na(f2)==FALSE && is.na(f3)==FALSE && is.na(block)==TRUE &&
-     is.na(line)==TRUE && is.na(column)==TRUE){
+  if(is.na(f2[1])==FALSE && is.na(f3[1])==FALSE && is.na(block[1])==TRUE &&
+     is.na(line[1])==TRUE && is.na(column[1])==TRUE){
     vero=MASS::boxcox(response~f1*f2*f3)}
 
   # fat3dic
-  if(is.na(f2)==FALSE && is.na(f3)==FALSE && is.na(block)==FALSE &&
-     is.na(line)==TRUE && is.na(column)==TRUE){
+  if(is.na(f2[1])==FALSE && is.na(f3[1])==FALSE && is.na(block[1])==FALSE &&
+     is.na(line[1])==TRUE && is.na(column[1])==TRUE){
     vero=MASS::boxcox(response~f1*f2*f3+block)}
 
   maxvero = vero$x[which.max(vero$y)]

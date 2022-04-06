@@ -86,7 +86,7 @@ FAT3DIC(
 
 \item{grau312}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 3, in the case of interaction f1 x f2 x f3 and quantitative factor 3.}
 
-\item{transf}{Applies data transformation (\emph{default} is 1; for log consider 0)}
+\item{transf}{Applies data transformation (\emph{default} is 1; for log consider 0; `angular` for angular transformation)}
 
 \item{constant}{Add a constant for transformation (enter value)}
 

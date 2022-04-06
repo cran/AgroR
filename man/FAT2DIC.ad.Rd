@@ -74,7 +74,7 @@ FAT2DIC.ad(
 
 \item{grau21}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.}
 
-\item{transf}{Applies data transformation (default is 1; for log consider 0)}
+\item{transf}{Applies data transformation (default is 1; for log consider 0; `angular` for angular transformation)}
 
 \item{constant}{Add a constant for transformation (enter value)}
 

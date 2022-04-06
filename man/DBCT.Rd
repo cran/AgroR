@@ -19,6 +19,7 @@ DBCT(
   xlab = "Independent",
   textsize = 12,
   labelsize = 5,
+  pointsize = 4.5,
   error = TRUE,
   family = "sans",
   sup = 0,
@@ -61,6 +62,8 @@ DBCT(
 \item{textsize}{Font size of the texts and titles of the axes}
 
 \item{labelsize}{Font size of the labels}
+
+\item{pointsize}{Point size}
 
 \item{error}{Add error bar (SD)}
 

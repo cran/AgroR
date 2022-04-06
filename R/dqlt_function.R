@@ -21,6 +21,7 @@
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param textsize Font size of the texts and titles of the axes
 #' @param labelsize Font size of the labels
+#' @param pointsize Point size
 #' @param family Font family
 #' @param dec Number of cells
 #' @param geom Graph type (columns - "bar" or segments "point")
@@ -69,6 +70,7 @@ DQLT=function(trat,
               ylab="Response",
               textsize=12,
               labelsize=5,
+              pointsize=4.5,
               family="sans",
               sup=0,
               addmean=FALSE,
@@ -264,7 +266,7 @@ DQLT=function(trat,
     grafico=ggplot(dadosm,aes(y=media,
                               x=tempo))+
       geom_point(aes(shape=factor(trat,levels=unique(as.character(trat))),
-                     group=factor(trat, levels=unique(as.character(trat)))),size=3)+
+                     group=factor(trat, levels=unique(as.character(trat)))),size=pointsize)+
       geom_line(aes(lty=factor(trat, levels=unique(as.character(trat))),
                     group=factor(trat, levels=unique(as.character(trat)))),size=0.8)+
       ylab(ylab)+

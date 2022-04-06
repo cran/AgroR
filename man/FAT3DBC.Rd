@@ -69,7 +69,7 @@ FAT3DBC(
 
 \item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)}
 
-\item{transf}{Applies data transformation (\emph{default} is 1; for log consider 0)}
+\item{transf}{Applies data transformation (\emph{default} is 1; for log consider 0; `angular` for angular transformation)}
 
 \item{constant}{Add a constant for transformation (enter value)}
 

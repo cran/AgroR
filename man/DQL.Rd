@@ -60,7 +60,7 @@ DQL(
 
 \item{grau}{Degree of polynomial in case of quantitative factor (\emph{default} is 1)}
 
-\item{transf}{Applies data transformation (default is 1; for log consider 0)}
+\item{transf}{Applies data transformation (default is 1; for log consider 0; `angular` for angular transformation)}
 
 \item{constant}{Add a constant for transformation (enter value)}
 

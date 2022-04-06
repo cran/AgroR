@@ -1,3 +1,9 @@
+# AgroR 1.2.9
+
+ * Fix a bug standard residuals graph in functions `FAT2DIC`, `FAT2DBC`, `FAT2DIC.ad`, `FAT2DBC.ad`, `FAT3DIC`, `FAT3DBC`, `FAT3DIC.ad`, `FAT3DBC.ad`, `PSUBDIC` and `PSUBDBC`
+ 
+ * fix a bug in double interaction significant in `FAT3DIC`,`FAT3DBC`,`FAT3DIC.ad` and `FAT3DIC.ad`
+
 # AgroR 1.2.8
 
 ## Minor changes

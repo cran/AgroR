@@ -13,7 +13,7 @@
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
-#' @param transf Applies data transformation (default is 1; for log consider 0)
+#' @param transf Applies data transformation (default is 1; for log consider 0; `angular` for angular transformation)
 #' @param constant Add a constant for transformation (enter value)
 #' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.
 #' @param grau12 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.
@@ -129,13 +129,22 @@ FAT2DBC=function(f1,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
-  organiz=data.frame(f1,f2,block,response)
+  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==0){resp=log(response+constant)}
+  if(transf==0.5){resp=sqrt(response+constant)}
+  if(transf==-0.5){resp=1/sqrt(response+constant)}
+  if(transf==-1){resp=1/(response+constant)}
+  if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
+
+  resp1=resp
+  organiz=data.frame(f1,f2,block,resp,response)
   organiz=organiz[order(organiz$block),]
   organiz=organiz[order(organiz$f2),]
   organiz=organiz[order(organiz$f1),]
   f1=organiz$f1
   f2=organiz$f2
   block=organiz$block
+  resp=organiz$resp
   response=organiz$response
 
   fator1=f1
@@ -153,18 +162,15 @@ FAT2DBC=function(f1,
   lf2 <- levels(Fator2)
   fac.names = c("F1", "F2")
   fatores <- data.frame(Fator1, Fator2)
-  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
-  if(transf==0){resp=log(response+constant)}
-  if(transf==0.5){resp=sqrt(response+constant)}
-  if(transf==-0.5){resp=1/sqrt(response+constant)}
-  if(transf==-1){resp=1/(response+constant)}
   graph=data.frame(Fator1,Fator2,resp)
   a=anova(aov(resp~Fator1*Fator2+bloco))
   ab=anova(aov(response~Fator1*Fator2+bloco))
   b=aov(resp~Fator1*Fator2+bloco)
   anava=a
   colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
-  respad=b$residuals/sqrt(a$`Mean Sq`[5])
+
+  bres=aov(resp1~Fator1*Fator2+bloco)
+  respad=bres$residuals/sqrt(a$`Mean Sq`[5])
   out=respad[respad>3 | respad<(-3)]
   out=names(out)
   out=if(length(out)==0)("No discrepant point")else{out}
@@ -191,14 +197,13 @@ FAT2DBC=function(f1,
     names(homog1)=c("Df", "statistic","p.value")}
 
   indep = dwtest(b)
-  resids=b$residuals/sqrt(a$`Mean Sq`[5])
-  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
-  residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+  Ids=ifelse(respad>3 | respad<(-3), "darkblue","black")
+  residplot=ggplot(data=data.frame(respad,Ids),aes(y=respad,x=1:length(respad)))+
     geom_point(shape=21,color="gray",fill="gray",size=3)+
     labs(x="",y="Standardized residuals")+
-    geom_text(x=1:length(resids),label=1:length(resids),
+    geom_text(x=1:length(respad),label=1:length(respad),
               color=Ids,size=labelsize)+
-    scale_x_continuous(breaks=1:length(resids))+
+    scale_x_continuous(breaks=1:length(respad))+
     theme_classic()+theme(axis.text.y = element_text(size=textsize),
                           axis.text.x = element_blank())+
     geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)

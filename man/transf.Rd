@@ -28,8 +28,30 @@ Returns the value of lambda and/or data transformation approximation, according 
 Estimates the lambda value for data transformation
 }
 \examples{
+
+#================================================================
+# Completely randomized design
+#================================================================
 data("pomegranate")
-with(pomegranate, transf(WL,trat))
+with(pomegranate, transf(WL,f1=trat))
+
+#================================================================
+# Randomized block design
+#================================================================
+data(soybean)
+with(soybean, transf(prod, f1=cult, block=bloc))
+
+#================================================================
+# Completely randomized design in double factorial
+#================================================================
+data(cloro)
+with(cloro, transf(resp, f1=f1, f2=f2))
+
+#================================================================
+# Randomized block design in double factorial
+#================================================================
+data(cloro)
+with(cloro, transf(resp, f1=f1, f2=f2, block=bloco))
 }
 \references{
 Box, G. E., Cox, D. R. (1964). An analysis of transformations. Journal of the Royal Statistical Society: Series B (Methodological), 26(2), 211-243.

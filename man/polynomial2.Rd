@@ -48,7 +48,7 @@ polynomial2(
 
 \item{se}{Adds confidence interval (\emph{default} is FALSE)}
 
-\item{point}{Defines whether to plot all points ("all"), mean ("mean"), mean with standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").}
+\item{point}{Defines whether to plot all points ("all"), mean ("mean"), mean with standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se").}
 
 \item{legend.title}{Title legend}
 

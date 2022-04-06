@@ -15,7 +15,7 @@
 #' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.
 #' @param grau12 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.
 #' @param grau21 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.
-#' @param transf Applies data transformation (default is 1; for log consider 0)
+#' @param transf Applies data transformation (default is 1; for log consider 0; `angular` for angular transformation)
 #' @param constant Add a constant for transformation (enter value)
 #' @param geom Graph type (columns or segments (For simple effect only))
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
@@ -123,18 +123,6 @@ FAT2DIC=function(f1,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
-  organiz=data.frame(f1,f2,response)
-  organiz=organiz[order(organiz$f2),]
-  organiz=organiz[order(organiz$f1),]
-  f1=organiz$f1
-  f2=organiz$f2
-  response=organiz$response
-
-  fator1=f1
-  fator2=f2
-  fator1a=fator1
-  fator2a=fator2
-
   # ================================
   # Transformacao de dados
   # ================================
@@ -143,7 +131,22 @@ FAT2DIC=function(f1,
   if(transf==0.5){resp=sqrt(response+constant)}
   if(transf==-0.5){resp=1/sqrt(response+constant)}
   if(transf==-1){resp=1/(response+constant)}
+  if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
   if(is.na(sup==TRUE)){sup=0.1*mean(response)}
+  resp1=resp
+  organiz=data.frame(f1,f2,resp,response)
+  organiz=organiz[order(organiz$f2),]
+  organiz=organiz[order(organiz$f1),]
+  f1=organiz$f1
+  f2=organiz$f2
+  response=organiz$response
+  resp=organiz$resp
+
+  fator1=f1
+  fator2=f2
+  fator1a=fator1
+  fator2a=fator2
+
   Fator1=factor(fator1, levels = unique(fator1))
   Fator2=factor(fator2, levels = unique(fator2))
   nv1 <- length(summary(Fator1))
@@ -159,7 +162,9 @@ FAT2DIC=function(f1,
   ab=anova(aov(response~Fator1*Fator2))
   anava=a
   colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
-  respad=b$residuals/sqrt(a$`Mean Sq`[3])
+
+  bres=aov(resp1~Fator1*Fator2)
+  respad=bres$residuals/sqrt(a$`Mean Sq`[4])
   out=respad[respad>3 | respad<(-3)]
   out=names(out)
   out=if(length(out)==0)("No discrepant point")else{out}
@@ -186,19 +191,17 @@ FAT2DIC=function(f1,
     names(homog1)=c("Df", "statistic","p.value")}
 
   indep = dwtest(b)
-  resids=b$residuals/sqrt(a$`Mean Sq`[4])
-  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
-  residplot=ggplot(data=data.frame(resids,Ids),
-                   aes(y=resids,x=1:length(resids)))+
+  Ids=ifelse(respad>3 | respad<(-3), "darkblue","black")
+  residplot=ggplot(data=data.frame(respad,Ids),
+                   aes(y=respad,x=1:length(respad)))+
     geom_point(shape=21,color="gray",fill="gray",size=3)+
     labs(x="",y="Standardized residuals")+
-    geom_text(x=1:length(resids),label=1:length(resids),
+    geom_text(x=1:length(respad),label=1:length(respad),
               color=Ids,size=labelsize)+
-    scale_x_continuous(breaks=1:length(resids))+
+    scale_x_continuous(breaks=1:length(respad))+
     theme_classic()+theme(axis.text.y = element_text(size=textsize),
                           axis.text.x = element_blank())+
     geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
-  #print(residplot)
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(green(bold("Normality of errors")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -261,11 +264,6 @@ FAT2DIC=function(f1,
     message("\nYour analysis is not valid\n")}else{}
   message(if(transf !=1){blue("NOTE: resp = transformed means; respO = averages without transforming\n")})
 
-
-  #------------------------------------
-  # Fatores isolados
-  #------------------------------------
-
   if (a$`Pr(>F)`[3] > alpha.f)
   { cat(green(bold("-----------------------------------------------------------------\n")))
     cat(green(bold("No significant interaction")))
@@ -279,7 +277,6 @@ FAT2DIC=function(f1,
       cat(bold(fac.names[i]))
       cat(green(bold("\n-----------------------------------------------------------------\n")))
       if(quali[i]==TRUE){
-        ## Tukey
         if(mcomp=="tukey"){
           letra <- TUKEY(b, colnames(fatores[i]), alpha=alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
@@ -297,8 +294,6 @@ FAT2DIC=function(f1,
                            QME = a$`Mean Sq`[4],
                            alpha = alpha.t)
           letra1=data.frame(resp=medias,groups=sk)
-          # letra=SK(b,colnames(fatores[i]))
-          # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],
                                              mean, na.rm=TRUE)[rownames(letra1)]}}
         if(mcomp=="duncan"){
@@ -424,8 +419,6 @@ FAT2DIC=function(f1,
       print(tapply(response,list(fator1,fator2),mean, na.rm=TRUE))}
   }
 
-  # Desdobramento de F1 dentro de F2
-
       if (a$`Pr(>F)`[3]  <= alpha.f) {
       fatores <- data.frame(Fator1, Fator2)
       cat(green(bold("-----------------------------------------------------------------\n")))
@@ -528,8 +521,6 @@ FAT2DIC=function(f1,
           letra=datag$letra}
       }
 
-      # Desdobramento de F2 dentro de F1
-
       cat("\n-----------------------------------------------------------------\n")
       cat("Analyzing ", fac.names[2], " inside of the level of ",fac.names[1])
       cat("\n-----------------------------------------------------------------\n")
@@ -548,9 +539,6 @@ FAT2DIC=function(f1,
       print(des1.tab)
       desdobramento2=des1.tab
 
-      #-------------------------------------
-      # Teste de comparação
-      #-------------------------------------
       if(quali[1]==TRUE & quali[2]==TRUE){
       if (mcomp == "tukey"){
       tukeygrafico1=c()
@@ -610,7 +598,6 @@ FAT2DIC=function(f1,
 
       if(quali[1]==FALSE && color=="gray"| quali[2]==FALSE && color=="gray"){
         if(quali[2]==FALSE){
-          #mcomparasion=c()
           if (mcomp == "tukey"){
           for (i in 1:nv2) {
             trati=fatores[, 1][Fator2 == lf2[i]]
@@ -914,9 +901,6 @@ FAT2DIC=function(f1,
             grafico=graf}
         }
       }
-      # -----------------------------
-      # Gráfico de colunas
-      #------------------------------
       if(quali[1] & quali[2]==TRUE){
         media=tapply(response,list(Fator1,Fator2), mean, na.rm=TRUE)
         desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)

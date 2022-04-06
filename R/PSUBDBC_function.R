@@ -113,7 +113,13 @@ PSUBDBC=function(f1,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
-  organiz=data.frame(f1,f2,block,response)
+  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==0){resp=log(response+constant)}
+  if(transf==0.5){resp=sqrt(response+constant)}
+  if(transf==-0.5){resp=1/sqrt(response+constant)}
+  if(transf==-1){resp=1/(response+constant)}
+  resp1=resp
+  organiz=data.frame(f1,f2,block,response,resp)
   organiz=organiz[order(organiz$block),]
   organiz=organiz[order(organiz$f2),]
   organiz=organiz[order(organiz$f1),]
@@ -121,7 +127,7 @@ PSUBDBC=function(f1,
   f2=organiz$f2
   block=organiz$block
   response=organiz$response
-
+  resp=organiz$resp
   fator1=f1
   fator2=f2
   fator1a=fator1
@@ -141,11 +147,6 @@ PSUBDBC=function(f1,
   # ================================
   # Transformacao de dados
   # ================================
-  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
-  if(transf==0){resp=log(response+constant)}
-  if(transf==0.5){resp=sqrt(response+constant)}
-  if(transf==-0.5){resp=1/sqrt(response+constant)}
-  if(transf==-1){resp=1/(response+constant)}
   graph=data.frame(Fator1,Fator2,resp)
   # -----------------------------
   # Analise de variancia
@@ -169,7 +170,7 @@ PSUBDBC=function(f1,
   # -----------------------------
   # Pressupostos
   # -----------------------------
-  modp=lme4::lmer(resp~Fator1*Fator2+(1|bloco/Fator1)+bloco)
+  modp=lme4::lmer(resp1~Fator1*Fator2+(1|bloco/Fator1)+bloco)
   resids=residuals(modp,scaled=TRUE)
   Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
   residplot=ggplot(data=data.frame(resids,Ids),

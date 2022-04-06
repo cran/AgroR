@@ -109,7 +109,13 @@ PSUBDIC=function(f1,
     requireNamespace("crayon")
     requireNamespace("ggplot2")
     requireNamespace("nortest")
-    organiz=data.frame(f1,f2,block,response)
+    if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
+    if(transf==0){resp=log(response)}
+    if(transf==0.5){resp=sqrt(response)}
+    if(transf==-0.5){resp=1/sqrt(response)}
+    if(transf==-1){resp=1/response}
+    resp1=resp
+    organiz=data.frame(f1,f2,block,response,resp)
     organiz=organiz[order(organiz$block),]
     organiz=organiz[order(organiz$f2),]
     organiz=organiz[order(organiz$f1),]
@@ -117,12 +123,8 @@ PSUBDIC=function(f1,
     f2=organiz$f2
     block=organiz$block
     response=organiz$response
+    resp=organiz$resp
 
-    if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
-    if(transf==0){resp=log(response)}
-    if(transf==0.5){resp=sqrt(response)}
-    if(transf==-0.5){resp=1/sqrt(response)}
-    if(transf==-1){resp=1/response}
     fator1=f1
     fator2=f2
     fator1a=fator1
@@ -161,7 +163,7 @@ PSUBDIC=function(f1,
     # -----------------------------
     # Pressupostos
     # -----------------------------
-    modp=lme4::lmer(resp~Fator1*Fator2+(1|bloco/Fator1))
+    modp=lme4::lmer(resp1~Fator1*Fator2+(1|bloco/Fator1))
     resids=residuals(modp,scaled=TRUE)
     Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
     residplot=ggplot(data=data.frame(resids,Ids),

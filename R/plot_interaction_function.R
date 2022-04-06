@@ -50,14 +50,14 @@ plot_interaction=function(a,
 
   if(isTRUE(repel)==FALSE & box_label==TRUE){
     graph=graph+
-    geom_label(aes(label=data$data$numero),show.legend = FALSE)}
+    geom_label(aes(label=data$data$numero),show.legend = FALSE,family=a[[2]]$plot$family)}
   if(isTRUE(repel)==TRUE & box_label==TRUE){
     requireNamespace("ggrepel")
     graph=graph+
-      geom_label_repel(aes(label=data$data$numero),show.legend = FALSE)}
+      geom_label_repel(aes(label=data$data$numero),show.legend = FALSE,family=a[[2]]$plot$family)}
   if(isTRUE(repel)==FALSE & box_label==FALSE){
     graph=graph+
-      geom_text(aes(label=data$data$numero),show.legend = FALSE)}
+      geom_text(aes(label=data$data$numero),show.legend = FALSE,family=a[[2]]$plot$family)}
   if(isTRUE(repel)==TRUE & box_label==FALSE){
     requireNamespace("ggrepel")
     graph=graph+

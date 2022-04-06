@@ -18,6 +18,7 @@ DQLT(
   ylab = "Response",
   textsize = 12,
   labelsize = 5,
+  pointsize = 4.5,
   family = "sans",
   sup = 0,
   addmean = FALSE,
@@ -60,6 +61,8 @@ DQLT(
 \item{textsize}{Font size of the texts and titles of the axes}
 
 \item{labelsize}{Font size of the labels}
+
+\item{pointsize}{Point size}
 
 \item{family}{Font family}
 

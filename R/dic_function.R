@@ -13,9 +13,10 @@
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
-#' @param transf Applies data transformation (\emph{default} is 1; for log consider 0)
+#' @param transf Applies data transformation (\emph{default} is 1; for log consider 0, `angular` for angular transformation)
 #' @param constant Add a constant for transformation (enter value)
 #' @param test "parametric" - Parametric test or "noparametric" - non-parametric test
+#' @param mcompNP Multiple comparison test (LSD (\emph{default}) or dunn)
 #' @param p.adj Method for adjusting p values for Kruskal-Wallis ("none","holm","hommel", "hochberg", "bonferroni", "BH", "BY", "fdr")
 #' @param geom Graph type (columns, boxes or segments)
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
@@ -133,6 +134,7 @@ DIC <- function(trat,
                 transf=1,
                 constant=0,
                 test="parametric",
+                mcompNP="LSD",
                 p.adj="holm",
                 geom="bar",
                 theme=theme_classic(),
@@ -158,242 +160,244 @@ DIC <- function(trat,
   requireNamespace("ggplot2")
 
   if(test=="parametric"){
-  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
-  if(transf==0){resp=log(response+constant)}
-  if(transf==0.5){resp=sqrt(response+constant)}
-  if(transf==-0.5){resp=1/sqrt(response+constant)}
-  if(transf==-1){resp=1/(response+constant)}
-  trat1=trat
-  trat=as.factor(trat)
-  a = anova(aov(resp ~ trat))
-  aa = summary(aov(resp ~ trat))
-  b = aov(resp ~ trat)
-  anava=a
-  colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
-  respad=b$residuals/sqrt(a$`Mean Sq`[2])
-  out=respad[respad>3 | respad<(-3)]
-  out=names(out)
-  out=if(length(out)==0)("No discrepant point")else{out}
-  if(norm=="sw"){norm1 = shapiro.test(b$res)}
-  if(norm=="li"){norm1=nortest::lillie.test(b$residuals)}
-  if(norm=="ad"){norm1=nortest::ad.test(b$residuals)}
-  if(norm=="cvm"){norm1=nortest::cvm.test(b$residuals)}
-  if(norm=="pearson"){norm1=nortest::pearson.test(b$residuals)}
-  if(norm=="sf"){norm1=nortest::sf.test(b$residuals)}
-  if(homog=="bt"){
-    homog1 = bartlett.test(b$res ~ trat)
-    statistic=homog1$statistic
-    phomog=homog1$p.value
-    method=paste("Bartlett test","(",names(statistic),")",sep="")
-  }
-  if(homog=="levene"){
-    homog1 = levenehomog(b$res~trat)[1,]
-    statistic=homog1$`F value`[1]
-    phomog=homog1$`Pr(>F)`[1]
-    method="Levene's Test (center = median)(F)"
-    names(homog1)=c("Df", "statistic","p.value")}
-  indep = dwtest(b)
-  resids=b$residuals/sqrt(a$`Mean Sq`[2])
-  Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
-  residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
-    geom_point(shape=21,color="gray",fill="gray",size=3)+
-    labs(x="",y="Standardized residuals")+
-    geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
-    scale_x_continuous(breaks=1:length(resids))+
-    theme_classic()+theme(axis.text.y = element_text(size=12),
-                          axis.text.x = element_blank())+
-    geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
-  print(residplot)
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  cat(green(bold("Normality of errors")))
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  normal=data.frame(Method=paste(norm1$method,"(",names(norm1$statistic),")",sep=""),
-                    Statistic=norm1$statistic,
-                    "p-value"=norm1$p.value)
-  rownames(normal)=""
-  print(normal)
-  cat("\n")
-  message(if(norm1$p.value>0.05){
-    black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered normal")}
-      else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors do not follow a normal distribution"})
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  cat(green(bold("Homogeneity of Variances")))
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  homoge=data.frame(Method=method,
-                    Statistic=statistic,
-                    "p-value"=phomog)
-  rownames(homoge)=""
-  print(homoge)
-  cat("\n")
-  message(if(homog1$p.value>0.05){
-    black("As the calculated p-value is greater than the 5% significance level,hypothesis H0 is not rejected. Therefore, the variances can be considered homogeneous")}
-      else {"As the calculated p-value is less than the 5% significance level, H0 is rejected.Therefore, the variances are not homogeneous"})
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  cat(green(bold("Independence from errors")))
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  indepe=data.frame(Method=paste(indep$method,"(",
-                                 names(indep$statistic),")",sep=""),
-                    Statistic=indep$statistic,
-                    "p-value"=indep$p.value)
-  rownames(indepe)=""
-  print(indepe)
-  cat("\n")
-  message(if(indep$p.value>0.05){
-    black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered independent")}
-      else {"As the calculated p-value is less than the 5% significance level, H0 is rejected.Therefore, errors are not independent"})
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  cat(green(bold("Additional Information")))
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  cat(paste("\nCV (%) = ",round(sqrt(a$`Mean Sq`[2])/mean(resp,na.rm=TRUE)*100,2)))
-  cat(paste("\nR-squared = ",round(a$`Mean Sq`[1]/(a$`Mean Sq`[2]+a$`Mean Sq`[1]),2)))
-  cat(paste("\nMean = ",round(mean(response,na.rm=TRUE),4)))
-  cat(paste("\nMedian = ",round(median(response,na.rm=TRUE),4)))
-  cat("\nPossible outliers = ", out)
-  cat("\n")
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  cat(green(bold("Analysis of Variance")))
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  anava1=as.matrix(data.frame(anava))
-  colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
-  print(anava1,na.print = "")
-  cat("\n\n")
-  message(if (a$`Pr(>F)`[1]<alpha.f){
-    black("As the calculated p-value, it is less than the 5% significance level.The hypothesis H0 of equality of means is rejected. Therefore, at least two treatments differ")}
-      else {"As the calculated p-value is greater than the 5% significance level, H0 is not rejected"})
-  cat(green(bold("\n\n-----------------------------------------------------------------\n")))
-  if(quali==TRUE){cat(green(bold("Multiple Comparison Test")))}else{cat(green(bold("Regression")))}
-  cat(green(bold("\n-----------------------------------------------------------------\n")))
-  if(quali==TRUE){
-  if(mcomp=="tukey"){
-    letra <- TUKEY(b, "trat", alpha=alpha.t)
-    letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
-  if(mcomp=="sk"){
-    # letra=SK(b,"trat",sig.level=alpha.t)
-    # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
-    nrep=table(trat)[1]
-    medias=sort(tapply(resp,trat,mean),decreasing = TRUE)
-    letra=scottknott(means = medias,
-             df1 = a$Df[2],
-             nrep = nrep,
-             QME = a$`Mean Sq`[2],
-             alpha = alpha.t)
-    letra1=data.frame(resp=medias,groups=letra)}
-  if(mcomp=="duncan"){
-    letra <- duncan(b, "trat", alpha=alpha.t)
-    letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
-  if(mcomp=="lsd"){
-      letra <- LSD(b, "trat", alpha=alpha.t)
-      letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
-  media = tapply(response, trat, mean, na.rm=TRUE)
-  if(transf=="1"){letra1}else{letra1$respO=media[rownames(letra1)]}
-  print(if(a$`Pr(>F)`[1]<alpha.f){letra1}else{"H0 is not rejected"})
-  cat("\n")
-  message(if(transf=="1"){}else{blue("\nNOTE: resp = transformed means; respO = averages without transforming\n")})
-  if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 &&homog1$p.value<0.05){
-    message("\nYour analysis is not valid, suggests using a non-parametric test and try to transform the data")
-    }
-  else{}
-  if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){cat(red("\nWarning!!! Your analysis is not valid, suggests using a non-parametric test"))}else{}
-  if(point=="mean_sd"){
-  dadosm=data.frame(letra1,
-                    media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
-                    desvio=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)])}
-  if(point=="mean_se"){
-  dadosm=data.frame(letra1,
-                    media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
-                    desvio=tapply(response, trat, sd, na.rm=TRUE)/sqrt(tapply(response, trat, length))[rownames(letra1)])}
+    if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+    if(transf==0){resp=log(response+constant)}
+    if(transf==0.5){resp=sqrt(response+constant)}
+    if(transf==-0.5){resp=1/sqrt(response+constant)}
+    if(transf==-1){resp=1/(response+constant)}
+    if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
 
-  dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
-  dadosm$limite=dadosm$media+dadosm$desvio
-  dadosm=dadosm[unique(as.character(trat)),]
-  if(addmean==TRUE){dadosm$letra=paste(format(dadosm$media,digits = dec),dadosm$groups)}
-  if(addmean==FALSE){dadosm$letra=dadosm$groups}
-  trats=dadosm$trats
-  limite=dadosm$limite
-  media=dadosm$media
-  desvio=dadosm$desvio
-  letra=dadosm$letra
-  if(geom=="bar"){grafico=ggplot(dadosm,aes(x=trats,y=media))
-    if(fill=="trat"){grafico=grafico+
-      geom_col(aes(fill=trats),color=1)}else{grafico=grafico+
-      geom_col(aes(fill=trats),fill=fill,color=1)}
-  if(errorbar==TRUE){grafico=grafico+
-    geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                  label=letra),family=family,angle=angle.label,size=labelsize, hjust=hjust)}
-  if(errorbar==FALSE){grafico=grafico+
-    geom_text(aes(y=media+sup,label=letra),family=family,size=labelsize,angle=angle.label, hjust=hjust)}
-  if(errorbar==TRUE){grafico=grafico+
-    geom_errorbar(data=dadosm,aes(ymin=media-desvio,
-                                  ymax=media+desvio,color=1),
-                  color="black",width=0.3)}}
-  if(geom=="point"){grafico=ggplot(dadosm,aes(x=trats,
-                                              y=media))
-  if(errorbar==TRUE){grafico=grafico+
-    geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                  label=letra),family=family,angle=angle.label,size=labelsize, hjust=hjust)}
-  if(errorbar==FALSE){grafico=grafico+
-    geom_text(aes(y=media+sup,
-                  label=letra),family=family,angle=angle.label, size=labelsize,hjust=hjust)}
-  if(errorbar==TRUE){grafico=grafico+
-    geom_errorbar(data=dadosm,
-                  aes(ymin=media-desvio,
-                      ymax=media+desvio,color=1),
-                  color="black",width=0.3)}
-  if(fill=="trat"){grafico=grafico+
-    geom_point(aes(color=trats),size=5)}
-  else{grafico=grafico+
-    geom_point(aes(color=trats),
-               color="black",
-               fill=fill,shape=21,size=5)}}
-  if(geom=="box"){
-  datam1=data.frame(trats=factor(trat,levels = unique(as.character(trat))),
-                    response)
-  dadosm2=data.frame(letra1,
-                     superior=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)])
-  dadosm2$trats=rownames(dadosm2)
-  dadosm2=dadosm2[unique(as.character(trat)),]
-  dadosm2$limite=dadosm$media+dadosm$desvio
-  dadosm2$letra=paste(format(dadosm$media,digits = dec),dadosm$groups)
-  trats=dadosm2$trats
-  limite=dadosm2$limite
-  superior=dadosm2$superior
-  letra=dadosm2$letra
-  stat_box=ggplot(datam1,aes(x=trats,y=response))+geom_boxplot()
-  superior=ggplot_build(stat_box)$data[[1]]$ymax
-  dadosm2$superior=superior+sup
-  grafico=ggplot(datam1,aes(x=trats,y=response))
-  if(fill=="trat"){grafico=grafico+geom_boxplot(aes(fill=trats))}
-  else{grafico=grafico+
-    geom_boxplot(aes(fill=trats),fill=fill)}
-  grafico=grafico+
-    geom_text(data=dadosm2,
-              aes(y=superior,
-                  label=letra),
-              family = family,size=labelsize,angle=angle.label, hjust=hjust)}
-  grafico=grafico+
-    theme+
-    ylab(ylab)+
-    xlab(xlab)+
-    theme(text = element_text(size=textsize,color="black", family = family),
-          axis.text = element_text(size=textsize,color="black", family = family),
-          axis.title = element_text(size=textsize,color="black", family = family),
-          legend.position = "none")
-  if(angle !=0){grafico=grafico+
-    theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
-  if(CV==TRUE){grafico=grafico+
-    labs(caption=paste("p-value", if(a$`Pr(>F)`[1]<0.0001){paste("<", 0.0001)}
-                                                  else{paste("=", round(a$`Pr(>F)`[1],4))},"; CV = ",
-                                                  round(abs(sqrt(a$`Mean Sq`[2])/mean(resp))*100,2),"%"))}
-  grafico=as.list(grafico)
-  }
-  if(quali==FALSE){
-  trat=trat1
-  # trat=as.numeric(as.character(trat))
-  if(grau==1){graph=polynomial(trat,response, grau = 1,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
-  if(grau==2){graph=polynomial(trat,response, grau = 2,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
-  if(grau==3){graph=polynomial(trat,response, grau = 3,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
-  grafico=graph[[1]]
-  }}
+    trat1=trat
+    trat=as.factor(trat)
+    a = anova(aov(resp ~ trat))
+    aa = summary(aov(resp ~ trat))
+    b = aov(resp ~ trat)
+    anava=a
+    colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
+    respad=b$residuals/sqrt(a$`Mean Sq`[2])
+    out=respad[respad>3 | respad<(-3)]
+    out=names(out)
+    out=if(length(out)==0)("No discrepant point")else{out}
+    if(norm=="sw"){norm1 = shapiro.test(b$res)}
+    if(norm=="li"){norm1=nortest::lillie.test(b$residuals)}
+    if(norm=="ad"){norm1=nortest::ad.test(b$residuals)}
+    if(norm=="cvm"){norm1=nortest::cvm.test(b$residuals)}
+    if(norm=="pearson"){norm1=nortest::pearson.test(b$residuals)}
+    if(norm=="sf"){norm1=nortest::sf.test(b$residuals)}
+    if(homog=="bt"){
+      homog1 = bartlett.test(b$res ~ trat)
+      statistic=homog1$statistic
+      phomog=homog1$p.value
+      method=paste("Bartlett test","(",names(statistic),")",sep="")
+    }
+    if(homog=="levene"){
+      homog1 = levenehomog(b$res~trat)[1,]
+      statistic=homog1$`F value`[1]
+      phomog=homog1$`Pr(>F)`[1]
+      method="Levene's Test (center = median)(F)"
+      names(homog1)=c("Df", "statistic","p.value")}
+    indep = dwtest(b)
+    resids=b$residuals/sqrt(a$`Mean Sq`[2])
+    Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
+    residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+      geom_point(shape=21,color="gray",fill="gray",size=3)+
+      labs(x="",y="Standardized residuals")+
+      geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=4)+
+      scale_x_continuous(breaks=1:length(resids))+
+      theme_classic()+theme(axis.text.y = element_text(size=12),
+                            axis.text.x = element_blank())+
+      geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
+    print(residplot)
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    cat(green(bold("Normality of errors")))
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    normal=data.frame(Method=paste(norm1$method,"(",names(norm1$statistic),")",sep=""),
+                      Statistic=norm1$statistic,
+                      "p-value"=norm1$p.value)
+    rownames(normal)=""
+    print(normal)
+    cat("\n")
+    message(if(norm1$p.value>0.05){
+      black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered normal")}
+      else {"As the calculated p-value is less than the 5% significance level, H0 is rejected. Therefore, errors do not follow a normal distribution"})
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    cat(green(bold("Homogeneity of Variances")))
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    homoge=data.frame(Method=method,
+                      Statistic=statistic,
+                      "p-value"=phomog)
+    rownames(homoge)=""
+    print(homoge)
+    cat("\n")
+    message(if(homog1$p.value>0.05){
+      black("As the calculated p-value is greater than the 5% significance level,hypothesis H0 is not rejected. Therefore, the variances can be considered homogeneous")}
+      else {"As the calculated p-value is less than the 5% significance level, H0 is rejected.Therefore, the variances are not homogeneous"})
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    cat(green(bold("Independence from errors")))
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    indepe=data.frame(Method=paste(indep$method,"(",
+                                   names(indep$statistic),")",sep=""),
+                      Statistic=indep$statistic,
+                      "p-value"=indep$p.value)
+    rownames(indepe)=""
+    print(indepe)
+    cat("\n")
+    message(if(indep$p.value>0.05){
+      black("As the calculated p-value is greater than the 5% significance level, hypothesis H0 is not rejected. Therefore, errors can be considered independent")}
+      else {"As the calculated p-value is less than the 5% significance level, H0 is rejected.Therefore, errors are not independent"})
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    cat(green(bold("Additional Information")))
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    cat(paste("\nCV (%) = ",round(sqrt(a$`Mean Sq`[2])/mean(resp,na.rm=TRUE)*100,2)))
+    cat(paste("\nMStrat/MST = ",round(a$`Mean Sq`[1]/(a$`Mean Sq`[2]+a$`Mean Sq`[1]),2)))
+    cat(paste("\nMean = ",round(mean(response,na.rm=TRUE),4)))
+    cat(paste("\nMedian = ",round(median(response,na.rm=TRUE),4)))
+    cat("\nPossible outliers = ", out)
+    cat("\n")
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    cat(green(bold("Analysis of Variance")))
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    anava1=as.matrix(data.frame(anava))
+    colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+    print(anava1,na.print = "")
+    cat("\n\n")
+    message(if (a$`Pr(>F)`[1]<alpha.f){
+      black("As the calculated p-value, it is less than the 5% significance level.The hypothesis H0 of equality of means is rejected. Therefore, at least two treatments differ")}
+      else {"As the calculated p-value is greater than the 5% significance level, H0 is not rejected"})
+    cat(green(bold("\n\n-----------------------------------------------------------------\n")))
+    if(quali==TRUE){cat(green(bold("Multiple Comparison Test")))}else{cat(green(bold("Regression")))}
+    cat(green(bold("\n-----------------------------------------------------------------\n")))
+    if(quali==TRUE){
+      if(mcomp=="tukey"){
+        letra <- TUKEY(b, "trat", alpha=alpha.t)
+        letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
+      if(mcomp=="sk"){
+        # letra=SK(b,"trat",sig.level=alpha.t)
+        # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
+        nrep=table(trat)[1]
+        medias=sort(tapply(resp,trat,mean),decreasing = TRUE)
+        letra=scottknott(means = medias,
+                         df1 = a$Df[2],
+                         nrep = nrep,
+                         QME = a$`Mean Sq`[2],
+                         alpha = alpha.t)
+        letra1=data.frame(resp=medias,groups=letra)}
+      if(mcomp=="duncan"){
+        letra <- duncan(b, "trat", alpha=alpha.t)
+        letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
+      if(mcomp=="lsd"){
+        letra <- LSD(b, "trat", alpha=alpha.t)
+        letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
+      media = tapply(response, trat, mean, na.rm=TRUE)
+      if(transf=="1"){letra1}else{letra1$respO=media[rownames(letra1)]}
+      print(if(a$`Pr(>F)`[1]<alpha.f){letra1}else{"H0 is not rejected"})
+      cat("\n")
+      message(if(transf=="1"){}else{blue("\nNOTE: resp = transformed means; respO = averages without transforming\n")})
+      if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 &&homog1$p.value<0.05){
+        message("\nYour analysis is not valid, suggests using a non-parametric test and try to transform the data")
+      }
+      else{}
+      if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){cat(red("\nWarning!!! Your analysis is not valid, suggests using a non-parametric test"))}else{}
+      if(point=="mean_sd"){
+        dadosm=data.frame(letra1,
+                          media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
+                          desvio=tapply(response, trat, sd, na.rm=TRUE)[rownames(letra1)])}
+      if(point=="mean_se"){
+        dadosm=data.frame(letra1,
+                          media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
+                          desvio=tapply(response, trat, sd, na.rm=TRUE)/sqrt(tapply(response, trat, length))[rownames(letra1)])}
+
+      dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
+      dadosm$limite=dadosm$media+dadosm$desvio
+      dadosm=dadosm[unique(as.character(trat)),]
+      if(addmean==TRUE){dadosm$letra=paste(format(dadosm$media,digits = dec),dadosm$groups)}
+      if(addmean==FALSE){dadosm$letra=dadosm$groups}
+      trats=dadosm$trats
+      limite=dadosm$limite
+      media=dadosm$media
+      desvio=dadosm$desvio
+      letra=dadosm$letra
+      if(geom=="bar"){grafico=ggplot(dadosm,aes(x=trats,y=media))
+      if(fill=="trat"){grafico=grafico+
+        geom_col(aes(fill=trats),color=1)}else{grafico=grafico+
+          geom_col(aes(fill=trats),fill=fill,color=1)}
+      if(errorbar==TRUE){grafico=grafico+
+        geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
+                      label=letra),family=family,angle=angle.label,size=labelsize, hjust=hjust)}
+      if(errorbar==FALSE){grafico=grafico+
+        geom_text(aes(y=media+sup,label=letra),family=family,size=labelsize,angle=angle.label, hjust=hjust)}
+      if(errorbar==TRUE){grafico=grafico+
+        geom_errorbar(data=dadosm,aes(ymin=media-desvio,
+                                      ymax=media+desvio,color=1),
+                      color="black",width=0.3)}}
+      if(geom=="point"){grafico=ggplot(dadosm,aes(x=trats,
+                                                  y=media))
+      if(errorbar==TRUE){grafico=grafico+
+        geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
+                      label=letra),family=family,angle=angle.label,size=labelsize, hjust=hjust)}
+      if(errorbar==FALSE){grafico=grafico+
+        geom_text(aes(y=media+sup,
+                      label=letra),family=family,angle=angle.label, size=labelsize,hjust=hjust)}
+      if(errorbar==TRUE){grafico=grafico+
+        geom_errorbar(data=dadosm,
+                      aes(ymin=media-desvio,
+                          ymax=media+desvio,color=1),
+                      color="black",width=0.3)}
+      if(fill=="trat"){grafico=grafico+
+        geom_point(aes(color=trats),size=5)}
+      else{grafico=grafico+
+        geom_point(aes(color=trats),
+                   color="black",
+                   fill=fill,shape=21,size=5)}}
+      if(geom=="box"){
+        datam1=data.frame(trats=factor(trat,levels = unique(as.character(trat))),
+                          response)
+        dadosm2=data.frame(letra1,
+                           superior=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)])
+        dadosm2$trats=rownames(dadosm2)
+        dadosm2=dadosm2[unique(as.character(trat)),]
+        dadosm2$limite=dadosm$media+dadosm$desvio
+        dadosm2$letra=paste(format(dadosm$media,digits = dec),dadosm$groups)
+        trats=dadosm2$trats
+        limite=dadosm2$limite
+        superior=dadosm2$superior
+        letra=dadosm2$letra
+        stat_box=ggplot(datam1,aes(x=trats,y=response))+geom_boxplot()
+        superior=ggplot_build(stat_box)$data[[1]]$ymax
+        dadosm2$superior=superior+sup
+        grafico=ggplot(datam1,aes(x=trats,y=response))
+        if(fill=="trat"){grafico=grafico+geom_boxplot(aes(fill=trats))}
+        else{grafico=grafico+
+          geom_boxplot(aes(fill=trats),fill=fill)}
+        grafico=grafico+
+          geom_text(data=dadosm2,
+                    aes(y=superior,
+                        label=letra),
+                    family = family,size=labelsize,angle=angle.label, hjust=hjust)}
+      grafico=grafico+
+        theme+
+        ylab(ylab)+
+        xlab(xlab)+
+        theme(text = element_text(size=textsize,color="black", family = family),
+              axis.text = element_text(size=textsize,color="black", family = family),
+              axis.title = element_text(size=textsize,color="black", family = family),
+              legend.position = "none")
+      if(angle !=0){grafico=grafico+
+        theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
+      if(CV==TRUE){grafico=grafico+
+        labs(caption=paste("p-value", if(a$`Pr(>F)`[1]<0.0001){paste("<", 0.0001)}
+                           else{paste("=", round(a$`Pr(>F)`[1],4))},"; CV = ",
+                           round(abs(sqrt(a$`Mean Sq`[2])/mean(resp))*100,2),"%"))}
+      grafico=as.list(grafico)
+    }
+    if(quali==FALSE){
+      trat=trat1
+      # trat=as.numeric(as.character(trat))
+      if(grau==1){graph=polynomial(trat,response, grau = 1,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
+      if(grau==2){graph=polynomial(trat,response, grau = 2,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
+      if(grau==3){graph=polynomial(trat,response, grau = 3,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
+      grafico=graph[[1]]
+    }}
   if(test=="noparametric"){
     kruskal=function (y,
                       trt,
@@ -549,7 +553,12 @@ DIC <- function(trat,
       class(output)<-"group"
       invisible(output)
     }
-    krusk=kruskal(response,trat,p.adj = p.adj,alpha=alpha.t)
+    if(mcompNP=="LSD"){krusk=kruskal(response,trat,p.adj = p.adj,alpha=alpha.t)}
+    if(mcompNP=="dunn"){
+      krusk=kruskal(response,trat,p.adj = p.adj,alpha=alpha.t)
+      krusk1=dunn(trat, response, method = p.adj, alpha=alpha.t)
+      krusk$groups=krusk$groups[unique(trat),]
+      krusk$groups$groups=krusk1$`Post-hoc`$dunn}
     cat(green(bold("\n\n-----------------------------------------------------------------\n")))
     cat(green(italic("Statistics")))
     cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -579,10 +588,10 @@ DIC <- function(trat,
     letra=dadosm$letra
     if(geom=="bar"){grafico=ggplot(dadosm,
                                    aes(x=trats,y=response))
-      if(fill=="trat"){grafico=grafico+
-        geom_col(aes(fill=trats),color=1)}
-      else{grafico=grafico+
-        geom_col(aes(fill=trats),fill=fill,color=1)}
+    if(fill=="trat"){grafico=grafico+
+      geom_col(aes(fill=trats),color=1)}
+    else{grafico=grafico+
+      geom_col(aes(fill=trats),fill=fill,color=1)}
     if(errorbar==TRUE){grafico=grafico+
       geom_text(aes(y=media+sup+if(sup<0){-std}else{std},
                     label=letra),family=family,size=labelsize,angle=angle.label, hjust=hjust)}
@@ -617,32 +626,32 @@ DIC <- function(trat,
                  color="black",
                  fill=fill,shape=21,size=5)}}
     if(geom=="box"){
-    datam1=data.frame(trats=factor(trat,levels = unique(as.character(trat))),response)
-    dadosm2=data.frame(krusk$means)
-    dadosm2$trats=rownames(dadosm2)
-    dadosm2$limite=dadosm2$response+dadosm2$std
-    dadosm2$letra=paste(format(dadosm2$response,digits = dec),
-                        dadosm$groups)
-    dadosm2=dadosm2[unique(as.character(trat)),]
-    trats=dadosm2$trats
-    limite=dadosm2$limite
-    letra=dadosm2$letra
-    stat_box=ggplot(datam1,aes(x=trats,y=response))+geom_boxplot()
-    superior=ggplot_build(stat_box)$data[[1]]$ymax
-    dadosm2$superior=superior+sup
+      datam1=data.frame(trats=factor(trat,levels = unique(as.character(trat))),response)
+      dadosm2=data.frame(krusk$means)
+      dadosm2$trats=rownames(dadosm2)
+      dadosm2$limite=dadosm2$response+dadosm2$std
+      dadosm2$letra=paste(format(dadosm2$response,digits = dec),
+                          dadosm$groups)
+      dadosm2=dadosm2[unique(as.character(trat)),]
+      trats=dadosm2$trats
+      limite=dadosm2$limite
+      letra=dadosm2$letra
+      stat_box=ggplot(datam1,aes(x=trats,y=response))+geom_boxplot()
+      superior=ggplot_build(stat_box)$data[[1]]$ymax
+      dadosm2$superior=superior+sup
 
-    grafico=ggplot(datam1,
-                   aes(x=trats,
-                       y=response))
+      grafico=ggplot(datam1,
+                     aes(x=trats,
+                         y=response))
       if(fill=="trat"){grafico=grafico+
         geom_boxplot(aes(fill=1))}
-    else{grafico=grafico+
-      geom_boxplot(aes(fill=trats),fill=fill)}
-    grafico=grafico+
-      geom_text(data=dadosm2,
-                aes(y=superior,
-                    label=letra),
-                family = family,angle=angle.label, size=labelsize,hjust=hjust)}
+      else{grafico=grafico+
+        geom_boxplot(aes(fill=trats),fill=fill)}
+      grafico=grafico+
+        geom_text(data=dadosm2,
+                  aes(y=superior,
+                      label=letra),
+                  family = family,angle=angle.label, size=labelsize,hjust=hjust)}
     grafico=grafico+theme+
       ylab(ylab)+
       xlab(xlab)+
@@ -651,7 +660,7 @@ DIC <- function(trat,
             axis.text = element_text(size=textsize,color="black", family = family),
             legend.position = "none")
     if(angle !=0){grafico=grafico+theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
-}
+  }
   if(quali==TRUE){print(grafico)}
   graficos=list(grafico)#[[1]]
 }

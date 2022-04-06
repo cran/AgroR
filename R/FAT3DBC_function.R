@@ -29,7 +29,7 @@
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param norm Error normality test (\emph{default} is Shapiro-Wilk)
 #' @param homog Homogeneity test of variances (\emph{default} is Bartlett)
-#' @param transf Applies data transformation (\emph{default} is 1; for log consider 0)
+#' @param transf Applies data transformation (\emph{default} is 1; for log consider 0; `angular` for angular transformation)
 #' @param constant Add a constant for transformation (enter value)
 #' @param sup Number of units above the standard deviation or average bar on the graph
 #' @param geom Graph type (columns or segments)
@@ -112,7 +112,17 @@ FAT3DBC=function(f1,
                  angle.label=0) {
     if(is.na(sup==TRUE)){sup=0.2*mean(response)}
     if(angle.label==0){hjust=0.5}else{hjust=0}
-  organiz=data.frame(f1,f2,f3,block,response)
+  requireNamespace("crayon")
+  requireNamespace("ggplot2")
+  requireNamespace("nortest")
+  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==0){resp=log(response+constant)}
+  if(transf==0.5){resp=sqrt(response+constant)}
+  if(transf==-0.5){resp=1/sqrt(response+constant)}
+  if(transf==-1){resp=1/(response+constant)}
+  if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
+  resp1=resp
+  organiz=data.frame(f1,f2,f3,block,response,resp)
   organiz=organiz[order(organiz$block),]
   organiz=organiz[order(organiz$f3),]
   organiz=organiz[order(organiz$f2),]
@@ -122,8 +132,9 @@ FAT3DBC=function(f1,
   f3=organiz$f3
   block=organiz$block
   response=organiz$response
+  resp=organiz$resp
 
-    fator1=f1
+  fator1=f1
     fator2=f2
     fator3=f3
     fator1a=fator1
@@ -132,15 +143,6 @@ FAT3DBC=function(f1,
 
     bloco=block
     fac.names=names.fat
-    requireNamespace("crayon")
-    requireNamespace("ggplot2")
-    requireNamespace("nortest")
-    if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
-    if(transf==0){resp=log(response+constant)}
-    if(transf==0.5){resp=sqrt(response+constant)}
-    if(transf==-0.5){resp=1/sqrt(response+constant)}
-    if(transf==-1){resp=1/(response+constant)}
-
     fatores<-data.frame(fator1,fator2,fator3)
     Fator1<-factor(fator1,levels=unique(fator1));
     Fator2<-factor(fator2,levels=unique(fator2));
@@ -154,17 +156,18 @@ FAT3DBC=function(f1,
     anavaF3<-anova(anava)
     anovaF3=anavaF3
     colnames(anovaF3)=c("GL","SQ","QM","Fcal","p-value")
-    respad=anava$residuals/sqrt(anavaF3$`Mean Sq`[9])
+
+    anavares<-aov(resp1~Fator1*Fator2*Fator3+bloco)
+    respad=anavares$residuals/sqrt(anavaF3$`Mean Sq`[9])
     out=respad[respad>3 | respad<(-3)]
     out=names(out)
     out=if(length(out)==0)("No discrepant point")else{out}
-    resids=anava$residuals/sqrt(anavaF3$`Mean Sq`[9])
-    Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
-    residplot=ggplot(data=data.frame(resids,Ids),aes(y=resids,x=1:length(resids)))+
+    Ids=ifelse(respad>3 | respad<(-3), "darkblue","black")
+    residplot=ggplot(data=data.frame(respad,Ids),aes(y=respad,x=1:length(respad)))+
         geom_point(shape=21,color="gray",fill="gray",size=3)+
         labs(x="",y="Standardized residuals")+
-        geom_text(x=1:length(resids),label=1:length(resids),color=Ids,size=labelsize)+
-        scale_x_continuous(breaks=1:length(resids))+
+        geom_text(x=1:length(respad),label=1:length(respad),color=Ids,size=labelsize)+
+        scale_x_continuous(breaks=1:length(respad))+
         theme_classic()+theme(axis.text.y = element_text(size=textsize),
                               axis.text.x = element_blank())+
         geom_hline(yintercept = c(0,-3,3),lty=c(1,2,2),color="red",size=1)
@@ -516,7 +519,7 @@ FAT3DBC=function(f1,
 
         if(quali[1]==TRUE & quali[2]==TRUE){
                     f1=rep(levels(Fator1),e=length(levels(Fator2)))
-                    f2=rep(unique(as.character(Fator2)),length(levels(Fator2)))
+                    f2=rep(unique(as.character(Fator2)),length(levels(Fator1)))
                     f1=factor(f1,levels = unique(f1))
                     f2=factor(f2,levels = unique(f2))
                     media=tapply(resp,paste(Fator1,Fator2), mean, na.rm=TRUE)[unique(paste(f1,f2))]

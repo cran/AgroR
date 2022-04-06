@@ -18,6 +18,7 @@ sketch(
   label.x = "",
   label.y = "",
   axissize = 12,
+  legendsize = 12,
   labelsize = 4,
   export.csv = FALSE,
   comment.caption = NULL
@@ -49,6 +50,8 @@ sketch(
 \item{label.y}{text in y}
 
 \item{axissize}{Axis size}
+
+\item{legendsize}{Title legend size}
 
 \item{labelsize}{Label size}
 

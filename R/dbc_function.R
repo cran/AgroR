@@ -14,7 +14,7 @@
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param grau Degree of polynomial in case of quantitative factor (\emph{default} is 1)
-#' @param transf Applies data transformation (default is 1; for log consider 0)
+#' @param transf Applies data transformation (default is 1; for log consider 0; `angular` for angular transformation)
 #' @param constant Add a constant for transformation (enter value)
 #' @param test "parametric" - Parametric test or "noparametric" - non-parametric test
 #' @param geom graph type (columns, boxes or segments)
@@ -121,6 +121,7 @@ DBC=function(trat,
   if(transf==0.5){resp=sqrt(response+constant)}
   if(transf==-0.5){resp=1/sqrt(response+constant)}
   if(transf==-1){resp=1/(response+constant)}
+  if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
   trat1=trat
   trat=as.factor(trat)
   bloco=as.factor(block)
@@ -206,7 +207,7 @@ DBC=function(trat,
   cat(green(bold("Additional Information")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   cat(paste("\nCV (%) = ",round(sqrt(a$`Mean Sq`[3])/mean(resp,na.rm=TRUE)*100,2)))
-  cat(paste("\nR-squared = ",round(a$`Mean Sq`[1]/(a$`Mean Sq`[3]+a$`Mean Sq`[2]+a$`Mean Sq`[1]),2)))
+  cat(paste("\nMStrat/MST = ",round(a$`Mean Sq`[1]/(a$`Mean Sq`[3]+a$`Mean Sq`[2]+a$`Mean Sq`[1]),2)))
   cat(paste("\nMean = ",round(mean(response,na.rm=TRUE),4)))
   cat(paste("\nMedian = ",round(median(response,na.rm=TRUE),4)))
   cat("\nPossible outliers = ", out)

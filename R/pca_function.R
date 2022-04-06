@@ -96,7 +96,10 @@ PCA_function=function(data,
                                 yend=PC2,
                                 xend=PC1),size=linesize,
                  arrow = arrow(length = unit(0.14,"inches")))+
-    theme(axis.text = element_text(size=textsize,color="black"))+
+    theme(axis.text = element_text(size=textsize,color="black",family=font.family),
+          legend.text = element_text(size=textsize,family=font.family),
+          legend.title = element_text(size=textsize,family=font.family),
+          axis.title = element_text(size=textsize,color="black",family=font.family))+
     xlab(xlab)+ylab(ylab)
   if(repel==FALSE){
     if(text==TRUE){
@@ -122,7 +125,10 @@ PCA_function=function(data,
     graph=graph+theme+
       geom_vline(xintercept = 0,lty=2,size=linesize)+
       geom_hline(yintercept = 0,lty=2,size=linesize)+
-      theme(axis.text = element_text(size=textsize,color="black"))+
+      theme(axis.text = element_text(size=textsize,color="black",family=font.family),
+            legend.text = element_text(size=textsize,family=font.family),
+            legend.title = element_text(size=textsize,family=font.family),
+            axis.title = element_text(size=textsize,color="black",family=font.family))+
       xlab(xlab)+ylab(ylab)
     if(repel==FALSE & text==TRUE){
       graph=graph+
@@ -150,7 +156,10 @@ PCA_function=function(data,
                                   yend=PC2,
                                   xend=PC1),size=linesize,
                    arrow = arrow(length = unit(0.14,"inches")))+
-      theme(axis.text = element_text(size=textsize,color="black"))+
+      theme(axis.text = element_text(size=textsize,color="black",family=font.family),
+            legend.text = element_text(size=textsize,family=font.family),
+            legend.title = element_text(size=textsize,family=font.family),
+            axis.title = element_text(size=textsize,color="black",family=font.family))+
       xlab(xlab)+ylab(ylab)+
       geom_path(data = corcir, aes(x = x, y = y), colour = "gray65")
 
@@ -173,7 +182,10 @@ PCA_function=function(data,
     Perc=dados$Perc
     graph=ggplot(data=dados,aes(x=rownames(dados),y=Perc,group=1))+
       geom_col(fill="blue",color="black")+
-      theme(axis.text = element_text(size=textsize,color="black"))+
+      theme(axis.text = element_text(size=textsize,color="black",family=font.family),
+            legend.text = element_text(size=textsize,family=font.family),
+            legend.title = element_text(size=textsize,family=font.family),
+            axis.title = element_text(size=textsize,color="black",family=font.family))+
       geom_point(size=3,color="red")+geom_line(color="red",size=linesize)+theme+
       xlab("Dimensions")+ylab("Percentage of explained variances")
   }
@@ -193,8 +205,10 @@ PCA_function=function(data,
                  fill="lightyellow",label.size = 1)+
       ylab("")+xlab("")+
       labs(fill="Correlation")+
-      theme(axis.text = element_text(size=12,color="black"),
-            legend.text = element_text(size=12),
+      theme(axis.text = element_text(size=textsize,color="black",family=font.family),
+            axis.title = element_text(size=textsize,color="black",family=font.family),
+            legend.text = element_text(size=textsize,family=font.family),
+            legend.title = element_text(size=textsize,family=font.family),
             legend.position = "right",
             axis.ticks = element_blank(),
             panel.background = element_blank(),
