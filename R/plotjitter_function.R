@@ -77,7 +77,7 @@ plot_jitter=function(model){
       geom_point(fill=fill,color="black",shape=21,size=5)+
       theme(axis.text=element_text(size = textsize,
                                    color="black"))
-    print(graph)
+    graph
   }
   if(a[[1]]$plot$geom=="box"){
     data1=a[[1]]$data
@@ -112,7 +112,8 @@ plot_jitter=function(model){
                   color="gray10", width = 0.1, alpha = 0.2)+
       theme(axis.text=element_text(size = textsize,
                                    color="black"))
-    print(graph)
-
-    }
+    # print(graph)
+    graph
+  }
+  graph
   }

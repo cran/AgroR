@@ -10,6 +10,14 @@
 #' @param column Numerical or complex vector with columns
 #' @param alpha.t Significance level (\emph{default} is 0.05)
 #' @param label Variable label
+#' @param pointsize Point size
+#' @param pointshape Shape
+#' @param textsize Font size
+#' @param linesize Line size
+#' @param labelsize Label size
+#' @param errorsize Errorbar size
+#' @param widthsize Width errorbar
+#' @param fontfamily font family
 #' @note Do not use the "-" symbol or space in treatment names
 #' @return I return the Dunnett test for experiments in a completely randomized design, randomized blocks or Latin square.
 #' @importFrom multcomp glht
@@ -41,9 +49,23 @@
 #'                   block=bloco,model = "DBC"))
 
 
-dunnett=function(trat, resp, control, model="DIC",
-                 block=NA, column=NA, line=NA, alpha.t=0.05,
-                 label="Response"){
+dunnett=function(trat,
+                 resp,
+                 control,
+                 model="DIC",
+                 block=NA,
+                 column=NA,
+                 line=NA,
+                 alpha.t=0.05,
+                 pointsize=5,
+                 pointshape=21,
+                 linesize=1,
+                 labelsize=4,
+                 textsize=12,
+                 errorsize=1,
+                 widthsize=0.2,
+                 label="Response",
+                 fontfamily="sans"){
   trat1=as.factor(trat)
   trat=as.factor(trat)
   levels(trat1)=paste("T",1:length(levels(trat1)),sep = "")
@@ -74,8 +96,8 @@ dunnett=function(trat, resp, control, model="DIC",
   rownames(teste)=paste(control," - ",nomes1)
   teste=data.frame(teste)
   colnames(teste)=c("Estimate","IC-lwr","IC-upr","t value","p-value")
-  teste$sig=ifelse(teste$`p-value`>0.05,"ns",
-                   ifelse(teste$`p-value`<0.01,"**","*"))
+  teste$sig=ifelse(teste$`p-value`>alpha.t,"ns",
+                   ifelse(teste$`p-value`<alpha.t,"*",""))
   print(teste)
   data=data.frame(teste)
   `IC-lwr`=data$IC.lwr
@@ -83,14 +105,15 @@ dunnett=function(trat, resp, control, model="DIC",
   sig=data$sig
   Estimate=data$Estimate
   graph=ggplot(data,aes(y=rownames(data),x=Estimate))+
-    geom_errorbar(aes(xmin=`IC-lwr`,xmax=`IC-upr`),width=0.2,size=1)+
-    geom_point(shape=21,size=5,color="black",fill="gray")+
+    geom_errorbar(aes(xmin=`IC-lwr`,xmax=`IC-upr`),width=widthsize,size=errorsize)+
+    geom_point(shape=pointshape,size=pointsize,color="black",fill="gray")+
     theme_classic()+
     labs(y="")+
-    geom_vline(xintercept = 0,lty=2,size=1)+
+    geom_vline(xintercept = 0,lty=2,size=linesize)+
     geom_label(aes(label=paste(round(Estimate,3),
-                               sig)),fill="lightyellow",
-               vjust=-0.5)+
-    theme(axis.text = element_text(size=12))
+                               sig)),fill="lightyellow",size=labelsize,
+               vjust=-0.5,family=fontfamily)+
+    theme(axis.text = element_text(size=textsize,family = fontfamily),
+          axis.title = element_text(size=textsize,family = fontfamily))
   plot(graph)
   }

@@ -37,7 +37,6 @@
 #' @seealso \link{DIC}, \link{DBCT}, \link{DQLT}
 #' @return The function returns the p-value of Anova, the assumptions of normality of errors, homogeneity of variances and independence of errors, multiple comparison test, as well as a line graph
 #' @references
-#' @references
 #'
 #' Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 #'

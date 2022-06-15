@@ -38,6 +38,7 @@
 #' @import ggplot2
 #' @import stats
 #' @import multcompView
+#' @import gtools
 #' @importFrom crayon green
 #' @importFrom crayon bold
 #' @importFrom crayon italic

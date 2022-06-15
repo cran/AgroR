@@ -13,7 +13,15 @@ dunnett(
   column = NA,
   line = NA,
   alpha.t = 0.05,
-  label = "Response"
+  pointsize = 5,
+  pointshape = 21,
+  linesize = 1,
+  labelsize = 4,
+  textsize = 12,
+  errorsize = 1,
+  widthsize = 0.2,
+  label = "Response",
+  fontfamily = "sans"
 )
 }
 \arguments{
@@ -33,7 +41,23 @@ dunnett(
 
 \item{alpha.t}{Significance level (\emph{default} is 0.05)}
 
+\item{pointsize}{Point size}
+
+\item{pointshape}{Shape}
+
+\item{linesize}{Line size}
+
+\item{labelsize}{Label size}
+
+\item{textsize}{Font size}
+
+\item{errorsize}{Errorbar size}
+
+\item{widthsize}{Width errorbar}
+
 \item{label}{Variable label}
+
+\item{fontfamily}{font family}
 }
 \value{
 I return the Dunnett test for experiments in a completely randomized design, randomized blocks or Latin square.

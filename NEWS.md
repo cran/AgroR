@@ -1,3 +1,15 @@
+# AgroR 1.3.0
+
+* Fixed `sk_graph` function offset
+
+* Added `ibarplot_double` function
+
+* Added `bargraph2` function
+
+* `plot_jitter` has been improved
+
+* fixed significance level bug for Dunnett's test (`dunnett` function)
+
 # AgroR 1.2.9
 
  * Fix a bug standard residuals graph in functions `FAT2DIC`, `FAT2DBC`, `FAT2DIC.ad`, `FAT2DBC.ad`, `FAT3DIC`, `FAT3DBC`, `FAT3DIC.ad`, `FAT3DBC.ad`, `PSUBDIC` and `PSUBDBC`

@@ -9,7 +9,7 @@
 #' @param trat1 Vector with levels of factor B (Set to NULL if not factorial or psub)
 #' @param trat2 Vector with levels of factor C (Set to NULL if not factorial)
 #' @param r Number of repetitions
-#' @param design Experimental design ("dic", "dbc", "dql","psubdic","psubdbc","fat2dic","fat2dbc")
+#' @param design Experimental design (see note)
 #' @param pos Repeat position (line or column),
 #' @param color.sep Color box
 #' @param ID plot Add only identification in sketch
@@ -334,7 +334,7 @@ sketch=function(trat,
   }
 
   #=================
-  if(design=="DIC"){sort=design.crd(trat,r,serie=0)
+  if(design=="DIC" | design=="dic"){sort=design.crd(trat,r,serie=0)
   data=sort$book
   data$x=rep(1:length(unique(data$trat)),r)
   data$x=factor(data$x,unique(data$x))
@@ -415,7 +415,7 @@ sketch=function(trat,
                     "trat"=data$trat)}
 
   #=================
-  if(design=="DBC"){sort=design.rcbd(trat,r,serie=0)
+  if(design=="DBC" | design=="dbc"){sort=design.rcbd(trat,r,serie=0)
   data=sort$book
   data$x=rep(1:length(unique(data$trat)),r)
   data$x=factor(data$x,unique(data$x))
@@ -497,7 +497,7 @@ sketch=function(trat,
                     "trat"=data$trat)}
 
   #=================
-  if(design=="DQL"){sort=design.lsd(trat,r,serie=0)
+  if(design=="DQL" | design=="dql"){sort=design.lsd(trat,r,serie=0)
   data=sort$book
   if(color.sep=="all"){separate=data$trat}
   if(color.sep=="line"){separate=data$row}
@@ -543,7 +543,7 @@ sketch=function(trat,
                     "trat"=data$trat)}
 
   #=================
-  if(design=="PSUBDIC"){sort=design.split(trat,trat1,r,design = "crd",serie=0)
+  if(design=="PSUBDIC"  | design=="psubdic"){sort=design.split(trat,trat1,r,design = "crd",serie=0)
   data=sort$book
   data$x=rep(1:length(unique(paste(data$trat,data$trat1))),r)
   data$x=factor(data$x,unique(data$x))
@@ -626,7 +626,7 @@ sketch=function(trat,
                     "Repetition"=data$r)}
 
   #================
-  if(design=="PSUBDBC"){sort=design.split(trat,trat1,r,design = "rcbd",serie=0)
+  if(design=="PSUBDBC" | design=="psubdbc"){sort=design.split(trat,trat1,r,design = "rcbd",serie=0)
   data=sort$book
   data$x=rep(1:length(unique(paste(data$trat,data$trat1))),r)
   data$x=factor(data$x,unique(data$x))
@@ -767,9 +767,9 @@ sketch=function(trat,
     requireNamespace("cowplot")
     graph=do.call("plot_grid", c(graphs, ncol=length(levels(book$block))))
     print(graph)}
-  if(design=="STRIP-PLOT"){(graph=faixas(trat,trat1,r))}
+  if(design=="STRIP-PLOT"  | design=="stripplot"){(graph=faixas(trat,trat1,r))}
   #=================
-  if(design=="FAT2DIC"){sort=design.ab(c(length(trat),length(trat1)),r,design = "crd",serie=0)
+  if(design=="FAT2DIC"  | design=="fat2dic"){sort=design.ab(c(length(trat),length(trat1)),r,design = "crd",serie=0)
   sort$book$A=as.factor(sort$book$A)
   sort$book$B=as.factor(sort$book$B)
   levels(sort$book$A)=trat
@@ -858,7 +858,7 @@ sketch=function(trat,
                     "Factor 2"=data$B)}
 
   #=================
-  if(design=="FAT2DBC"){
+  if(design=="FAT2DBC"  | design=="fat2dbc"){
     sort=design.ab(c(length(trat),length(trat1)),r,design = "rcbd",serie=0)
     sort$book$A=as.factor(sort$book$A)
     sort$book$B=as.factor(sort$book$B)
@@ -949,7 +949,7 @@ sketch=function(trat,
                       "Block"=data$block)}
 
   #######################################################
-  if(design=="FAT3DIC"){
+  if(design=="FAT3DIC"  | design=="fat3dic"){
     trat=expand.grid(trat,trat1,trat2)
     tr=paste(trat$Var1,"@#",trat$Var2,"@#",trat$Var3)
     trats=rep(tr,r)
@@ -1035,7 +1035,7 @@ sketch=function(trat,
                       "Factor 2"=sortd$X2,
                       "Factor 3"=sortd$X3)}
 
-  if(design=="FAT3DBC"){
+  if(design=="FAT3DBC"  | design=="fat3dbc"){
     trat=expand.grid(trat,trat1,trat2)
     tr=paste(trat$Var1,"@#",trat$Var2,"@#",trat$Var3)
 
@@ -1125,7 +1125,7 @@ sketch=function(trat,
     if(ID==TRUE){graph=graph+geom_text(aes(label=1:length(sorteio)),size=labelsize)}
   }
 
-  if(design=="PSUBSUBDBC"){
+  if(design=="PSUBSUBDBC"  | design=="psubsubdbc"){
     sorteio=list()
     for(i in 1:r){
       sorteio[[i]]=sample(trat)}

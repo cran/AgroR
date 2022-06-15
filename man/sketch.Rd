@@ -33,7 +33,7 @@ sketch(
 
 \item{r}{Number of repetitions}
 
-\item{design}{Experimental design ("dic", "dbc", "dql","psubdic","psubdbc","fat2dic","fat2dbc")}
+\item{design}{Experimental design (see note)}
 
 \item{pos}{Repeat position (line or column),}
 

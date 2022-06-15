@@ -111,8 +111,6 @@ attach(simulate3)
 DQLT(trat, linhas, colunas, tempo, resp)
 }
 \references{
-
-
 Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 
 Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.

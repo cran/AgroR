@@ -117,8 +117,6 @@ DBCT(trat, bloco, tempo, resp)
 DBCT(trat, bloco, tempo, resp, geom="point")
 }
 \references{
-
-
 Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
 
 Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.

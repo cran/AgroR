@@ -107,8 +107,6 @@ with(simulate1, DICT(trat, tempo, resp,geom="bar",sup=40))
 with(simulate1, DICT(trat, tempo, resp,geom="point",sup=40,))
 }
 \references{
-
-
 Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 
 Multiple comparisons theory and methods. Departament of statistics the Ohio State University. USA, 1996. Jason C. Hsu. Chapman Hall/CRC.

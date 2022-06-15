@@ -68,7 +68,7 @@ sk_graph=function(model,
       geom_label(aes(y=as.vector(media)+sup+desvio,
                      x=as.vector(trats),
                      label = letra),family=family,
-                 fill="lightyellow",hjust=0)}
+                 fill="lightyellow")}
     if(ploterror==FALSE){graph=graph+geom_label(aes(y=as.vector(media)+sup,
                                                     x=as.vector(trats),
                                                     label = letra),

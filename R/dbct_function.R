@@ -36,7 +36,6 @@
 #' @keywords Experimental
 #' @seealso \link{DBC}, \link{DICT}, \link{DQLT}
 #' @references
-#' @references
 #'
 #' Principles and procedures of statistics a biometrical approach Steel & Torry & Dickey. Third Edition 1997
 #'

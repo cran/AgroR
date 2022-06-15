@@ -39,7 +39,6 @@
 #' @seealso \link{DQL}, \link{DICT}, \link{DBCT}
 #' @details The p-value of the analysis of variance, the normality test for Shapiro-Wilk errors, the Bartlett homogeneity test of variances, the independence of Durbin-Watson errors and the multiple comparison test ( Tukey, Scott-Knott, LSD or Duncan).
 #' @references
-#' @references
 #'
 #' Principles and procedures of statistics a biometrical approach Steel, Torry and Dickey. Third Edition 1997
 #'

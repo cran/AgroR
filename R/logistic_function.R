@@ -23,11 +23,12 @@
 #' @author Model imported from the drc package (Ritz et al., 2016)
 #' @author Gabriel Danilo Shimizu
 #' @author Leandro Simoes Azeredo Goncalves
-#' @references Seber, G. A. F. and Wild, C. J (1989) Nonlinear Regression, New York: Wiley \& Sons (p. 330).
+#' @references Seber, G. A. F. and Wild, C. J (1989) Nonlinear Regression, New York: Wiley and Sons (p. 330).
 #' @references Ritz, C.; Strebig, J.C.; Ritz, M.C. Package ‘drc’. Creative Commons: Mountain View, CA, USA, 2016.
 #' @importFrom drc LL.3
 #' @importFrom drc LL.4
 #' @importFrom drc drm
+#' @import gtools
 #' @export
 #'
 #' @examples
@@ -51,6 +52,7 @@ logistic=function(trat,
   requireNamespace("drc")
   requireNamespace("crayon")
   requireNamespace("ggplot2")
+  requireNamespace("gtools")
   ymean=tapply(resp,trat,mean)
   if(is.na(width.bar)==TRUE){width.bar=0.01*mean(trat)}
   if(error=="SE"){ysd=tapply(resp,trat,sd)/sqrt(tapply(resp,trat,length))}
