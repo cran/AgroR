@@ -60,8 +60,7 @@ barplot_positive=function(a,
     geom_text(aes(y=limite,
                   label=letra))+
     scale_fill_manual(values=fill_color,
-                      labels = c(a[[1]]$labels$y,
-                                 b[[1]]$labels$y))+
+                      labels = c(var_name))+
     geom_hline(yintercept=0)+
     labs(fill=legend.title)+
     theme(axis.text = element_text(size=a[[1]]$theme$axis.text$size,

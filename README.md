@@ -16,9 +16,9 @@ Type: Package
 
 Title: Experimental Statistics and Graphics for Agricultural Sciences 
 
-Version: 1.2.7
+Version: 1.3.0
 
-Date: 2022-02-04
+Date: 2022-06-13
 
 Authors: 
  
@@ -34,7 +34,8 @@ Encoding: UTF-8
 
 RoxygenNote: 7.1.1
 
-Imports: ggplot2, lmtest, nortest, ScottKnott, lme4, crayon, grid, gridExtra, stringr, Hmisc, emmeans, ARTool, multcomp, ggrepel, reshape2, MASS, cowplot, multcompView, hnp, RColorBrewer, drc
+Imports: ggplot2, nortest, lme4, crayon, lmtest, emmeans, multcomp, ggrepel, MASS, cowplot, multcompView, RColorBrewer, drc, dunn.test, gtools
+
 Suggests: DT, knitr, rmarkdown, roxygen2
 
 Depends: R (>= 3.6.0)
@@ -175,10 +176,16 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
  
 ## Graphs
 
+ - `barfacet`: Bar graph for one factor with facets
+ - `bargraph_onefactor`: Group DIC, DBC and DQL functions column charts
+ - `bargraph_twofactor`: Group FAT2DIC, FAT2DBC, PSUBDIC or PSUBDBC functions column charts
  - `barplot_positive`: Positive barplot
+ - `bar_dunnett`: Barplot for Dunnett test
  - `bar_graph`: bar graph for one factor
+ - "bar_graph2": Bar graph for one factor model 2
  - `corgraph`: Correlogram
  - `cor_ic`: plot Pearson correlation with interval of confidence
+ - `ibarplot.double`: Invert letters for two factor chart
  - `line_plot`: Line chart
  - `plot_cor`: plot correlation
  - `plot_interaction`: Interaction plot
@@ -187,12 +194,10 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
  - `plot_TH1`: Climate chart of temperature and humidity (Model 2)
  - `radargraph`: Circular column chart
  - `seg_graph`: segment graph for one factor
+ - `seg_graph2`: Point graph for one factor model 2
  - `sk_graph`: Scott-Knott graphics
  - `spider_graph`: Spider graph for sensorial analysis
  - `TBARPLOT.reverse`: Reverse graph of DICT, DBCT and DQL output when geom="bar"
- - `barfacet`: Bar graph for one factor with facets
- - `bargraph_onefactor`: Group DIC, DBC and DQL functions column charts
- - `bargraph_twofactor`: Group FAT2DIC, FAT2DBC, PSUBDIC or PSUBDBC functions column charts
 
 ## Utils
 
@@ -200,4 +205,5 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
  - `aacp`: Area under the curve
  - `transf`: Data transformation (Box-Cox, 1964)
  - `summarise_anova`: Summary of analysis of variance and test of means
+ - `summarise_dunnett`: Dunnett's Test Summary
  - `confinterval`: Interval of confidence for groups

@@ -45,6 +45,7 @@ FAT3DBC.ad(
   geom = "bar",
   textsize = 12,
   labelsize = 4,
+  point = "mean_sd",
   angle.label = 0
 )
 }
@@ -128,6 +129,8 @@ FAT3DBC.ad(
 \item{textsize}{Font size}
 
 \item{labelsize}{Label size}
+
+\item{point}{This function defines whether the point must have all points ("all"), mean ("mean"), standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se") if quali= FALSE. For quali=TRUE, `mean_sd` and `mean_se` change which information will be displayed in the error bar.}
 
 \item{angle.label}{label angle}
 }

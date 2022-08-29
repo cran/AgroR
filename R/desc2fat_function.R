@@ -137,16 +137,16 @@ desc2fat=function(f1,
   # Interacao
   #===========================
   inter1=ggplot(dados,aes(x=f1,y=response, color=f2))+
-    stat_summary(fun.data = "mean_se")+stat_summary(aes(color=f2, group=f2),
-                                geom="line", fun.data = "mean_se")+
+    stat_summary(fun.data = mean_se)+stat_summary(aes(color=f2, group=f2),
+                                geom="line", fun.data = mean_se)+
     ylab(ylab)+theme
   inter1=inter1+
     theme(text = element_text(size=12,color="black"),
           axis.title = element_text(size=12,color="black"),
           axis.text = element_text(size=12,color="black"))
   inter2=ggplot(dados,aes(x=f2,y=response, color=f1))+
-    stat_summary(fun.data = "mean_se")+stat_summary(aes(color=f1, group=f1),
-                                geom="line", fun.data = "mean_se")+
+    stat_summary(fun.data = mean_se)+stat_summary(aes(color=f1, group=f1),
+                                geom="line", fun.data = mean_se)+
     ylab(ylab)+theme
   inter2=inter2+
     theme(text = element_text(size=12,color="black"),

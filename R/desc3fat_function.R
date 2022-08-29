@@ -180,9 +180,9 @@ desc3fat=function(f1,
   #===========================
   if(plot=="interaction"){
   grafico=ggplot(dados,aes(x=f1,y=response, color=f2))+
-    stat_summary(fun.data = "mean_se")+
+    stat_summary(fun.data = mean_se)+
     stat_summary(aes(color=f2, group=f2),
-                 geom="line", fun.data = "mean_se")+
+                 geom="line", fun.data = mean_se)+
     ylab(ylab)+xlab(xlab)+labs(fill=legend.title)+theme+facet_wrap(~f3)
   grafico=grafico+
     theme(text = element_text(size=12,color="black"),

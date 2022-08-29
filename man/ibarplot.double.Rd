@@ -2,7 +2,7 @@
 % Please edit documentation in R/ibarplot_double.R
 \name{ibarplot.double}
 \alias{ibarplot.double}
-\title{Invert letters for two factor chart}
+\title{Graph: Invert letters for two factor chart}
 \usage{
 ibarplot.double(analysis)
 }

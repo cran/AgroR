@@ -33,7 +33,7 @@
 #' @param dec Number of cells (\emph{default} is 3)
 #' @param ylim y-axis limit
 #' @param posi Legend position
-#' @param point Point type for regression ("mean_se","mean_sd","mean" or "all")
+#' @param point This function defines whether the point must have all points ("all"), mean ("mean"), standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se") if quali= FALSE. For quali=TRUE, `mean_sd` and `mean_se` change which information will be displayed in the error bar.
 #' @param angle.label Label angle
 #' @note The order of the chart follows the alphabetical pattern. Please use `scale_x_discrete` from package ggplot2, `limits` argument to reorder x-axis. The bars of the column and segment graphs are standard deviation.
 #' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
@@ -85,7 +85,7 @@ PSUBDBC=function(f1,
                  alpha.t=0.05,
                  quali=c(TRUE,TRUE),
                  mcomp = "tukey",
-                 grau=c(NA,NA), # isolado e interação tripla
+                 grau=c(NA,NA),
                  grau12=NA, # F1/F2
                  grau21=NA, # F2/F1
                  transf=1,
@@ -322,9 +322,16 @@ PSUBDBC=function(f1,
           if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         print(letra1)
         ordem=unique(as.vector(unlist(fat[i])))
-        dadosm=data.frame(letra1,
-                          desvio=tapply(response, c(fat[i]), sd, na.rm=TRUE)[rownames(letra1)])
-        dadosm$media=tapply(response, c(fat[i]), mean, na.rm=TRUE)[rownames(letra1)]
+        ordem=unique(as.vector(unlist(fat[i])))
+        if(point=="mean_sd"){desvio=tapply(response, c(fat[i]), sd, na.rm=TRUE)[rownames(letra1)]}
+        if(point=="mean_se"){desvio=(tapply(response, c(fat[i]), sd, na.rm=TRUE)/
+                                       sqrt(tapply(response, c(fat[i]), length)))[rownames(letra1)]}
+        dadosm=data.frame(letra1[rownames(letra1),],
+                          media=tapply(response, c(fat[i]), mean, na.rm=TRUE)[rownames(letra1)],
+                          desvio=desvio)
+        # dadosm=data.frame(letra1,
+        #                   desvio=tapply(response, c(fat[i]), sd, na.rm=TRUE)[rownames(letra1)])
+        # dadosm$media=tapply(response, c(fat[i]), mean, na.rm=TRUE)[rownames(letra1)]
         dadosm$trats=factor(rownames(dadosm),levels = ordem)
         dadosm$limite=dadosm$media+dadosm$desvio
         lim.y=dadosm$limite[which.max(abs(dadosm$limite))]
@@ -679,7 +686,11 @@ PSUBDBC=function(f1,
     #------------------------------
     if(quali[1]==TRUE & quali[2]==TRUE){
         media=tapply(response,list(Fator1,Fator2), mean, na.rm=TRUE)
-        desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)
+        # desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)
+        if(point=="mean_sd"){desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)}
+        if(point=="mean_se"){desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)/
+          sqrt(tapply(response,list(Fator1,Fator2), length))}
+
         graph=data.frame(f1=rep(rownames(media),length(colnames(media))),
                          f2=rep(colnames(media),e=length(rownames(media))),
                          media=as.vector(media),

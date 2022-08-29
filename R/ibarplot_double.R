@@ -1,4 +1,4 @@
-#' Invert letters for two factor chart
+#' Graph: Invert letters for two factor chart
 #' @description invert uppercase and lowercase letters in graph for factorial scheme the subdivided plot with significant interaction
 #'
 #' @param analysis FAT2DIC, FAT2DBC, PSUBDIC or PSUBDBC object

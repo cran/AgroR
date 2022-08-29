@@ -1,3 +1,19 @@
+# AgroR 1.3.1
+
+* fix a bug in `barplot_positive`
+
+* Fixed DIC, DBC and DQL function bug when point="mean_se" and factor is qualitative
+
+* Now point in the `FAT2DIC`, `FAT2DBC`, `FAT2DIC.ad`, `FAT2DBC.ad`, `FAT3DIC`, `FAT3DBC`, `FAT3DIC.ad`, `FAT3DBC.ad`, `PSUBDIC` and `PSUBDBC` functions use the point argument ("mean_sd" or "mean_se") to define the information that will be used in the error bars in qualitative factors.
+
+* FAT2DBC.ad function sum of squares and degree of freedom bug fixed
+
+* The `conjfat2dbc` function has been implemented
+
+* The `dic.ad` and `dbc.ad` function has been implemented
+
+* The shiny app has been translated into English
+
 # AgroR 1.3.0
 
 * Fixed `sk_graph` function offset

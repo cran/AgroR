@@ -45,6 +45,7 @@ FAT3DIC.ad(
   geom = "bar",
   textsize = 12,
   labelsize = 4,
+  point = "mean_sd",
   angle.label = 0
 )
 }
@@ -129,6 +130,8 @@ FAT3DIC.ad(
 
 \item{labelsize}{Label size}
 
+\item{point}{This function defines whether the point must have all points ("all"), mean ("mean"), standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se") if quali= FALSE. For quali=TRUE, `mean_sd` and `mean_se` change which information will be displayed in the error bar.}
+
 \item{angle.label}{label angle}
 }
 \value{
@@ -148,7 +151,6 @@ In the final output when transformation (transf argument) is different from 1, t
 library(AgroR)
 data(enxofre)
 respAd=c(2000,2400,2530,2100)
-attach(enxofre)
 with(enxofre, FAT3DIC.ad(f1, f2, f3, bloco, resp, respAd))
 }
 \references{

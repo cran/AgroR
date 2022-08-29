@@ -44,6 +44,7 @@
 #' @param theme ggplot2 theme (\emph{default} is theme_classic())
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
+#' @param point This function defines whether the point must have all points ("all"), mean ("mean"), standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se") if quali= FALSE. For quali=TRUE, `mean_sd` and `mean_se` change which information will be displayed in the error bar.
 #' @param angle.label label angle
 #' @note The order of the chart follows the alphabetical pattern. Please use `scale_x_discrete` from package ggplot2, `limits` argument to reorder x-axis. The bars of the column and segment graphs are standard deviation.
 #' @return The analysis of variance table, the Shapiro-Wilk error normality test, the Bartlett homogeneity test of variances, the Durbin-Watson error independence test, multiple comparison test (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.For significant triple interaction only, no graph is returned.
@@ -115,6 +116,7 @@ FAT3DBC.ad = function(f1,
                       geom = "bar",
                       textsize = 12,
                       labelsize=4,
+                      point="mean_sd",
                       angle.label = 0) {
   if(is.na(sup==TRUE)){sup=0.2*mean(response)}
   if(angle.label==0){hjust=0.5}else{hjust=0}
@@ -316,9 +318,13 @@ FAT3DBC.ad = function(f1,
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         print(letra1)
         cat(green(bold("\n------------------------------------------\n")))
+        #=====================================================
+        if(point=="mean_sd"){desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[rownames(letra1)]}
+        if(point=="mean_se"){desvio=(tapply(response, c(fatores[i]), sd, na.rm=TRUE)/
+                                       sqrt(tapply(response, c(fatores[i]), length)))[rownames(letra1)]}
         dadosm=data.frame(letra1,
                           media=tapply(response, c(fatores[i]), mean, na.rm=TRUE)[rownames(letra1)],
-                          desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[rownames(letra1)])
+                          desvio=desvio)
         dadosm$Tratamentos=factor(rownames(dadosm),levels = unique(unlist(fatores[i])))
         dadosm$limite=dadosm$media+dadosm$desvio
         dadosm=dadosm[as.character(unique(unlist(fatores[i]))),]
@@ -399,7 +405,7 @@ FAT3DBC.ad = function(f1,
         cat(fac.names[i])
         dose=as.numeric(as.vector(unlist(fatores[,i])))
         grafico=polynomial(dose,resp,grau = grau[i],
-                           DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = xlab)
+                           DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = xlab,point = point)
         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
         cat(green(bold("\n------------------------------------------")))}
       graficos[[1]]=residplot
@@ -592,7 +598,11 @@ FAT3DBC.ad = function(f1,
       f1=factor(f1,levels = unique(f1))
       f2=factor(f2,levels = unique(f2))
       media=tapply(resp,paste(Fator1,Fator2), mean, na.rm=TRUE)[unique(paste(f1,f2))]
-      desvio=tapply(resp,paste(Fator1,Fator2), sd, na.rm=TRUE)[unique(paste(f1,f2))]
+      if(point=="mean_sd"){desvio=tapply(response,paste(Fator1,Fator2), sd, na.rm=TRUE)}
+      if(point=="mean_se"){desvio=tapply(response,paste(Fator1,Fator2), sd, na.rm=TRUE)/
+        sqrt(tapply(response,paste(Fator1,Fator2), length))}
+      desvio=desvio[unique(paste(f1,f2))]
+
       graph=data.frame(f1=f1,
                        f2=f2,
                        media,
@@ -796,9 +806,12 @@ FAT3DBC.ad = function(f1,
             if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
           print(letra1)
           cat(green(bold("\n------------------------------------------\n")))
+          if(point=="mean_sd"){desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[rownames(letra1)]}
+          if(point=="mean_se"){desvio=(tapply(response, c(fatores[i]), sd, na.rm=TRUE)/
+                                         sqrt(tapply(response, c(fatores[i]), length)))[rownames(letra1)]}
           dadosm=data.frame(letra1,
                             media=tapply(response, c(fatores[i]), mean, na.rm=TRUE)[rownames(letra1)],
-                            desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[rownames(letra1)])
+                            desvio=desvio)
           dadosm$Tratamentos=factor(rownames(dadosm),levels = unique(unlist(fatores[i])))
           dadosm$limite=dadosm$media+dadosm$desvio
           dadosm=dadosm[as.character(unique(unlist(fatores[i]))),]
@@ -845,7 +858,7 @@ FAT3DBC.ad = function(f1,
         cat(green(bold("\n------------------------------------------\n")))
         cat(fac.names[i])
         grafico1=polynomial(resp, fatores[,i],grau=grau[i],
-                            DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = parse(text = xlab.factor[3]))
+                            DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = parse(text = xlab.factor[3]),point = point)
         cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))}
     }
   }
@@ -1050,7 +1063,11 @@ FAT3DBC.ad = function(f1,
       f1=factor(f1,levels = unique(f1))
       f3=factor(f3,levels = unique(f3))
       media=tapply(response,paste(Fator1,Fator3), mean, na.rm=TRUE)[unique(paste(f1,f3))]
-      desvio=tapply(response,paste(Fator1,Fator3), sd, na.rm=TRUE)[unique(paste(f1,f3))]
+      if(point=="mean_sd"){desvio=tapply(response,paste(Fator1,Fator3), sd, na.rm=TRUE)}
+      if(point=="mean_se"){desvio=tapply(response,paste(Fator1,Fator3), sd, na.rm=TRUE)/
+        sqrt(tapply(response,paste(Fator1,Fator3), length))}
+      desvio=desvio[unique(paste(f1,f3))]
+
       graph=data.frame(f1=f1,
                        f3=f3,
                        media,
@@ -1257,9 +1274,12 @@ FAT3DBC.ad = function(f1,
             if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
           print(letra1)
           cat(green(bold("\n------------------------------------------")))
+          if(point=="mean_sd"){desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[rownames(letra1)]}
+          if(point=="mean_se"){desvio=(tapply(response, c(fatores[i]), sd, na.rm=TRUE)/
+                                         sqrt(tapply(response, c(fatores[i]), length)))[rownames(letra1)]}
           dadosm=data.frame(letra1,
                             media=tapply(response, c(fatores[i]), mean, na.rm=TRUE)[rownames(letra1)],
-                            desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[rownames(letra1)])
+                            desvio=desvio)
           dadosm$Tratamentos=factor(rownames(dadosm),levels = unique(unlist(fatores[i])))
           dadosm$limite=dadosm$media+dadosm$desvio
           dadosm=dadosm[as.character(unique(unlist(fatores[i]))),]
@@ -1303,7 +1323,7 @@ FAT3DBC.ad = function(f1,
           cat(green(bold("\n------------------------------------------\n")))
           cat(fac.names[i])
           grafico2=polynomial(resp, fatores[,i],grau=grau[i],
-                              DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = parse(text = xlab.factor[2]))
+                              DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = parse(text = xlab.factor[2]),point = point)
           cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
         }
 
@@ -1493,7 +1513,11 @@ FAT3DBC.ad = function(f1,
       f2=factor(f2,levels = unique(f2))
       f3=factor(f3,levels = unique(f3))
       media=tapply(response,paste(Fator2,Fator3), mean, na.rm=TRUE)[unique(paste(f2,f3))]
-      desvio=tapply(response,paste(Fator2,Fator3), sd, na.rm=TRUE)[unique(paste(f2,f3))]
+      if(point=="mean_sd"){desvio=tapply(response,paste(Fator2,Fator3), sd, na.rm=TRUE)}
+      if(point=="mean_se"){desvio=tapply(response,paste(Fator2,Fator3), sd, na.rm=TRUE)/
+        sqrt(tapply(response,paste(Fator2,Fator3), length))}
+      desvio=desvio[unique(paste(f2,f3))]
+
       graph=data.frame(f2=f2,
                        f3=f3,
                        media,
@@ -1697,9 +1721,12 @@ FAT3DBC.ad = function(f1,
             if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
           print(letra1)
           cat(green(bold("\n------------------------------------------")))
+          if(point=="mean_sd"){desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[rownames(letra1)]}
+          if(point=="mean_se"){desvio=(tapply(response, c(fatores[i]), sd, na.rm=TRUE)/
+                                         sqrt(tapply(response, c(fatores[i]), length)))[rownames(letra1)]}
           dadosm=data.frame(letra1,
                             media=tapply(response, c(fatores[i]), mean, na.rm=TRUE)[rownames(letra1)],
-                            desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[rownames(letra1)])
+                            desvio=desvio)
           dadosm$Tratamentos=factor(rownames(dadosm),levels = unique(unlist(fatores[i])))
           dadosm$limite=dadosm$media+dadosm$desvio
           dadosm=dadosm[as.character(unique(unlist(fatores[i]))),]
@@ -1742,7 +1769,7 @@ FAT3DBC.ad = function(f1,
           cat(green(bold("\n------------------------------------------\n")))
           cat(fac.names[i])
           grafico3=polynomial(resp, fatores[,i],grau=grau[i],
-                              DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = parse(text = xlab.factor[1]))
+                              DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = parse(text = xlab.factor[1]),point = point)
           cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
         }
 
@@ -1835,7 +1862,7 @@ FAT3DBC.ad = function(f1,
           cat('\n',fac.names[1],' within the combination of levels ',lf2[i],' of  ',fac.names[2],' and ',lf3[j],' of  ',fac.names[3],"\n")
           polynomial(fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                      resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],grau=grau123,
-                     DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = xlab)}
+                     DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = xlab,point = point)}
       }
     }
 
@@ -1923,7 +1950,7 @@ FAT3DBC.ad = function(f1,
           cat('\n\n',fac.names[2],' within the combination of levels ',lf1[k],' of  ',fac.names[1],' and ',lf3[j],' of  ',fac.names[3],'\n')
           polynomial(fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                      resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],grau=grau213,
-                     DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = xlab)}
+                     DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = xlab,point = point)}
       }
     }
 
@@ -2013,7 +2040,7 @@ FAT3DBC.ad = function(f1,
           cat('\n\n',fac.names[3],' inside of each level of ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of ',fac.names[2],'\n')
           polynomial(fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                      resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],grau=grau312,
-                     DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = xlab)}
+                     DFres= anavaF3[10,1],SSq = anavaF3[10,2],ylab = ylab,xlab = xlab,point = point)}
       }
     }
 

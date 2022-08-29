@@ -12,7 +12,7 @@
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
-#' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.
+#' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with two elements.
 #' @param grau12 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.
 #' @param grau21 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.
 #' @param transf Applies data transformation (default is 1; for log consider 0; `angular` for angular transformation)
@@ -36,7 +36,7 @@
 #' @param color Column chart color (\emph{default} is "rainbow")
 #' @param posi Legend position
 #' @param ylim y-axis scale
-#' @param point if quali=F, defines whether to plot all points ("all"), mean ("mean"), standard deviation ("mean_sd") or mean with standard error (\emph{default} - "mean_se").
+#' @param point This function defines whether the point must have all points ("all"), mean ("mean"), standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se") if quali= FALSE. For quali=TRUE, `mean_sd` and `mean_se` change which information will be displayed in the error bar.
 #' @param angle.label Label angle
 #' @import ggplot2
 #' @importFrom crayon green
@@ -93,7 +93,7 @@ FAT2DIC=function(f1,
                  alpha.t=0.05,
                  quali=c(TRUE,TRUE),
                  mcomp="tukey",
-                 grau=c(NA,NA), # isolado e interação tripla
+                 grau=c(NA,NA),
                  grau12=NA, # F1/F2
                  grau21=NA, # F2/F1
                  transf=1,
@@ -302,9 +302,13 @@ FAT2DIC=function(f1,
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
         print(letra1)
         ordem=unique(as.vector(unlist(fatores[i])))
+        if(point=="mean_sd"){desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[ordem]}
+        if(point=="mean_se"){desvio=(tapply(response, c(fatores[i]), sd, na.rm=TRUE)/
+                                       sqrt(tapply(response, c(fatores[i]), length)))[ordem]}
         dadosm=data.frame(letra1[ordem,],
                           media=tapply(response, c(fatores[i]), mean, na.rm=TRUE)[ordem],
-                          desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[ordem])
+                          desvio=desvio)
+
         dadosm$trats=factor(rownames(dadosm),levels = ordem)
         dadosm$limite=dadosm$media+dadosm$desvio
         lim.y=dadosm$limite[which.max(abs(dadosm$limite))]
@@ -903,7 +907,9 @@ FAT2DIC=function(f1,
       }
       if(quali[1] & quali[2]==TRUE){
         media=tapply(response,list(Fator1,Fator2), mean, na.rm=TRUE)
-        desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)
+        if(point=="mean_sd"){desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)}
+        if(point=="mean_se"){desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)/
+          sqrt(tapply(response,list(Fator1,Fator2), length))}
         graph=data.frame(f1=rep(rownames(media),length(colnames(media))),
                          f2=rep(colnames(media),e=length(rownames(media))),
                          media=as.vector(media),

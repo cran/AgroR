@@ -106,7 +106,7 @@ PSUBDIC(
 
 \item{posi}{Legend position}
 
-\item{point}{Point type for regression ("mean_se","mean_sd","mean" or "all")}
+\item{point}{This function defines whether the point must have all points ("all"), mean ("mean"), standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se") if quali= FALSE. For quali=TRUE, `mean_sd` and `mean_se` change which information will be displayed in the error bar.}
 
 \item{angle.label}{Label angle}
 }

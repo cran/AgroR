@@ -64,7 +64,7 @@ FAT2DBC(
 
 \item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)}
 
-\item{grau}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.}
+\item{grau}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with two elements.}
 
 \item{grau12}{Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.}
 
@@ -98,7 +98,7 @@ FAT2DBC(
 
 \item{family}{font family}
 
-\item{point}{if quali=FALSE, defines whether to plot all points ("all"), mean ("mean"), standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").}
+\item{point}{This function defines whether the point must have all points ("all"), mean ("mean"), standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se") if quali= FALSE. For quali=TRUE, `mean_sd` and `mean_se` change which information will be displayed in the error bar.}
 
 \item{addmean}{Plot the average value on the graph (\emph{default} is TRUE)}
 

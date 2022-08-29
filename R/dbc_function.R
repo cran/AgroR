@@ -260,7 +260,7 @@ DBC=function(trat,
   if(point=="mean_se"){
     dadosm=data.frame(letra1,
                       media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
-                      desvio=tapply(response, trat, sd, na.rm=TRUE)/sqrt(tapply(response, trat, length))[rownames(letra1)])}
+                      desvio=(tapply(response, trat, sd, na.rm=TRUE)/sqrt(tapply(response, trat, length)))[rownames(letra1)])}
   dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
   dadosm$limite=dadosm$media+dadosm$desvio
   dadosm=dadosm[unique(as.character(trat)),]

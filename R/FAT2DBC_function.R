@@ -15,7 +15,7 @@
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param transf Applies data transformation (default is 1; for log consider 0; `angular` for angular transformation)
 #' @param constant Add a constant for transformation (enter value)
-#' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.
+#' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with two elements.
 #' @param grau12 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.
 #' @param grau21 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.
 #' @param geom Graph type (columns or segments (For simple effect only))
@@ -37,7 +37,7 @@
 #' @param CV Plotting the coefficient of variation and p-value of Anova (\emph{default} is TRUE)
 #' @param sup Number of units above the standard deviation or average bar on the graph
 #' @param color Column chart color (\emph{default} is "rainbow")
-#' @param point if quali=FALSE, defines whether to plot all points ("all"), mean ("mean"), standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
+#' @param point This function defines whether the point must have all points ("all"), mean ("mean"), standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se") if quali= FALSE. For quali=TRUE, `mean_sd` and `mean_se` change which information will be displayed in the error bar.
 #' @param angle.label label angle
 #' @note The order of the chart follows the alphabetical pattern. Please use `scale_x_discrete` from package ggplot2, `limits` argument to reorder x-axis. The bars of the column and segment graphs are standard deviation.
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.
@@ -99,7 +99,7 @@ FAT2DBC=function(f1,
                  alpha.t = 0.05,
                  quali = c(TRUE, TRUE),
                  mcomp = "tukey",
-                 grau=c(NA,NA), # isolado e interação tripla
+                 grau=c(NA,NA),
                  grau12=NA, # F1/F2
                  grau21=NA, # F2/F1
                  transf = 1,
@@ -306,9 +306,13 @@ FAT2DBC=function(f1,
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
       print(letra1)
       ordem=unique(as.vector(unlist(fatores[i])))
+      #=====================================================
+      if(point=="mean_sd"){desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[ordem]}
+      if(point=="mean_se"){desvio=(tapply(response, c(fatores[i]), sd, na.rm=TRUE)/
+                                     sqrt(tapply(response, c(fatores[i]), length)))[ordem]}
       dadosm=data.frame(letra1[ordem,],
                         media=tapply(response, c(fatores[i]), mean, na.rm=TRUE)[ordem],
-                        desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[ordem])
+                        desvio=desvio)
       dadosm$trats=factor(rownames(dadosm),levels = ordem)
       dadosm$limite=dadosm$media+dadosm$desvio
       lim.y=dadosm$limite[which.max(abs(dadosm$limite))]
@@ -938,7 +942,11 @@ FAT2DBC=function(f1,
 
     if(quali[1]==TRUE & quali[2]==TRUE){
     media=tapply(response,list(Fator1,Fator2), mean, na.rm=TRUE)
-    desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)
+    # desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)
+    if(point=="mean_sd"){desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)}
+    if(point=="mean_se"){desvio=tapply(response,list(Fator1,Fator2), sd, na.rm=TRUE)/
+      sqrt(tapply(response,list(Fator1,Fator2), length))}
+
     graph=data.frame(f1=rep(rownames(media),length(colnames(media))),
                      f2=rep(colnames(media),e=length(rownames(media))),
                      media=as.vector(media),
