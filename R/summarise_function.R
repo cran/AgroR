@@ -10,7 +10,7 @@
 #' @note The column names in the final output are imported from the ylab argument within each function.
 #' @note This function is only for declared qualitative factors. In the case of a quantitative factor and the other qualitative in projects with two factors, this function will not work.
 #' @note Triple factorials and split-split-plot do not work in this function.
-#'
+#' @import knitr
 #' @export
 #' @examples
 #'
@@ -26,7 +26,8 @@
 #' b=DIC(trat, SS, geom = "point", ylab="SS")
 #' c=DIC(trat, AT, geom = "point", ylab = "AT")
 #' summarise_anova(analysis = list(a,b,c), divisor = TRUE)
-#'
+#' library(knitr)
+#' kable(summarise_anova(analysis = list(a,b,c), divisor = FALSE))
 #' #=====================================
 #' # DBC
 #' #=====================================
@@ -48,6 +49,7 @@ summarise_anova=function(analysis,
                          design="DIC",
                          round=3,
                          divisor=TRUE){
+  requireNamespace("knitr")
   if(design=="DIC"){
     nlinhas=length(analysis[[1]][[1]]$plot$dadosm$groups)
     infor=data.frame(matrix(ncol=length(analysis),nrow = nlinhas))

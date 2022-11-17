@@ -29,6 +29,7 @@ bar_graph=function(model,
   limite=data$limite
   letra=data$letra
   groups=data$groups
+  sup=model[[1]]$plot$sup
   if(horiz==TRUE){
     graph=ggplot(data,aes(y=trats,
                           x=media))+
@@ -37,7 +38,7 @@ bar_graph=function(model,
                color="black")+
       geom_errorbar(aes(xmin=media-desvio,
                         xmax=media+desvio),width=0.2)+
-      geom_text(aes(x=media+desvio+1/15*as.vector(media),
+      geom_text(aes(x=media+desvio+sup,
                      y=trats,
                      label = letra),hjust=0)+
       labs(y=model[[1]]$labels$x,
@@ -46,7 +47,7 @@ bar_graph=function(model,
             strip.text = element_text(size=12),
             legend.position = "none")+
       scale_y_discrete(limits=trats)+
-      xlim(layer_scales(model[[1]])$y$range$range)}
+      xlim(layer_scales(model[[1]])$y$range$range*1.1)}
   if(horiz==FALSE){
     graph=ggplot(data,aes(x=trats,
                           y=media))+
@@ -54,7 +55,7 @@ bar_graph=function(model,
       geom_col(fill=fill,size=0.3,color="black")+
       geom_errorbar(aes(ymin=media-desvio,
                         ymax=media+desvio),width=0.2)+
-      geom_text(aes(y=media+desvio+1/15*media,
+      geom_text(aes(y=media+desvio+sup,
                      x=trats,
                      label = letra),vjust=0)+
       labs(x=model[[1]]$labels$x,
@@ -63,6 +64,6 @@ bar_graph=function(model,
             strip.text = element_text(size=12),
             legend.position = "none")+
       scale_x_discrete(limits=trats)+
-      ylim(layer_scales(model[[1]])$y$range$range)}
+      ylim(layer_scales(model[[1]])$y$range$range*1.1)}
   graph
 }

@@ -11,6 +11,8 @@
 #' @examples
 #' data(pomegranate)
 #' tabledesc(pomegranate)
+#' library(knitr)
+#' kable(tabledesc(pomegranate))
 
 
 tabledesc=function(data,

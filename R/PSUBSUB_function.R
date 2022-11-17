@@ -169,6 +169,11 @@ PSUBSUBDBC=function(f1,
                            QME = qmres[i],
                            alpha = alpha.t)
           letra1=data.frame(resp=medias,groups=letra)
+          teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+            if(mcomp=="sk"){"Scott-Knott"}else{
+              if(mcomp=="lsd"){"LSD-Fischer"}else{
+                if(mcomp=="duncan"){"Duncan"}}}}
+          cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
           print(letra1)}
         }
       if(pvalor[i]>alpha.f) {

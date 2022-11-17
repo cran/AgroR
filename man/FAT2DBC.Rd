@@ -31,6 +31,8 @@ FAT2DBC(
   textsize = 12,
   labelsize = 4,
   dec = 3,
+  width.column = 0.9,
+  width.bar = 0.3,
   family = "sans",
   point = "mean_sd",
   addmean = TRUE,
@@ -95,6 +97,10 @@ FAT2DBC(
 \item{labelsize}{label size}
 
 \item{dec}{number of cells}
+
+\item{width.column}{Width column if geom="bar"}
+
+\item{width.bar}{Width errorbar}
 
 \item{family}{font family}
 

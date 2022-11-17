@@ -58,6 +58,7 @@
 #' # default
 #' #===================================
 #' DBCT(trat, bloco, tempo, resp)
+#' DBCT(trat, bloco, tempo, resp,fill="rainbow")
 #'
 #' #===================================
 #' # segment chart

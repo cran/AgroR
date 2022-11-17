@@ -249,5 +249,5 @@ polynomial2_color=function(fator1,
     labs(color=legend.title, shape=legend.title, lty=legend.title)
   print(grafico)
 
-  grafico=as.list(grafico)
+  (grafico=as.list(grafico))
 }

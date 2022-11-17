@@ -11,7 +11,6 @@ FAT3DBC(
   block,
   response,
   norm = "sw",
-  homog = "bt",
   alpha.f = 0.05,
   alpha.t = 0.05,
   quali = c(TRUE, TRUE, TRUE),
@@ -59,8 +58,6 @@ FAT3DBC(
 \item{response}{Numerical vector containing the response of the experiment.}
 
 \item{norm}{Error normality test (\emph{default} is Shapiro-Wilk)}
-
-\item{homog}{Homogeneity test of variances (\emph{default} is Bartlett)}
 
 \item{alpha.f}{Level of significance of the F test (\emph{default} is 0.05)}
 

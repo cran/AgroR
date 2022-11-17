@@ -227,7 +227,7 @@ polynomial=function(trat,
           legend.direction = "vertical",
           legend.text.align = 0,
           legend.justification = 0)
-  print(grafico)
+  # print(grafico)
   if(grau==1){
     cat("\n----------------------------------------------------\n")
     cat("Regression Models")
@@ -258,5 +258,5 @@ polynomial=function(trat,
     cat("\n----------------------------------------------------\n")
     print(as.matrix(fa3),na.print=" ")
   }
-  graficos=list(grafico)
+  (graficos=list(grafico))
 }

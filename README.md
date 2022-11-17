@@ -3,9 +3,9 @@
 
 <!-- badges: start -->
 
+![Downloads](http://cranlogs.r-pkg.org/badges/AgroR)
 [![CRAN status](https://www.r-pkg.org/badges/version-ago/AgroR)](https://CRAN.R-project.org/package=AgroR)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable-1)
-![Downloads](http://cranlogs.r-pkg.org/badges/AgroR)
 ![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/AgroR)
 
 <!-- badges: end -->
@@ -16,9 +16,9 @@ Type: Package
 
 Title: Experimental Statistics and Graphics for Agricultural Sciences 
 
-Version: 1.3.0
+Version: 1.3.1
 
-Date: 2022-06-13
+Date: 2022-08-29
 
 Authors: 
  
@@ -61,17 +61,17 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
 ## Data set
 
  - `aristolochia`: Germination of seeds of _Aristolochia_ sp. as a function of temperature.
- - `bean`: bean data
+ - `bean`: Bean data
  - `cloro`: Sodium dichloroisocyanurate in soybean
- - `corn`: corn data
- - `covercrops`: covercrops data
+ - `corn`: Corn data
+ - `covercrops`: Covercrops data
  - `emerg`: Emergence of passion fruit seeds over time .
  - `enxofre`: Sulfur data
  - `laranja`: Orange plants under different rootstocks
  - `mirtilo`: Cutting blueberry data
- - `orchard`: orchard data
+ - `orchard`: Orchard data
  - `passiflora`: Substrate data in the production of passion fruit seedlings
- - `pepper`: pepper data
+ - `pepper`: Pepper data
  - `phao`: Osmocote in *Phalaenopsis* sp.
  - `pomegranate`: Pomegranate data
  - `porco`: Pig development and production
@@ -93,6 +93,10 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
 
 ## Analysis function
 
+*t test to compare means with a reference value*
+
+ - `tonetest`: t test to compare means with a reference value
+ 
 *Analysis for testing of two independent or dependent samples by parametric or non-parametric method*
 
  - `test_two`: Test for two samples
@@ -102,7 +106,12 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
  - `DIC`: Completely randomized design
  - `DBC`: Randomized block design
  - `DQL`: Latin square design
- 
+
+*Analysis of simple experiments with an additional treatment for quantitative factor*
+
+ - `dic.ad`: Completely randomized design with an additional treatment for quantitative factor
+ - `dbc.ad`: Randomized block design with an additional treatment for quantitative factor
+
 *Analysis of simple experiments in DIC and DBC by generalized linear model (Binomial or Poisson)*
 
  - `DIC.glm`: Completely randomized design by glm
@@ -119,6 +128,10 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
  - `conjdbc`: Joint analysis of experiments in randomized block design
  - `conjdic`: Joint analysis of experiments in completely randomized design
  
+*Analysis of groups of experiments in FAT2DBC*
+
+ - `conjfat2dbc`: Joint analysis of experiments in randomized block design in double factorial
+
 *Analysis of experiments in double factorial design in DIC and DBC*
 
  - `FAT2DIC`: DIC experiments in double factorial
@@ -181,23 +194,24 @@ devtools::install_github("https://github.com/AgronomiaR/AgroR.git")
  - `bargraph_twofactor`: Group FAT2DIC, FAT2DBC, PSUBDIC or PSUBDBC functions column charts
  - `barplot_positive`: Positive barplot
  - `bar_dunnett`: Barplot for Dunnett test
- - `bar_graph`: bar graph for one factor
- - "bar_graph2": Bar graph for one factor model 2
+ - `bar_graph`: Bar graph for one factor
+ - `bar_graph2`: Bar graph for one factor model 2
  - `corgraph`: Correlogram
- - `cor_ic`: plot Pearson correlation with interval of confidence
+ - `cor_ic`: Plot Pearson correlation with interval of confidence
  - `ibarplot.double`: Invert letters for two factor chart
  - `line_plot`: Line chart
- - `plot_cor`: plot correlation
+ - `plot_cor`: Plot correlation
  - `plot_interaction`: Interaction plot
  - `plot_jitter`: Column, box or segment chart with observations
  - `plot_TH`: Climate chart of temperature and humidity
  - `plot_TH1`: Climate chart of temperature and humidity (Model 2)
  - `radargraph`: Circular column chart
- - `seg_graph`: segment graph for one factor
+ - `seg_graph`: Segment graph for one factor
  - `seg_graph2`: Point graph for one factor model 2
  - `sk_graph`: Scott-Knott graphics
  - `spider_graph`: Spider graph for sensorial analysis
  - `TBARPLOT.reverse`: Reverse graph of DICT, DBCT and DQL output when geom="bar"
+ - `plot_tonetest`: Graphic for t test to compare means with a reference value
 
 ## Utils
 

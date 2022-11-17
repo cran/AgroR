@@ -29,10 +29,12 @@
 #' @param textsize Font size
 #' @param labelsize Label size
 #' @param dec Number of cells
+#' @param width.column Width column if geom="bar"
+#' @param width.bar Width errorbar
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param posi Legend position
-#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").
+#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error ("mean_se"). For parametric test it is possible to plot the square root of QMres (mean_qmres).
 #' @param angle.label label angle
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
@@ -87,6 +89,8 @@ DQL=function(trat,
              angle=0,
              family="sans",
              dec=3,
+             width.column=NULL,
+             width.bar=0.3,
              addmean=TRUE,
              errorbar=TRUE,
              posi="top",
@@ -208,7 +212,12 @@ DQL=function(trat,
     black("As the calculated p-value, it is less than the 5% significance level. The hypothesis H0 of equality of means is rejected. Therefore, at least two treatments differ")}
       else {"As the calculated p-value is greater than the 5% significance level, H0 is not rejected"})
   cat(green(bold("\n-----------------------------------------------------------------\n")))
-  if(quali==TRUE){cat(green(bold("Multiple Comparison Test")))}else{cat(green(bold("Regression")))}
+  if(quali==TRUE){teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+    if(mcomp=="sk"){"Scott-Knott"}else{
+      if(mcomp=="lsd"){"LSD-Fischer"}else{
+        if(mcomp=="duncan"){"Duncan"}}}}
+  cat(green(italic(paste("Multiple Comparison Test:",teste))))
+  }else{cat(green(bold("Regression")))}
   cat(green(bold("\n-----------------------------------------------------------------\n")))
 
   # ================================
@@ -259,6 +268,11 @@ DQL=function(trat,
     dadosm=data.frame(letra1,
                       media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
                       desvio=(tapply(response, trat, sd, na.rm=TRUE)/sqrt(tapply(response, trat, length)))[rownames(letra1)])}
+  if(point=="mean_qmres"){
+    dadosm=data.frame(letra1,
+                      media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
+                      desvio=rep(sqrt(a$`Mean Sq`[4]),e=length(levels(trat))))}
+
   dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
   dadosm$limite=dadosm$media+dadosm$desvio
   dadosm=dadosm[unique(as.character(trat)),]
@@ -274,9 +288,9 @@ DQL=function(trat,
                                  aes(x=trats,
                                      y=media))
     if(fill=="trat"){grafico=grafico+
-      geom_col(aes(fill=trats),color=1)}
+      geom_col(aes(fill=trats),color=1,width = width.column)}
   else{grafico=grafico+
-    geom_col(aes(fill=trats),fill=fill,color=1)}
+    geom_col(aes(fill=trats),fill=fill,color=1,width = width.column)}
   if(errorbar==TRUE){grafico=grafico+
     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                   label=letra),size=labelsize,family=family,angle=angle.label, hjust=hjust)}
@@ -286,7 +300,7 @@ DQL=function(trat,
     geom_errorbar(data=dadosm,
                   aes(ymin=media-desvio,
                       ymax=media+desvio,color=1),
-                  color="black", width=0.3)}}
+                  color="black", width=width.bar)}}
   if(geom=="point"){grafico=ggplot(dadosm,
                                    aes(x=trats,
                                        y=media))
@@ -301,7 +315,7 @@ DQL=function(trat,
     geom_errorbar(data=dadosm,
                   aes(ymin=media-desvio,
                       ymax=media+desvio,color=1),
-                  color="black", width=0.3)}
+                  color="black", width=width.bar)}
     if(fill=="trat"){grafico=grafico+
       geom_point(aes(color=trats),size=5)}
   else{grafico=grafico+
@@ -354,6 +368,8 @@ DQL=function(trat,
     if(grau==2){graph=polynomial(trat,response, grau = 2,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4])}
     if(grau==3){graph=polynomial(trat,response, grau = 3,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4])}
     grafico=graph[[1]]
+    print(grafico)
+
   }
   if(quali==TRUE){print(grafico)}
   graficos=list(grafico)#[[1]]

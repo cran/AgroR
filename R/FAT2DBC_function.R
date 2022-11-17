@@ -39,6 +39,8 @@
 #' @param color Column chart color (\emph{default} is "rainbow")
 #' @param point This function defines whether the point must have all points ("all"), mean ("mean"), standard deviation (\emph{default} - "mean_sd") or mean with standard error ("mean_se") if quali= FALSE. For quali=TRUE, `mean_sd` and `mean_se` change which information will be displayed in the error bar.
 #' @param angle.label label angle
+#' @param width.column Width column if geom="bar"
+#' @param width.bar Width errorbar
 #' @note The order of the chart follows the alphabetical pattern. Please use `scale_x_discrete` from package ggplot2, `limits` argument to reorder x-axis. The bars of the column and segment graphs are standard deviation.
 #' @return The table of analysis of variance, the test of normality of errors (Shapiro-Wilk, Lilliefors, Anderson-Darling, Cramer-von Mises, Pearson and Shapiro-Francia), the test of homogeneity of variances (Bartlett or Levene), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey, LSD, Scott-Knott or Duncan) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column chart for qualitative treatments is also returned.
 #' @note The function does not perform multiple regression in the case of two quantitative factors.
@@ -115,6 +117,8 @@ FAT2DBC=function(f1,
                  textsize = 12,
                  labelsize=4,
                  dec = 3,
+                 width.column=0.9,
+                 width.bar=0.3,
                  family = "sans",
                  point = "mean_sd",
                  addmean = TRUE,
@@ -304,7 +308,12 @@ FAT2DBC=function(f1,
           letra <- duncan(b, colnames(fatores[i]), alpha=alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
-      print(letra1)
+        teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+          if(mcomp=="sk"){"Scott-Knott"}else{
+            if(mcomp=="lsd"){"LSD-Fischer"}else{
+              if(mcomp=="duncan"){"Duncan"}}}}
+        cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
+        print(letra1)
       ordem=unique(as.vector(unlist(fatores[i])))
       #=====================================================
       if(point=="mean_sd"){desvio=tapply(response, c(fatores[i]), sd, na.rm=TRUE)[ordem]}
@@ -328,8 +337,8 @@ FAT2DBC=function(f1,
       if(geom=="bar"){grafico=ggplot(dadosm,aes(x=trats,
                                                 y=media))
       if(fill=="trat"){grafico=grafico+geom_col(aes(fill=trats),
-                                                color=1)}
-      else{grafico=grafico+geom_col(aes(fill=trats),fill=fill,color=1)}
+                                                color=1,width = width.column)}
+      else{grafico=grafico+geom_col(aes(fill=trats),fill=fill,color=1,width = width.column)}
       grafico=grafico+theme+
         ylab(ylab)+
         xlab(parse(text = xlab.factor[i]))
@@ -341,7 +350,7 @@ FAT2DBC=function(f1,
       if(errorbar==TRUE){grafico=grafico+
         geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                       ymax=media+desvio,color=1),
-                      color="black", width=0.3)}
+                      color="black", width=width.bar)}
       if(angle !=0){grafico=grafico+
         theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
       grafico=grafico+
@@ -370,7 +379,7 @@ FAT2DBC=function(f1,
       if(errorbar==TRUE){grafico=grafico+
         geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                       ymax=media+desvio,color=1),
-                      color="black", width=0.3)}
+                      color="black", width=width.bar)}
       if(angle !=0){grafico=grafico+
         theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
       grafico=grafico+
@@ -603,6 +612,12 @@ FAT2DBC=function(f1,
     }
     if(quali[1]==FALSE && color=="gray"| quali[2]==FALSE && color=="gray"){
       if(quali[2]==FALSE){
+        teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+          if(mcomp=="sk"){"Scott-Knott"}else{
+            if(mcomp=="lsd"){"LSD-Fischer"}else{
+              if(mcomp=="duncan"){"Duncan"}}}}
+        cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
+
         if (mcomp == "tukey"){
           for (i in 1:nv2) {
             trati=fatores[, 1][Fator2 == lf2[i]]
@@ -611,6 +626,7 @@ FAT2DBC=function(f1,
             if(transf !=1){tukey$groups$respo=tapply(response[Fator2 == lf2[i]],trati,
                                                      mean, na.rm=TRUE)[rownames(tukey$groups)]}
             cat("\n----------------------\n")
+
             cat("Multiple comparison of F1 within level",lf2[i],"of F2")
             cat("\n----------------------\n")
             print(tukey$groups)
@@ -772,6 +788,12 @@ FAT2DBC=function(f1,
     }
     if(quali[1]==FALSE && color=="rainbow"| quali[2]==FALSE && color=="rainbow"){
       if(quali[2]==FALSE){
+        teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+          if(mcomp=="sk"){"Scott-Knott"}else{
+            if(mcomp=="lsd"){"LSD-Fischer"}else{
+              if(mcomp=="duncan"){"Duncan"}}}}
+        cat(green(italic(paste("Multiple Comparison Test:",teste))))
+
         if (mcomp == "tukey"){
           for (i in 1:nv2) {
             trati=fatores[, 1][Fator2 == lf2[i]]
@@ -972,22 +994,22 @@ FAT2DBC=function(f1,
     colint=ggplot(graph, aes(x=f1,
                              y=media,
                              fill=f2))+
-      geom_col(position = "dodge",color="black")+
+      geom_col(position = "dodge",color="black",width = width.column)+
       ylab(ylab)+xlab(xlab)+ylim(ylim)+
       theme
       if(errorbar==TRUE){colint=colint+
         geom_errorbar(data=graph,
                       aes(ymin=media-desvio,
                           ymax=media+desvio),
-                      width=0.3,color="black",
-                      position = position_dodge(width=0.9))}
+                      width=width.bar,color="black",
+                      position = position_dodge(width=width.column))}
     if(errorbar==TRUE){colint=colint+
       geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                     label=numero),
-                position = position_dodge(width=0.9),family = family,angle=angle.label, hjust=hjust,size=labelsize)}
+                position = position_dodge(width=width.column),family = family,angle=angle.label, hjust=hjust,size=labelsize)}
     if(errorbar==FALSE){colint=colint+
       geom_text(aes(y=media+sup,label=numero),
-                position = position_dodge(width=0.9),family = family,angle=angle.label, hjust=hjust,size=labelsize)}
+                position = position_dodge(width=width.column),family = family,angle=angle.label, hjust=hjust,size=labelsize)}
     colint=colint+theme(text=element_text(size=textsize, family = family),
                         axis.text = element_text(size=textsize,color="black", family = family),
                         axis.title = element_text(size=textsize,color="black", family = family),

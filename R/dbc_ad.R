@@ -54,11 +54,11 @@ dbc.ad=function(trat,
 
   trat1=as.factor(trat)
   bloco1=as.factor(block)
-  mod=aov(resp~trat1+bloco1)
+  mod=aov(response~trat1+bloco1)
   an=anova(mod)
   trati=as.factor(c(trat,rep("Controle",length(responsead))))
   blocoi=as.factor(c(block,block[1:length(responsead)]))
-  mod1=aov(c(resp,responsead)~blocoi+trati)
+  mod1=aov(c(response,responsead)~blocoi+trati)
   an1=anova(mod1)
   anava1=rbind(an[1,],an1[1,],an1[2,],an1[3,])
   anava1$Df[3]=1
@@ -151,7 +151,6 @@ dbc.ad=function(trat,
   cat(green(bold("Analysis of Variance")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   print(anava1)
-  print(if(anava1$`Pr(>F)`[1]>alpha.f){"H0 is not rejected"})
   a=AgroR::polynomial(trat,response,DFres = anava1$Df[4],
                       SSq = anava1$`Sum Sq`[4],
                       ylab = ylab,
@@ -163,4 +162,5 @@ dbc.ad=function(trat,
                       family = family,
                       pointsize = pointsize,
                       linesize = linesize,
-                      width.bar = width.bar)}
+                      width.bar = width.bar)
+  print(a[[1]])}

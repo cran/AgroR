@@ -12,6 +12,7 @@ conjdbc(
   transf = 1,
   norm = "sw",
   homog = "bt",
+  homog.value = 7,
   theme = theme_classic(),
   mcomp = "tukey",
   quali = TRUE,
@@ -43,6 +44,8 @@ conjdbc(
 \item{norm}{Error normality test (\emph{default} is Shapiro-Wilk)}
 
 \item{homog}{Homogeneity test of variances (\emph{default} is Bartlett)}
+
+\item{homog.value}{Reference value for homogeneity of experiments. By default, this ratio should not be greater than 7}
 
 \item{theme}{ggplot2 theme (\emph{default} is theme_classic())}
 
@@ -81,6 +84,8 @@ Returns the assumptions of the analysis of variance, the assumption of the joint
 Function of the AgroR package for joint analysis of experiments conducted in a randomized qualitative or quantitative single-block design with balanced data.
 }
 \note{
+In this function there are three possible outcomes. When the ratio between the experiments is greater than 7, the separate analyzes are returned, without however using the square of the joint residue. When the ratio is less than 7, but with significant interaction, the effects are tested using the square of the joint residual. When there is no significant interaction and the ratio is less than 7, the joint analysis between the experiments is returned.
+
 The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 
 In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
@@ -88,7 +93,17 @@ In the final output when transformation (transf argument) is different from 1, t
 \examples{
 library(AgroR)
 data(mirtilo)
+
+#===================================
+# No significant interaction
+#===================================
 with(mirtilo, conjdbc(trat, bloco, exp, resp))
+
+#===================================
+# Significant interaction
+#===================================
+data(eucalyptus)
+with(eucalyptus, conjdbc(trati, bloc, exp, resp))
 }
 \references{
 Ferreira, P. V. Estatistica experimental aplicada a agronomia. Edufal, 2018.

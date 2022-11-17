@@ -26,7 +26,6 @@
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param norm Error normality test (\emph{default} is Shapiro-Wilk)
-#' @param homog Homogeneity test of variances (\emph{default} is Bartlett)
 #' @param transf Applies data transformation (\emph{default} is 1; for log consider 0; `angular` for angular transformation)
 #' @param constant Add a constant for transformation (enter value)
 #' @param sup Number of units above the standard deviation or average bar on the graph
@@ -79,12 +78,11 @@ FAT3DIC=function(f1,
                  f3,
                  response,
                  norm="sw",
-                 homog="bt",
                  alpha.t=0.05,
                  alpha.f=0.05,
                  quali=c(TRUE,TRUE,TRUE),
                  mcomp='tukey',
-                 grau=c(NA,NA,NA), # isolado e interação tripla
+                 grau=c(NA,NA,NA),
                  grau12=NA, # F1/F2
                  grau13=NA, # F1/F3
                  grau23=NA, # F2/F3
@@ -258,6 +256,11 @@ FAT3DIC=function(f1,
           letra <- LSD(anava, colnames(ad[i]), alpha=alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
+        teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+          if(mcomp=="sk"){"Scott-Knott"}else{
+            if(mcomp=="lsd"){"LSD-Fischer"}else{
+              if(mcomp=="duncan"){"Duncan"}}}}
+        cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
         print(letra1)
         cat(green(bold("\n------------------------------------------\n")))
         #=====================================================
@@ -346,11 +349,14 @@ FAT3DIC=function(f1,
         grafico=NA}
 
       if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
+        cat(green(bold("\n------------------------------------------\n")))
         cat(fac.names[i])
+        cat(green(bold("\n------------------------------------------\n")))
+
         dose=as.numeric(as.vector(unlist(fatores[,i])))
         grafico=polynomial(dose,resp,grau = grau[i],
-                           DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = parse(text = xlab.factor[i]),point = point)
-        cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command\n"))
+                           DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = parse(text = xlab.factor[i]),point = point)[[1]]
+        cat(green("\nTo edit graphical parameters, I suggest analyzing using the \"polynomial\" command\n"))
         cat(green(bold("\n------------------------------------------")))}
 
       cat('\n')
@@ -735,7 +741,7 @@ FAT3DIC=function(f1,
                                 xlab=xlab,
                                 theme=theme,
                                 DFres= anavaF3[8,1],SSq = anavaF3[8,2])}
-        cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))
+        cat(green("\nTo edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))
         }
       if(anavaF3[5,5]>alpha.f && anavaF3[6,5]>alpha.f) {
         i<-3
@@ -819,8 +825,8 @@ FAT3DIC=function(f1,
             cat(green(bold("\n------------------------------------------\n")))
             cat(fac.names[i])
             grafico1=polynomial(fatores[,i], resp,grau=grau[i],
-                                DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = parse(text = xlab.factor[3]),point = point)
-            cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))}
+                                DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = parse(text = xlab.factor[3]),point = point)[[1]]
+            cat(green("\nTo edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))}
         }
 
       }
@@ -1181,7 +1187,7 @@ FAT3DIC=function(f1,
                                   xlab=xlab,
                                   theme=theme,
                                   DFres= anavaF3[8,1],SSq = anavaF3[8,2])}
-          cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))
+          cat(green("\nTo edit graphical parameters, I suggest analyzing using the \"polynomial2\" command\n"))
           }
 
         #Checar o Fator2
@@ -1268,8 +1274,8 @@ FAT3DIC=function(f1,
               cat(green(bold("\n------------------------------------------\n")))
               cat(fac.names[i])
               grafico2=polynomial(fatores[,i], resp,grau=grau[i],
-                                  DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = parse(text = xlab.factor[2]),point = point)
-              cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
+                                  DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = parse(text = xlab.factor[2]),point = point)[[1]]
+              cat(green("\nTo edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
             }
 
             cat('\n')
@@ -1632,7 +1638,7 @@ FAT3DIC=function(f1,
                                   xlab=xlab,
                                   theme=theme,
                                   DFres= anavaF3[8,1],SSq = anavaF3[8,2])}
-          cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial2\" command"))
+          cat(green("\nTo edit graphical parameters, I suggest analyzing using the \"polynomial2\" command"))
           }
 
         if(anavaF3[4,5]>alpha.f && anavaF3[5,5]>alpha.f) {
@@ -1716,9 +1722,10 @@ FAT3DIC=function(f1,
               cat('Analyzing the simple effects of the factor ',fac.names[2])
               cat(green(bold("\n------------------------------------------\n")))
               cat(fac.names[i])
-              polynomial(fatores[,i], resp,grau=grau[i],
-                         DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab=parse(text = xlab.factor[1]),point = point)
-              cat(green("To edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
+              grafico3=polynomial(fatores[,i], resp,grau=grau[i],
+                         DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab=parse(text = xlab.factor[1]),point = point)[[1]]
+              print(grafico3)
+              cat(green("\nTo edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
             }
 
             cat('\n')
@@ -1809,7 +1816,7 @@ FAT3DIC=function(f1,
             cat('\n',fac.names[1],' within the combination of levels ',lf2[i],' of  ',fac.names[2],' and ',lf3[j],' of  ',fac.names[3],"\n")
             polynomial(fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                        resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],grau=grau123,
-                       DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab=ylab,xlab=xlab,point = point)}
+                       DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab=ylab,xlab=xlab,point = point)[[1]]}
           }
       }
 
@@ -1892,7 +1899,7 @@ FAT3DIC=function(f1,
             polynomial(fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                        resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                        DFres= anavaF3[8,1],SSq = anavaF3[8,2],grau=grau213,
-                       ylab = ylab,xlab = xlab,point = point)}
+                       ylab = ylab,xlab = xlab,point = point)[[1]]}
           }
       }
 
@@ -1984,7 +1991,7 @@ FAT3DIC=function(f1,
             cat('\n\n',fac.names[3],' inside of each level of ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of ',fac.names[2],'\n')
             polynomial(fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                        resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],grau=grau312,
-                       DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = xlab,point = point)}
+                       DFres= anavaF3[8,1],SSq = anavaF3[8,2],ylab = ylab,xlab = xlab,point = point)[[1]]}
           }
       }
 

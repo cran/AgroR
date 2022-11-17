@@ -11,6 +11,7 @@
 #' @param transf Applies data transformation (default is 1; for log consider 0)
 #' @param norm Error normality test (\emph{default} is Shapiro-Wilk)
 #' @param homog Homogeneity test of variances (\emph{default} is Bartlett)
+#' @param homog.value Reference value for homogeneity of experiments. By default, this ratio should not be greater than 7
 #' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{default} is qualitative)
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
@@ -26,6 +27,7 @@
 #' @param textsize Font size
 #' @param family Font family
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
+#' @note In this function there are three possible outcomes. When the ratio between the experiments is greater than 7, the separate analyzes are returned, without however using the square of the joint residue. When the ratio is less than 7, but with significant interaction, the effects are tested using the square of the joint residual. When there is no significant interaction and the ratio is less than 7, the joint analysis between the experiments is returned.
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
 #' @return Returns the assumptions of the analysis of variance, the assumption of the joint analysis by means of a QMres ratio matrix, the analysis of variance, the multiple comparison test or regression.
@@ -48,7 +50,17 @@
 #' @examples
 #' library(AgroR)
 #' data(mirtilo)
+#'
+#' #===================================
+#' # No significant interaction
+#' #===================================
 #' with(mirtilo, conjdbc(trat, bloco, exp, resp))
+#'
+#' #===================================
+#' # Significant interaction
+#' #===================================
+#' data(eucalyptus)
+#' with(eucalyptus, conjdbc(trati, bloc, exp, resp))
 
 conjdbc=function(trat,
                  block,
@@ -57,6 +69,7 @@ conjdbc=function(trat,
                  transf=1,
                  norm="sw",
                  homog="bt",
+                 homog.value=7,
                  theme=theme_classic(),
                  mcomp="tukey",
                  quali=TRUE,
@@ -148,7 +161,7 @@ conjdbc=function(trat,
   nexp=length(unique(local))
   ntrat=length(unique(trat))
   nrep=table(trat)/nexp
-  GL=nexp*(ntrat*nrep[1]-(ntrat-1)-(nrep[1]-1))
+  GL=a$Df[2]
   resmed=data.frame(rbind(c(GL,NA,mean(QMRES),NA,NA)))
   colnames(resmed)=colnames(datas)
   datas=rbind(datas,resmed)
@@ -221,7 +234,7 @@ conjdbc=function(trat,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   print(qmresmedio)
   cat("\nBased on the analysis of variance and homogeneity of experiments, it can be concluded that: ")
-  if(qmresmedio<7 && a$`Pr(>F)`[1]>alpha.f){
+  if(qmresmedio<homog.value && a$`Pr(>F)`[1]>alpha.f){
     message(black("The experiments can be analyzed together"))}else{
       message("Experiments cannot be analyzed together (Separate by experiment)")}
   cat("\n\n")
@@ -248,17 +261,20 @@ conjdbc=function(trat,
   print(as.matrix(datas),na.print = "")
   cat(green(bold("\n-----------------------------------------------------------------\n")))
 
-  anova=as.list(1:length(levels(local)))
-  tukey=as.list(1:length(levels(local)))
-
-  if(a$`Pr(>F)`[1] < alpha.f | qmresmedio > 7){
+  # anova=as.list(1:length(levels(local)))
+  # tukey=as.list(1:length(levels(local)))
+  anova=c()
+  tukey=c()
+  if(qmresmedio > homog.value){
     if(quali==TRUE){
     for(i in 1:length(levels(local))){
-        anova1=anova(aov(resp~tratamento+bloco,
+        anova[[i]]=anova(aov(resp~tratamento+bloco,
                              data=dados[dados$local==levels(dados$local)[i],]))
         aov1=aov(resp~tratamento+bloco, data=dados[dados$local==levels(dados$local)[i],])
-        if(quali==TRUE){
-          if(mcomp=="tukey"){tukey[[i]]=TUKEY(aov1,"tratamento",
+        anova[[i]]=as.matrix(data.frame(anova[[i]]))
+        colnames(anova[[i]])=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+        rownames(anova[[i]])=c("Trat","Block","Residuals")
+        if(mcomp=="tukey"){tukey[[i]]=TUKEY(aov1,"tratamento",
                                                  alpha = alpha.t)$groups[unique(as.character(trat)),]
           comp=TUKEY(aov1,"tratamento")$groups}
           if(mcomp=="duncan"){tukey[[i]]=duncan(aov1,"tratamento",
@@ -273,9 +289,9 @@ conjdbc=function(trat,
             nrep=table(data$trat)[1]
             medias=sort(tapply(data$resp,data$trat,mean),decreasing = TRUE)
             letra=scottknott(means = medias,
-                             df1 = anova$Df[2],
+                             df1 = anova$Df[3],
                              nrep = nrep,
-                             QME = anova$`Mean Sq`[2],
+                             QME = anova$`Mean Sq`[3],
                              alpha = alpha.t)
             letra1=data.frame(resp=medias,groups=letra)[unique(as.character(trat)),]
             tukey[[i]]=letra1
@@ -285,6 +301,7 @@ conjdbc=function(trat,
           if(transf=="1"){}else{tukey[[i]]$respo=with(dados[dados$local==levels(dados$local)[i],],
                                                       tapply(response, tratamento, mean, na.rm=TRUE))[rownames(comp)]}
           names(tukey)[i]=levels(local)[i]
+          names(anova)[i]=levels(local)[i]
 
           dadosm=data.frame(comp,
                             media=with(dados[dados$local==levels(dados$local)[i],],
@@ -317,9 +334,17 @@ conjdbc=function(trat,
                   axis.text = element_text(size=textsize,color="black", family = family),
                   legend.position = "none")
           graficos[[i]]=grafico}
+        print(anova,na.print = "")
+        teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+          if(mcomp=="sk"){"Scott-Knott"}else{
+            if(mcomp=="lsd"){"LSD-Fischer"}else{
+              if(mcomp=="duncan"){"Duncan"}}}}
+        cat(green(bold("\n-----------------------------------------------------------------\n")))
+        cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
+        cat(green(bold("-----------------------------------------------------------------\n")))
+        print(tukey)
     }
-      print(tukey)}
-      if(quali==FALSE){
+    if(quali==FALSE){
         for(i in 1:length(levels(local))){
         data=dados[dados$local==levels(dados$local)[i],]
         dose1=data$tratnum
@@ -334,9 +359,125 @@ conjdbc=function(trat,
                            posi="top",
                            se=errorbar)[[1]]
         graficos[[i]]=grafico}
+      }}
+  if(a$`Pr(>F)`[1] < alpha.f && qmresmedio < homog.value){
+    GLconj=datas$Df[5]
+    SQconj=datas$`Sum Sq`[5]
+    QMconj=datas$`Mean Sq`[5]
+
+    if(quali==TRUE){
+      for(i in 1:length(levels(local))){
+        anova[[i]]=anova(aov(resp~tratamento+bloco, data=dados[dados$local==levels(dados$local)[i],]))
+        anova[[i]][3,]=c(GLconj,SQconj,QMconj,NA,NA)
+        anova[[i]][1,4]=anova[[i]][1,3]/anova[[i]][3,3]
+        anova[[i]][2,4]=anova[[i]][2,3]/anova[[i]][3,3]
+
+        anova[[i]][1,5]=1-pf(anova[[i]][1,4],anova[[i]][1,1],anova[[i]][3,1])
+        anova[[i]][2,5]=1-pf(anova[[i]][2,4],anova[[i]][2,1],anova[[i]][3,1])
+
+        anova[[i]]=as.matrix(data.frame(anova[[i]]))
+        colnames(anova[[i]])=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+        rownames(anova[[i]])=c("Trat","Block","Average Residual")
+        trat1=dados[dados$local==levels(dados$local)[i],]$tratamento
+        resp1=dados[dados$local==levels(dados$local)[i],]$resp
+
+        # anova1=anova(aov(resp~tratamento+bloco,
+        #                  data=dados[dados$local==levels(dados$local)[i],]))
+        # aov1=aov(resp~tratamento+bloco, data=dados[dados$local==levels(dados$local)[i],])
+        if(quali==TRUE){
+          if(mcomp=="tukey"){tukey[[i]]=TUKEY(resp1,trat1,DFerror = GLconj,MSerror = QMconj,
+                                              alpha = alpha.t)$groups[unique(as.character(trat)),]
+          comp=TUKEY(resp1,trat1,DFerror = GLconj,MSerror = QMconj,
+                     alpha = alpha.t)$groups}
+          if(mcomp=="duncan"){tukey[[i]]=duncan(resp1,trat1,DFerror = GLconj,MSerror = QMconj,
+                                                alpha = alpha.t)$groups[unique(as.character(trat)),]
+          comp=duncan(resp1,trat1,DFerror = GLconj,MSerror = QMconj,
+                      alpha = alpha.t)$groups}
+          if(mcomp=="lsd"){tukey[[i]]=LSD(resp1,trat1,DFerror = GLconj,MSerror = QMconj,
+                                          alpha = alpha.t)$groups[unique(as.character(trat)),]
+          comp=LSD(resp1,trat1,DFerror = GLconj,MSerror = QMconj,
+                   alpha = alpha.t)$groups}
+          if(mcomp=="sk"){
+            anova=anova(aov1)
+            data=dados[dados$local==levels(dados$local)[i],]
+            nrep=table(data$trat)[1]
+            medias=sort(tapply(data$resp,data$trat,mean),decreasing = TRUE)
+            letra=scottknott(means = medias,
+                             df1 = GLconj,
+                             nrep = nrep,
+                             QME = QMconj,
+                             alpha = alpha.t)
+            letra1=data.frame(resp=medias,groups=letra)[unique(as.character(trat)),]
+            tukey[[i]]=letra1
+            comp=letra1
+          }
+
+          if(transf=="1"){}else{tukey[[i]]$respo=with(dados[dados$local==levels(dados$local)[i],],
+                                                      tapply(response, tratamento, mean, na.rm=TRUE))[rownames(comp)]}
+          names(tukey)[i]=levels(local)[i]
+          names(anova)[i]=levels(local)[i]
+
+          dadosm=data.frame(comp,
+                            media=with(dados[dados$local==levels(dados$local)[i],],
+                                       tapply(response, tratamento, mean, na.rm=TRUE))[rownames(comp)],
+                            desvio=with(dados[dados$local==levels(dados$local)[i],],
+                                        tapply(response, tratamento, sd, na.rm=TRUE))[rownames(comp)])
+          dadosm$trats=factor(rownames(dadosm),unique(trat))
+          dadosm$limite=dadosm$media+dadosm$desvio
+          dadosm$letra=paste(format(dadosm$media,digits = dec),
+                             dadosm$groups)
+          dadosm=dadosm[unique(as.character(trat)),]
+          trats=dadosm$trats
+          limite=dadosm$limite
+          letra=dadosm$letra
+          media=dadosm$media
+          desvio=dadosm$desvio
+          grafico=ggplot(dadosm,
+                         aes(x=trats,
+                             y=media))+
+            geom_col(aes(fill=trats),fill=fill,color=1)+
+            theme_classic()+
+            ylab(ylab)+
+            xlab(xlab)+ylim(0,1.5*max(limite))+
+            geom_errorbar(aes(ymin=media-desvio,
+                              ymax=media+desvio),color="black", width=0.3)+
+            geom_text(aes(y=media+desvio+sup,
+                          label=letra))+
+            theme(text = element_text(size=textsize,color="black", family = family),
+                  axis.title = element_text(size=textsize,color="black", family = family),
+                  axis.text = element_text(size=textsize,color="black", family = family),
+                  legend.position = "none")
+          graficos[[i]]=grafico}
       }
+      print(anova,na.print = "")
+      teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+        if(mcomp=="sk"){"Scott-Knott"}else{
+          if(mcomp=="lsd"){"LSD-Fischer"}else{
+            if(mcomp=="duncan"){"Duncan"}}}}
+      cat(green(bold("\n-----------------------------------------------------------------\n")))
+      cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
+      cat(green(bold("-----------------------------------------------------------------\n")))
+      print(tukey)}
+    if(quali==FALSE){
+      for(i in 1:length(levels(local))){
+        data=dados[dados$local==levels(dados$local)[i],]
+        dose1=data$tratnum
+        resp=data$response
+        grafico=polynomial(dose1,
+                           resp,grau = grau,
+                           textsize=textsize,
+                           family=family,
+                           ylab=ylab,
+                           xlab=xlab,
+                           theme=theme,
+                           posi="top",
+                           SSq = SQconj,
+                           DFres = GLconj,
+                           se=errorbar)[[1]]
+        graficos[[i]]=grafico}
+    }
   }
-  if(a$`Pr(>F)`[1] > alpha.f && qmresmedio < 7){
+  if(a$`Pr(>F)`[1] > alpha.f && qmresmedio < homog.value){
     if(quali==TRUE){
       if(mcomp=="tukey"){
         tukeyjuntos=(TUKEY(resp,tratamento,a$Df[1], a$`Mean Sq`[1], alpha = alpha.t))
@@ -400,8 +541,13 @@ conjdbc=function(trat,
               axis.title = element_text(size=textsize,color="black",family=family),
               legend.position = "none")
       if(angulo !=0){grafico1=grafico1+theme(axis.text.x=element_text(hjust = 1.01,angle = angulo))}
-      cat("Multiple comparison test (",mcomp,")")
-      cat(green(bold("\n-----------------------------------------------------------------\n")))
+      teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+        if(mcomp=="sk"){"Scott-Knott"}else{
+          if(mcomp=="lsd"){"LSD-Fischer"}else{
+            if(mcomp=="duncan"){"Duncan"}}}}
+      cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
+
+      cat(green(bold("-----------------------------------------------------------------\n")))
       print(tukeyjuntos)
       }
     if(quali==FALSE){grafico1=polynomial(tratnum,
@@ -411,7 +557,7 @@ conjdbc=function(trat,
                                      ylab=ylab,
                                      xlab=xlab,
                                      theme=theme,
-                                     posi="top",
+                                     posi="top",SSq = SQconj,DFres = GLconj,
                                      se=errorbar)
     }
     graficos=list(grafico1)
@@ -420,6 +566,6 @@ conjdbc=function(trat,
 
   if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 && homog1$p.value<0.05){cat(red("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric test and try to transform the data"))}
   if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){cat(red("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric test"))}
-  print(graficos)
+  # print(graficos)
   graph=as.list(graficos)
 }

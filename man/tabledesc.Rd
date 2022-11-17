@@ -20,6 +20,8 @@ Function for generating a data.frame with averages or other descriptive measures
 \examples{
 data(pomegranate)
 tabledesc(pomegranate)
+library(knitr)
+kable(tabledesc(pomegranate))
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

@@ -8,6 +8,7 @@ barfacet(
   model,
   facet = NULL,
   theme = theme_bw(),
+  horiz = FALSE,
   geom = "bar",
   fill = "lightblue",
   pointsize = 4.5,
@@ -20,6 +21,8 @@ barfacet(
 \item{facet}{vector with facets}
 
 \item{theme}{ggplot2 theme}
+
+\item{horiz}{horizontal bar or point (\emph{default} is FALSE)}
 
 \item{geom}{graph type (columns or segments)}
 
@@ -39,7 +42,7 @@ This is a function of the bar graph for one factor with facets
 library(AgroR)
 data("laranja")
 a=with(laranja, DBC(trat, bloco, resp,
-     mcomp = "sk",angle=45,
+     mcomp = "sk",angle=45,sup = 10,family = "serif",
      ylab = "Number of fruits/plants"))
 barfacet(a,c("S1","S1","S1","S1","S1",
              "S2","S2","S3","S3"))

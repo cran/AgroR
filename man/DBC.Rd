@@ -30,6 +30,8 @@ DBC(
   angle = 0,
   family = "sans",
   dec = 3,
+  width.column = NULL,
+  width.bar = 0.3,
   addmean = TRUE,
   errorbar = TRUE,
   posi = "top",
@@ -88,13 +90,17 @@ DBC(
 
 \item{dec}{Number of cells}
 
+\item{width.column}{Width column if geom="bar"}
+
+\item{width.bar}{Width errorbar}
+
 \item{addmean}{Plot the average value on the graph (\emph{default} is TRUE)}
 
 \item{errorbar}{Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE}
 
 \item{posi}{Legend position}
 
-\item{point}{Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se").}
+\item{point}{Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error ("mean_se"). For parametric test it is possible to plot the square root of QMres (mean_qmres).}
 
 \item{angle.label}{label angle}
 }

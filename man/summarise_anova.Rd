@@ -43,7 +43,8 @@ a=DIC(trat, WL, geom = "point", ylab = "WL")
 b=DIC(trat, SS, geom = "point", ylab="SS")
 c=DIC(trat, AT, geom = "point", ylab = "AT")
 summarise_anova(analysis = list(a,b,c), divisor = TRUE)
-
+library(knitr)
+kable(summarise_anova(analysis = list(a,b,c), divisor = FALSE))
 #=====================================
 # DBC
 #=====================================

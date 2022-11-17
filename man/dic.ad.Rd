@@ -66,9 +66,9 @@ Statistical analysis of experiments conducted in a completely randomized with an
 In some experiments, the researcher may study a quantitative factor, such as fertilizer doses, and present a control, such as a reference fertilizer, treated as a qualitative control. In these cases, there is a difference between considering only the residue in the unfolding of the polynomial, removing or not the qualitative treatment, or since a treatment is excluded from the analysis. In this approach, the residue used is also considering the qualitative treatment, a method similar to the factorial scheme with additional control.
 }
 \examples{
-doses = c(rep(c(1:5),e=3))
-resp = c(3, 4, 3, 5, 5, 6, 7, 7, 8, 4, 4, 5, 2, 2, 3)
-dic.ad(doses, resp, rnorm(3,6,0.1),grau=2)
+datadicad=data.frame(doses = c(rep(c(1:5),e=3)),
+                     resp = c(3,4,3,5,5,6,7,7,8,4,4,5,2,2,3))
+with(datadicad,dic.ad(doses, resp, rnorm(3,6,0.1),grau=2))
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

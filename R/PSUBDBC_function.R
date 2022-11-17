@@ -8,7 +8,6 @@
 #' @param transf Applies data transformation (default is 1; for log consider 0)
 #' @param constant Add a constant for transformation (enter value)
 #' @param norm Error normality test (\emph{default} is Shapiro-Wilk)
-#' @param homog Homogeneity test of variances (\emph{default} is Bartlett)
 #' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
@@ -80,7 +79,6 @@ PSUBDBC=function(f1,
                  block,
                  response,
                  norm="sw",
-                 homog="bt",
                  alpha.f=0.05,
                  alpha.t=0.05,
                  quali=c(TRUE,TRUE),
@@ -320,6 +318,11 @@ PSUBDBC=function(f1,
           #                     num(tab[3*i,2]), alpha.t)
           colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fat[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
+        teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+          if(mcomp=="sk"){"Scott-Knott"}else{
+            if(mcomp=="lsd"){"LSD-Fischer"}else{
+              if(mcomp=="duncan"){"Duncan"}}}}
+        cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
         print(letra1)
         ordem=unique(as.vector(unlist(fat[i])))
         ordem=unique(as.vector(unlist(fat[i])))

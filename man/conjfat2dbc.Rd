@@ -14,6 +14,7 @@ conjfat2dbc(
   model = 1,
   norm = "sw",
   homog = "bt",
+  homog.value = 7,
   alpha.f = 0.05,
   alpha.t = 0.05
 )
@@ -37,6 +38,8 @@ conjfat2dbc(
 
 \item{homog}{Homogeneity test of variances (\emph{default} is Bartlett)}
 
+\item{homog.value}{Reference value for homogeneity of experiments. By default, this ratio should not be greater than 7}
+
 \item{alpha.f}{Level of significance of the F test (\emph{default} is 0.05)}
 
 \item{alpha.t}{Significance level of the multiple comparison test (\emph{default} is 0.05)}
@@ -58,7 +61,7 @@ f2=rep(rep(rep(c("a1","a2","a3","a4"),e=4),3),3)
 resp=rnorm(48*3,10,1)
 bloco=rep(c("b1","b2","b3","b4"),36)
 dados=data.frame(ano,f1,f2,resp,bloco)
-conjfat2dbc(f1,f2,bloco,ano,resp, model=1)
+with(dados,conjfat2dbc(f1,f2,bloco,ano,resp, model=1))
 }
 \references{
 Ferreira, P. V. Estatistica experimental aplicada a agronomia. Edufal, 2018.

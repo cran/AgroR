@@ -1,3 +1,11 @@
+# AgroR 1.3.2
+
+* `dic.ad` and `dbc.ad` function bug fixed
+
+* Added to `quantfat2desd` and `jointcluster` functions
+
+* The `conjdic` and `conjdbc` functions have been improved
+ 
 # AgroR 1.3.1
 
 * fix a bug in `barplot_positive`

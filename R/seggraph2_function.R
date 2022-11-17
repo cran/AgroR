@@ -34,6 +34,8 @@ seg_graph2=function(model,
   limite=data$limite
   letra=data$letra
   groups=data$groups
+  sup=model[[1]]$plot$sup
+
   if(horiz==TRUE){
   graph=ggplot(data,aes(y=trats,
                           x=media))+theme+

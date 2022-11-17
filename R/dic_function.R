@@ -30,10 +30,12 @@
 #' @param angle x-axis scale text rotation
 #' @param family Font family
 #' @param dec Number of cells
+#' @param width.column Width column if geom="bar"
+#' @param width.bar Width errorbar
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param posi Legend position
-#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error (\emph{default} - "mean_se"). For quali=FALSE or quali=TRUE.
+#' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error ("mean_se"). For quali=FALSE or quali=TRUE. For parametric test it is possible to plot the square root of QMres (mean_qmres)
 #' @param angle.label label angle
 #' @import ggplot2
 #' @import stats
@@ -149,6 +151,8 @@ DIC <- function(trat,
                 textsize=12,
                 labelsize=4,
                 dec=3,
+                width.column=NULL,
+                width.bar=0.3,
                 addmean=TRUE,
                 errorbar=TRUE,
                 posi="top",
@@ -266,15 +270,18 @@ DIC <- function(trat,
       black("As the calculated p-value, it is less than the 5% significance level.The hypothesis H0 of equality of means is rejected. Therefore, at least two treatments differ")}
       else {"As the calculated p-value is greater than the 5% significance level, H0 is not rejected"})
     cat(green(bold("\n\n-----------------------------------------------------------------\n")))
-    if(quali==TRUE){cat(green(bold("Multiple Comparison Test")))}else{cat(green(bold("Regression")))}
+    if(quali==TRUE){
+      teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+        if(mcomp=="sk"){"Scott-Knott"}else{
+          if(mcomp=="lsd"){"LSD-Fischer"}else{
+            if(mcomp=="duncan"){"Duncan"}}}}
+    cat(green(italic(paste("Multiple Comparison Test:",teste))))}else{cat(green(bold("Regression")))}
     cat(green(bold("\n-----------------------------------------------------------------\n")))
     if(quali==TRUE){
       if(mcomp=="tukey"){
         letra <- TUKEY(b, "trat", alpha=alpha.t)
         letra1 <- letra$groups; colnames(letra1)=c("resp","groups")}
       if(mcomp=="sk"){
-        # letra=SK(b,"trat",sig.level=alpha.t)
-        # letra1=data.frame(resp=letra$m.inf[,1],groups=letters[letra$groups])
         nrep=table(trat)[1]
         medias=sort(tapply(resp,trat,mean),decreasing = TRUE)
         letra=scottknott(means = medias,
@@ -307,6 +314,10 @@ DIC <- function(trat,
         dadosm=data.frame(letra1,
                           media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
                           desvio=(tapply(response, trat, sd, na.rm=TRUE)/sqrt(tapply(response, trat, length)))[rownames(letra1)])}
+      if(point=="mean_qmres"){
+        dadosm=data.frame(letra1,
+                          media=tapply(response, trat, mean, na.rm=TRUE)[rownames(letra1)],
+                          desvio=rep(sqrt(a$`Mean Sq`[2]),e=length(levels(trat))))}
 
       dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
       dadosm$limite=dadosm$media+dadosm$desvio
@@ -320,8 +331,8 @@ DIC <- function(trat,
       letra=dadosm$letra
       if(geom=="bar"){grafico=ggplot(dadosm,aes(x=trats,y=media))
       if(fill=="trat"){grafico=grafico+
-        geom_col(aes(fill=trats),color=1)}else{grafico=grafico+
-          geom_col(aes(fill=trats),fill=fill,color=1)}
+        geom_col(aes(fill=trats),color=1,width=width.column)}else{grafico=grafico+
+          geom_col(aes(fill=trats),fill=fill,color=1,width=width.column)}
       if(errorbar==TRUE){grafico=grafico+
         geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                       label=letra),family=family,angle=angle.label,size=labelsize, hjust=hjust)}
@@ -330,7 +341,7 @@ DIC <- function(trat,
       if(errorbar==TRUE){grafico=grafico+
         geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                       ymax=media+desvio,color=1),
-                      color="black",width=0.3)}}
+                      color="black",width=width.bar)}}
       if(geom=="point"){grafico=ggplot(dadosm,aes(x=trats,
                                                   y=media))
       if(errorbar==TRUE){grafico=grafico+
@@ -343,7 +354,7 @@ DIC <- function(trat,
         geom_errorbar(data=dadosm,
                       aes(ymin=media-desvio,
                           ymax=media+desvio,color=1),
-                      color="black",width=0.3)}
+                      color="black",width=width.bar)}
       if(fill=="trat"){grafico=grafico+
         geom_point(aes(color=trats),size=5)}
       else{grafico=grafico+
@@ -358,7 +369,9 @@ DIC <- function(trat,
         dadosm2$trats=rownames(dadosm2)
         dadosm2=dadosm2[unique(as.character(trat)),]
         dadosm2$limite=dadosm$media+dadosm$desvio
-        dadosm2$letra=paste(format(dadosm$media,digits = dec),dadosm$groups)
+        # dadosm2$letra=paste(format(dadosm$media,digits = dec),dadosm$groups)
+        if(addmean==TRUE){dadosm2$letra=paste(format(dadosm$media,digits = dec),dadosm$groups)}
+        if(addmean==FALSE){dadosm2$letra=dadosm$groups}
         trats=dadosm2$trats
         limite=dadosm2$limite
         superior=dadosm2$superior
@@ -398,6 +411,7 @@ DIC <- function(trat,
       if(grau==2){graph=polynomial(trat,response, grau = 2,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
       if(grau==3){graph=polynomial(trat,response, grau = 3,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
       grafico=graph[[1]]
+      print(grafico)
     }}
   if(test=="noparametric"){
     kruskal=function (y,
@@ -569,7 +583,7 @@ DIC <- function(trat,
     cat(green(bold("\n-----------------------------------------------------------------\n")))
     print(krusk$parameters)
     cat(green(bold("\n\n-----------------------------------------------------------------\n")))
-    cat(green(italic("Multiple Comparison Test")))
+    cat(green(italic(paste("Multiple Comparison Test:","LSD"))))
     cat(green(bold("\n-----------------------------------------------------------------\n")))
     saida=cbind(krusk$means[,c(1,3)],krusk$groups[rownames(krusk$means),])
     colnames(saida)=c("Mean","SD","Rank","Groups")
@@ -577,7 +591,7 @@ DIC <- function(trat,
     dadosm=data.frame(krusk$means,krusk$groups[rownames(krusk$means),])
     dadosm$trats=factor(rownames(dadosm),levels = unique(trat))
     dadosm$media=tapply(response,trat,mean, na.rm=TRUE)[rownames(krusk$means)]
-    if(point=="mean_sd"){dadosm$std=tapply(response,trat,sd, na.rm=TRUE)[rownames(krusk$means)]}
+    if(point=="mean_sd"){dadosm$std=tapply(response, trat, sd, na.rm=TRUE)[rownames(krusk$means)]}
     if(point=="mean_se"){dadosm$std=tapply(response, trat, sd, na.rm=TRUE)/
       sqrt(tapply(response, trat, length))[rownames(krusk$means)]}
     if(addmean==TRUE){dadosm$letra=paste(format(dadosm$response,digits = dec),dadosm$groups)}
@@ -590,9 +604,9 @@ DIC <- function(trat,
     if(geom=="bar"){grafico=ggplot(dadosm,
                                    aes(x=trats,y=response))
     if(fill=="trat"){grafico=grafico+
-      geom_col(aes(fill=trats),color=1)}
+      geom_col(aes(fill=trats),color=1,width=width.column)}
     else{grafico=grafico+
-      geom_col(aes(fill=trats),fill=fill,color=1)}
+      geom_col(aes(fill=trats),fill=fill,color=1,width=width.column)}
     if(errorbar==TRUE){grafico=grafico+
       geom_text(aes(y=media+sup+if(sup<0){-std}else{std},
                     label=letra),family=family,size=labelsize,angle=angle.label, hjust=hjust)}
@@ -602,7 +616,7 @@ DIC <- function(trat,
       geom_errorbar(data=dadosm,aes(ymin=response-std,
                                     ymax=response+std,
                                     color=1),
-                    color="black",width=0.3)}}
+                    color="black",width=width.bar)}}
     if(geom=="point"){grafico=ggplot(dadosm,
                                      aes(x=trats,
                                          y=response))
@@ -619,7 +633,7 @@ DIC <- function(trat,
                     aes(ymin=response-std,
                         ymax=response+std,
                         color=1),
-                    color="black",width=0.3)}
+                    color="black",width=width.bar)}
     if(fill=="trat"){grafico=grafico+
       geom_point(aes(color=trats),size=5)}
     else{grafico=grafico+
@@ -631,8 +645,10 @@ DIC <- function(trat,
       dadosm2=data.frame(krusk$means)
       dadosm2$trats=rownames(dadosm2)
       dadosm2$limite=dadosm2$response+dadosm2$std
-      dadosm2$letra=paste(format(dadosm2$response,digits = dec),
-                          dadosm$groups)
+      # dadosm2$letra=paste(format(dadosm2$response,digits = dec),
+      #                     dadosm$groups)
+      if(addmean==TRUE){dadosm2$letra=paste(format(dadosm2$response,digits = dec),dadosm$groups)}
+      if(addmean==FALSE){dadosm2$letra=dadosm$groups}
       dadosm2=dadosm2[unique(as.character(trat)),]
       trats=dadosm2$trats
       limite=dadosm2$limite

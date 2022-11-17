@@ -36,6 +36,8 @@ FAT2DIC.ad(
   errorbar = TRUE,
   CV = TRUE,
   dec = 3,
+  width.column = 0.9,
+  width.bar = 0.3,
   angle = 0,
   posi = "right",
   family = "sans",
@@ -107,6 +109,10 @@ FAT2DIC.ad(
 \item{CV}{Plotting the coefficient of variation and p-value of Anova (\emph{default} is TRUE)}
 
 \item{dec}{Number of cells}
+
+\item{width.column}{Width column if geom="bar"}
+
+\item{width.bar}{Width errorbar}
 
 \item{angle}{x-axis scale text rotation}
 

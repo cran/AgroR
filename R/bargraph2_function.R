@@ -23,9 +23,11 @@
 #' @examples
 #' data("laranja")
 #'a=with(laranja, DBC(trat, bloco, resp,
-#'      mcomp = "sk",angle=45,
+#'      mcomp = "sk",angle=45,sup = 10,
+#'      family = "serif",
 #'      ylab = "Number of fruits/plants"))
 #'bar_graph2(a)
+#'bar_graph2(a,fill="darkblue",point.color="orange",text.color='white')
 
 bar_graph2=function(model,
                     point.color="black",
@@ -48,6 +50,8 @@ bar_graph2=function(model,
   limite=data$limite
   letra=data$letra
   groups=data$groups
+  sup=model[[1]]$plot$sup
+
   graph=ggplot(data,aes(x=trats,
                         y=media))+
     model[[1]]$theme+
@@ -55,7 +59,7 @@ bar_graph2=function(model,
     geom_errorbar(aes(ymin=media-desvio,
                       ymax=media+desvio),color=bar.color,width=0)+
     geom_point(size=point.size,color=point.color,fill=point.color)+
-    geom_text(aes(y=media+desvio+1/15*media,
+    geom_text(aes(y=media+desvio+sup,
                   x=trats,
                   label = letra),vjust=0,size=model[[1]]$plot$labelsize,color=label.color,family=model[[1]]$plot$family)+
     geom_text(aes(y=y.text,
@@ -69,7 +73,7 @@ bar_graph2=function(model,
           strip.text = element_text(size=model[[1]]$plot$textsize),
           legend.position = "none")+
     scale_x_discrete(limits=trats)+
-    ylim(layer_scales(model[[1]])$y$range$range)
+    ylim(layer_scales(model[[1]])$y$range$range*1.1)
   if(is.na(add.info[1])==FALSE){
     graph=graph+geom_text(aes(y=y.info,x=trats,label=add.info),hjust=0,
                           size=model[[1]]$plot$labelsize,color=color.info,

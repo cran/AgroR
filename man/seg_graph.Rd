@@ -24,7 +24,7 @@ This is a function of the point graph for one factor
 \examples{
 data("laranja")
 a=with(laranja, DBC(trat, bloco, resp,
-       mcomp = "sk",angle=45,
+       mcomp = "sk",angle=45,sup=10,
        ylab = "Number of fruits/plants"))
 seg_graph(a,horiz = FALSE)
 }

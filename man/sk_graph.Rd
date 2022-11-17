@@ -20,9 +20,11 @@ This is a function of the bar graph for the Scott-Knott test
 \examples{
 data("laranja")
 a=with(laranja, DBC(trat, bloco, resp,
-     mcomp = "sk",angle=45,
-     ylab = "Number of fruits/plants"))
+       mcomp = "sk",angle=45,
+       ylab = "Number of fruits/plants"))
 sk_graph(a,horiz = FALSE)
+library(ggplot2)
+sk_graph(a,horiz = TRUE)+scale_fill_grey(start=1,end=0.5)
 }
 \seealso{
 \link{radargraph}, \link{barplot_positive}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}

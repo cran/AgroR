@@ -248,5 +248,5 @@ polynomial2=function(fator1,
                      label=parse(text=paste("(\"",levels(Fator2),"\")~",unlist(texto))))
   print(grafico)
 
-  grafico=as.list(grafico)
+  (grafico=as.list(grafico))
 }

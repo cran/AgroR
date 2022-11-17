@@ -155,6 +155,12 @@ PSUBFAT2DBC=function(f1,
   qmres = c(anava$MS[3], anava$MS[10])
   GLres = c(anava$df[3], anava$df[10])
   if (anava$p[9] > alpha.f) {
+    teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+      if(mcomp=="sk"){"Scott-Knott"}else{
+        if(mcomp=="lsd"){"LSD-Fischer"}else{
+          if(mcomp=="duncan"){"Duncan"}}}}
+    cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
+
     if (anava$p[1] < alpha.f &
         anava$p[6] > alpha.f &
         anava$p[7] > alpha.f){

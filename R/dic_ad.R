@@ -26,9 +26,9 @@
 #' @keywords additional treatment
 #' @export
 #' @examples
-#' doses = c(rep(c(1:5),e=3))
-#' resp = c(3, 4, 3, 5, 5, 6, 7, 7, 8, 4, 4, 5, 2, 2, 3)
-#' dic.ad(doses, resp, rnorm(3,6,0.1),grau=2)
+#' datadicad=data.frame(doses = c(rep(c(1:5),e=3)),
+#'                      resp = c(3,4,3,5,5,6,7,7,8,4,4,5,2,2,3))
+#' with(datadicad,dic.ad(doses, resp, rnorm(3,6,0.1),grau=2))
 
 dic.ad=function(trat,
                 response,
@@ -49,10 +49,10 @@ dic.ad=function(trat,
   if(is.na(width.bar)==TRUE){width.bar=0.1*mean(trat)}
   if(is.na(grau)==TRUE){grau=1}
   trat1=as.factor(trat)
-  mod=aov(resp~trat1)
+  mod=aov(response~trat1)
   an=anova(mod)
   trati=as.factor(c(trat,rep("Controle",length(responsead))))
-  mod1=aov(c(resp,responsead)~trati)
+  mod1=aov(c(response,responsead)~trati)
   an1=anova(mod1)
   anava1=rbind(an[1,],an1[1,],an1[2,])
   anava1$Df[2]=1
@@ -145,7 +145,6 @@ dic.ad=function(trat,
   cat(green(bold("Analysis of Variance")))
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   print(anava1)
-  print(if(anava1$`Pr(>F)`[1]>alpha.f){"H0 is not rejected"})
   a=AgroR::polynomial(trat,response,DFres = anava1$Df[3],
                       SSq = anava1$`Sum Sq`[3],
                       ylab = ylab,
@@ -157,6 +156,7 @@ dic.ad=function(trat,
                       family = family,
                       pointsize = pointsize,
                       linesize = linesize,
-                      width.bar = width.bar)}
+                      width.bar = width.bar)
+  print(a[[1]])}
 
 

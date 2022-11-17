@@ -31,6 +31,8 @@
 #' @param textsize Font size
 #' @param labelsize Label Size
 #' @param dec Number of cells
+#' @param width.column Width column if geom="bar"
+#' @param width.bar Width errorbar
 #' @param family Font family
 #' @param addmean Plot the average value on the graph (\emph{default} is TRUE)
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
@@ -110,6 +112,8 @@ FAT2DIC.ad=function(f1,
                     errorbar=TRUE,
                     CV=TRUE,
                     dec=3,
+                    width.column=0.9,
+                    width.bar=0.3,
                     angle=0,
                     posi="right",
                     family="sans",
@@ -330,6 +334,11 @@ FAT2DIC.ad=function(f1,
           letra <- duncan(resp, fatores[,i],anava$Df[5],anava$`Mean Sq`[5], alpha=alpha.t)
           letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
           if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
+        teste=if(mcomp=="tukey"){"Tukey HSD"}else{
+          if(mcomp=="sk"){"Scott-Knott"}else{
+            if(mcomp=="lsd"){"LSD-Fischer"}else{
+              if(mcomp=="duncan"){"Duncan"}}}}
+        cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
         print(letra1)
         ordem=unique(as.vector(unlist(fatores[i])))
         #=====================================================
@@ -354,10 +363,10 @@ FAT2DIC.ad=function(f1,
                                        aes(x=trats,
                                            y=media))
         if(fill=="trat"){grafico=grafico+
-          geom_col(aes(fill=trats),color=1)}
+          geom_col(aes(fill=trats),color=1,width = width.column)}
         else{grafico=grafico+
           geom_col(aes(fill=trats),
-                   fill=fill,color=1)}
+                   fill=fill,color=1,width = width.column)}
         grafico=grafico+theme+ylab(ylab)+xlab(parse(text = xlab.factor[i]))+ylim(ylim)
         if(errorbar==TRUE){grafico=grafico+
           geom_text(aes(y=media+
@@ -370,7 +379,7 @@ FAT2DIC.ad=function(f1,
           geom_errorbar(data=dadosm,
                         aes(ymin=media-desvio,
                             ymax=media+desvio,color=1),
-                        color="black",width=0.3)}
+                        color="black",width=width.bar)}
         if(angle !=0){grafico=grafico+theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
         grafico=grafico+
           theme(text = element_text(size=textsize,color="black",family=family),
@@ -395,7 +404,7 @@ FAT2DIC.ad=function(f1,
           geom_errorbar(data=dadosm,
                         aes(ymin=media-desvio,
                             ymax=media+desvio,color=1),
-                        color="black", width=0.3)}
+                        color="black", width=width.bar)}
         if(angle !=0){grafico=grafico+theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
         grafico=grafico+
           theme(text = element_text(size=textsize,color="black",family=family),
@@ -425,10 +434,11 @@ FAT2DIC.ad=function(f1,
                            posi=posi,
                            theme=theme,
                            textsize=textsize,
-                           se=errorbar,
                            point=point,
                            family=family)
-        grafico=grafico[[1]]}
+        grafico=grafico[[1]]+
+          geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
+          scale_color_manual(values = "black")+labs(color="")}
 
       # Ns
       #if (a$`Pr(>F)`[i] > alpha.f) {cat("\nAccording to the F test, the means do not differ\n")}
@@ -644,9 +654,10 @@ FAT2DIC.ad=function(f1,
                             posi=posi,
                             point=point,
                             textsize=textsize,
-                            se=errorbar,
                             family=family,
-                            ylim=ylim)}
+                            ylim=ylim)+
+          geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
+          scale_color_manual(values = "black")+labs(color="")}
       if(quali[2]==TRUE){
         Fator1=fator1a
         grafico=polynomial2(Fator1,
@@ -659,9 +670,10 @@ FAT2DIC.ad=function(f1,
                             posi=posi,
                             point=point,
                             textsize=textsize,
-                            se=errorbar,
                             family=family,
-                            ylim=ylim)}
+                            ylim=ylim)+
+          geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
+          scale_color_manual(values = "black")+labs(color="")}
     }
     if(quali[1]==FALSE && color=="rainbow"| quali[2]==FALSE && color=="rainbow"){
       if(quali[2]==FALSE){
@@ -676,9 +688,10 @@ FAT2DIC.ad=function(f1,
                                   posi=posi,
                                   point=point,
                                   textsize=textsize,
-                                  se=errorbar,
                                   family=family,
-                                  ylim=ylim)}
+                                  ylim=ylim)+
+          geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
+          scale_color_manual(values = "black")+labs(color="")}
       if(quali[2]==TRUE){
         Fator1=fator1a
         grafico=polynomial2_color(Fator1,
@@ -691,9 +704,10 @@ FAT2DIC.ad=function(f1,
                                   posi=posi,
                                   point=point,
                                   textsize=textsize,
-                                  se=errorbar,
                                   family=family,
-                                  ylim=ylim)}
+                                  ylim=ylim)+
+          geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
+          scale_color_manual(values = "black")+labs(color="")}
     }
     if(quali[1] & quali[2]==TRUE){
       media=tapply(response,list(Fator1,Fator2), mean, na.rm=TRUE)
@@ -730,23 +744,23 @@ FAT2DIC.ad=function(f1,
                     aes(x=f1,
                         y=media,
                         fill=f2))+
-        geom_col(position = "dodge",color="black")+
+        geom_col(position = "dodge",color="black",width = width.column)+
         ylab(ylab)+xlab(xlab)+ylim(ylim)+
         theme
       if(errorbar==TRUE){colint=colint+
         geom_errorbar(data=graph,
                       aes(ymin=media-desvio,
                           ymax=media+desvio),
-                      width=0.3,color="black",
-                      position = position_dodge(width=0.9))}
+                      width=width.bar,color="black",
+                      position = position_dodge(width=width.column))}
       if(errorbar==TRUE){colint=colint+
         geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                       label=numero),
-                  position = position_dodge(width=0.9),
+                  position = position_dodge(width=width.column),
                   family = family,angle=angle.label,hjust=hjust,size=labelsize)}
       if(errorbar==FALSE){colint=colint+
         geom_text(aes(y=media+sup,label=numero),
-                  position = position_dodge(width=0.9),
+                  position = position_dodge(width=width.column),
                   family = family,angle=angle.label, hjust=hjust,size=labelsize)}
       colint=colint+theme(text=element_text(size=textsize,family = family),
                           axis.text = element_text(size=textsize,color="black",family = family),

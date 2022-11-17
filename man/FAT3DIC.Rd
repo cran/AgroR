@@ -10,7 +10,6 @@ FAT3DIC(
   f3,
   response,
   norm = "sw",
-  homog = "bt",
   alpha.t = 0.05,
   alpha.f = 0.05,
   quali = c(TRUE, TRUE, TRUE),
@@ -56,8 +55,6 @@ FAT3DIC(
 \item{response}{Numerical vector containing the response of the experiment.}
 
 \item{norm}{Error normality test (\emph{default} is Shapiro-Wilk)}
-
-\item{homog}{Homogeneity test of variances (\emph{default} is Bartlett)}
 
 \item{alpha.t}{Significance level of the multiple comparison test (\emph{default} is 0.05)}
 

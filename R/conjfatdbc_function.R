@@ -12,6 +12,7 @@
 #' @param transf Applies data transformation (default is 1; for log consider 0)
 #' @param norm Error normality test (\emph{default} is Shapiro-Wilk)
 #' @param homog Homogeneity test of variances (\emph{default} is Bartlett)
+#' @param homog.value Reference value for homogeneity of experiments. By default, this ratio should not be greater than 7
 #' @param model Define model of the analysis of variance
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
@@ -42,7 +43,7 @@
 #' resp=rnorm(48*3,10,1)
 #' bloco=rep(c("b1","b2","b3","b4"),36)
 #' dados=data.frame(ano,f1,f2,resp,bloco)
-#' conjfat2dbc(f1,f2,bloco,ano,resp, model=1)
+#' with(dados,conjfat2dbc(f1,f2,bloco,ano,resp, model=1))
 
 conjfat2dbc=function(f1,
                      f2,
@@ -53,6 +54,7 @@ conjfat2dbc=function(f1,
                      model=1,
                      norm = "sw",
                      homog = "bt",
+                     homog.value=7,
                      alpha.f = 0.05,
                      alpha.t = 0.05) {
   sup=0.2*mean(response, na.rm=TRUE)
@@ -121,7 +123,7 @@ conjfat2dbc=function(f1,
 
   # modelo 1
   # modelo tratando f1, f2 e interacao em relação a interacao (f1 x f2 x ano)
-  if(model==1){interacao=anova(aov(resp~f1+f2+f1:f2+ano:bloco+f1:f2:ano))
+  if(model==1){interacao=anova(aov(resp~f1+f2+f1:f2+local:bloco+f1:f2:local))
   interacao$`Mean Sq`[6]=mean(QMRES)
   interacao$`Sum Sq`[6]=interacao$`Mean Sq`[6]*interacao$Df[6]
   interacao$`F value`[5]=interacao$`Mean Sq`[5]/interacao$`Mean Sq`[6]
@@ -134,11 +136,11 @@ conjfat2dbc=function(f1,
   # modelo 2
   # todos fixos
   if(model==2){
-  interacao <- anova(aov(resp ~ f1*f2+ano:bloco + f1:f2:ano))
+  interacao <- anova(aov(resp ~ f1*f2+local:bloco + f1:f2:local))
   pfint=interacao$`Pr(>F)`[5]}
 
   #=======================================================================
-  d=aov(resp~f1+f2+f1:f2+ano:bloco+f1:f2:ano)
+  d=aov(resp~f1+f2+f1:f2+local:bloco+f1:f2:local)
   if(norm=="sw"){norm1 = shapiro.test(d$res)}
   if(norm=="li"){norm1=nortest::lillie.test(d$residuals)}
   if(norm=="ad"){norm1=nortest::ad.test(d$residuals)}
@@ -200,7 +202,7 @@ conjfat2dbc=function(f1,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   print(qmresmedio)
   cat("\nBased on the analysis of variance and homogeneity of experiments, it can be concluded that: ")
-  if(qmresmedio<7 && pfint[1]>alpha.f){
+  if(qmresmedio<homog.value && pfint[1]>alpha.f){
     message(black("The experiments can be analyzed together"))}else{
       message("Experiments cannot be analyzed together (Separate by experiment)")}
   cat("\n\n")

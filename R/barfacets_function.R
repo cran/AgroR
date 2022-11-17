@@ -8,6 +8,7 @@
 #' @param facet vector with facets
 #' @param theme ggplot2 theme
 #' @param fill fill bars
+#' @param horiz horizontal bar or point (\emph{default} is FALSE)
 #' @param geom graph type (columns or segments)
 #' @param width.bar width of the error bars of a regression graph.
 #' @param pointsize Point size
@@ -18,7 +19,7 @@
 #' library(AgroR)
 #' data("laranja")
 #' a=with(laranja, DBC(trat, bloco, resp,
-#'      mcomp = "sk",angle=45,
+#'      mcomp = "sk",angle=45,sup = 10,family = "serif",
 #'      ylab = "Number of fruits/plants"))
 #' barfacet(a,c("S1","S1","S1","S1","S1",
 #'              "S2","S2","S3","S3"))
@@ -26,6 +27,7 @@
 barfacet=function(model,
                   facet=NULL,
                   theme=theme_bw(),
+                  horiz=FALSE,
                   geom="bar",
                   fill="lightblue",
                   pointsize=4.5,
@@ -38,16 +40,16 @@ barfacet=function(model,
   limite=data$limite
   letra=data$letra
   groups=data$groups
-    if(is.null(facet[1])==FALSE){
-      data$trats=as.character(data$trats)
-      fac=factor(facet,unique(facet))
-      nomes=unique(facet)
-      comp=tapply(fac,fac,length)
-      n=length(levels(fac))
-      graph=as.list(1:n)
-      data$fac=fac
-
-      if(geom=="point"){
+  if(is.null(facet[1])==FALSE){
+    data$trats=as.character(data$trats)
+    fac=factor(facet,unique(facet))
+    nomes=unique(facet)
+    comp=tapply(fac,fac,length)
+    n=length(levels(fac))
+    graph=as.list(1:n)
+    data$fac=fac
+    sup=model[[1]]$plot$sup
+    if(geom=="point" & horiz==FALSE){
       graph=ggplot(data,
                    aes(x=trats,
                        y=media))+
@@ -55,7 +57,7 @@ barfacet=function(model,
         geom_errorbar(aes(ymin=media-desvio,
                           ymax=media+desvio),width=width.bar)+
         geom_point(fill=fill,shape=21,size=pointsize,color="black")+
-        geom_text(aes(y=media+desvio+1/15*media,
+        geom_text(aes(y=media+desvio+sup,
                       x=trats,
                       label = letra),vjust=0)+
         labs(x=model[[1]]$labels$x,
@@ -65,22 +67,58 @@ barfacet=function(model,
               strip.text = element_text(size=12),
               legend.position = "none")+
         ylim(layer_scales(model[[1]])$y$range$range)}
-      if(geom=="bar"){
-        graph=ggplot(data,
-                     aes(x=trats,
-                         y=media))+
-          theme+
-          geom_col(fill=fill,size=0.3,color="black")+
-          geom_errorbar(aes(ymin=media-desvio,
-                            ymax=media+desvio),width=0.2)+
-          geom_text(aes(y=media+desvio+1/15*media,
-                        x=trats,
-                        label = letra),vjust=0)+
-          labs(x=model[[1]]$labels$x,
-               y=model[[1]]$labels$y)+
-          facet_grid(~fac,scales = "free", space='free')+
-          theme(axis.text = element_text(size=12,color="black"),
-                strip.text = element_text(size=12),
-                legend.position = "none")+
-          ylim(layer_scales(model[[1]])$y$range$range)}}
-  graph}
+    if(geom=="bar" & horiz==FALSE){
+      graph=ggplot(data,
+                   aes(x=trats,
+                       y=media))+
+        theme+
+        geom_col(fill=fill,size=0.3,color="black")+
+        geom_errorbar(aes(ymin=media-desvio,
+                          ymax=media+desvio),width=0.2)+
+        geom_text(aes(y=media+desvio+sup,
+                      x=trats,
+                      label = letra),vjust=0)+
+        labs(x=model[[1]]$labels$x,
+             y=model[[1]]$labels$y)+
+        facet_grid(~fac,scales = "free", space='free')+
+        theme(axis.text = element_text(size=12,color="black"),
+              strip.text = element_text(size=12),
+              legend.position = "none")+
+        ylim(layer_scales(model[[1]])$y$range$range)}}
+  if(geom=="point" & horiz==TRUE){
+    graph=ggplot(data,
+                 aes(y=trats,
+                     x=media))+
+      theme+
+      geom_errorbar(aes(xmin=media-desvio,
+                        xmax=media+desvio),width=width.bar)+
+      geom_point(fill=fill,shape=21,size=pointsize,color="black")+
+      geom_text(aes(x=media+desvio+sup,
+                    y=trats,
+                    label = letra),hjust=0)+
+      labs(y=model[[1]]$labels$x,
+           x=model[[1]]$labels$y)+
+      facet_grid(fac,scales = "free", space='free')+
+      theme(axis.text = element_text(size=12,color="black"),
+            strip.text = element_text(size=12),
+            legend.position = "none")+
+      xlim(layer_scales(model[[1]])$y$range$range)}
+  if(geom=="bar" & horiz==TRUE){
+    graph=ggplot(data,
+                 aes(y=trats,
+                     x=media))+
+      theme+
+      geom_col(fill=fill,size=0.3,color="black")+
+      geom_errorbar(aes(xmin=media-desvio,
+                        xmax=media+desvio),width=0.2)+
+      geom_text(aes(x=media+desvio+sup,
+                    y=trats,
+                    label = letra),hjust=0)+
+      labs(y=model[[1]]$labels$x,
+           x=model[[1]]$labels$y)+
+      facet_grid(fac,scales = "free", space='free')+
+      theme(axis.text = element_text(size=12,color="black"),
+            strip.text = element_text(size=12),
+            legend.position = "none")+
+      xlim(layer_scales(model[[1]])$y$range$range)}
+graph}

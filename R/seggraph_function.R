@@ -14,7 +14,7 @@
 #' @examples
 #' data("laranja")
 #' a=with(laranja, DBC(trat, bloco, resp,
-#'        mcomp = "sk",angle=45,
+#'        mcomp = "sk",angle=45,sup=10,
 #'        ylab = "Number of fruits/plants"))
 #' seg_graph(a,horiz = FALSE)
 
@@ -31,6 +31,8 @@ seg_graph=function(model,
   limite=data$limite
   letra=data$letra
   groups=data$groups
+  sup=model[[1]]$plot$sup
+
   if(horiz==TRUE){
     graph=ggplot(data,aes(y=trats,
                           x=media))+
@@ -38,7 +40,7 @@ seg_graph=function(model,
       geom_errorbar(aes(xmin=media-desvio,
                         xmax=media+desvio),width=0.2,size=0.8)+
       geom_point(size=pointsize,shape=21, fill=fill, color="black")+
-      geom_text(aes(x=media+desvio+1/15*as.vector(media),
+      geom_text(aes(x=media+desvio+sup,
                     y=trats,
                     label = letra),hjust=0,family=model[[1]]$plot$family)+
       labs(y=model[[1]]$labels$x,
@@ -55,7 +57,7 @@ seg_graph=function(model,
       geom_errorbar(aes(ymin=media-desvio,
                         ymax=media+desvio),width=0.2,size=0.8)+
       geom_point(fill=fill,size=pointsize,shape=21,color="black")+
-      geom_text(aes(y=media+desvio+1/15*media,
+      geom_text(aes(y=media+desvio+sup,
                     x=trats,
                     label = letra),vjust=0,family=model[[1]]$plot$family)+
       labs(x=model[[1]]$labels$x,

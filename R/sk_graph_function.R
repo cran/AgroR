@@ -11,11 +11,12 @@
 #' @seealso \link{radargraph}, \link{barplot_positive}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}
 #' @examples
 #' data("laranja")
-#'a=with(laranja, DBC(trat, bloco, resp,
-#'      mcomp = "sk",angle=45,
-#'      ylab = "Number of fruits/plants"))
-#'sk_graph(a,horiz = FALSE)
-
+#' a=with(laranja, DBC(trat, bloco, resp,
+#'        mcomp = "sk",angle=45,
+#'        ylab = "Number of fruits/plants"))
+#' sk_graph(a,horiz = FALSE)
+#' library(ggplot2)
+#' sk_graph(a,horiz = TRUE)+scale_fill_grey(start=1,end=0.5)
 
 sk_graph=function(model,
                   horiz=TRUE){
@@ -56,7 +57,7 @@ sk_graph=function(model,
           strip.text = element_text(size=12),
           legend.position = "none")+
     scale_y_discrete(limits=data$trats)+
-    xlim(layer_scales(model[[1]])$y$range$range)}
+    xlim(layer_scales(model[[1]])$y$range$range*1.1)}
   if(horiz==FALSE){
     graph=ggplot(data,aes(x=as.vector(trats),
                           y=as.vector(media)))+
