@@ -1,3 +1,13 @@
+# AgroR 1.3.3
+
+* Fixed residual graph bug for `FAT2DIC`, `FAT2DBC`, `PSUBDIC`, `PSUBDBC`, `FAT2DIC.ad`, `FAT2DBC.ad`, `FAT3DIC`, `FAT3DBC`, `FAT3DIC.ad`, `FAT3DBC .ad` when data is unsorted or ordered by block.
+
+* `ylim` argument have been implemented in `dic`, `dbc` and `dql` function.
+
+* fixed bug when `transf` is set to "angular"
+
+* Sum of a `constant` is now available in all experimental projects
+
 # AgroR 1.3.2
 
 * `dic.ad` and `dbc.ad` function bug fixed

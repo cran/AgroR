@@ -111,11 +111,15 @@ PSUBDBC=function(f1,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
-  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==1){resp=response+constant}else{if(transf!="angular"){resp=((response+constant)^transf-1)/transf}}
+  # if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
   if(transf==0){resp=log(response+constant)}
   if(transf==0.5){resp=sqrt(response+constant)}
   if(transf==-0.5){resp=1/sqrt(response+constant)}
   if(transf==-1){resp=1/(response+constant)}
+  if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
+
+  ordempadronizado=data.frame(f1,f2,block,resp,response)
   resp1=resp
   organiz=data.frame(f1,f2,block,response,resp)
   organiz=organiz[order(organiz$block),]
@@ -168,7 +172,7 @@ PSUBDBC=function(f1,
   # -----------------------------
   # Pressupostos
   # -----------------------------
-  modp=lme4::lmer(resp1~Fator1*Fator2+(1|bloco/Fator1)+bloco)
+  modp=lme4::lmer(resp~Fator1*Fator2+(1|bloco/Fator1)+bloco,data = ordempadronizado)
   resids=residuals(modp,scaled=TRUE)
   Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
   residplot=ggplot(data=data.frame(resids,Ids),
@@ -738,7 +742,7 @@ PSUBDBC=function(f1,
         if(errorbar==FALSE){colint=colint+
           geom_text(aes(y=media+sup,label=numero),
                     position = position_dodge(width=0.9),angle=angle.label, hjust=hjust,size=labelsize)}
-        colint=colint+theme(text=element_text(size=12),
+        colint=colint+theme(text=element_text(size=textsize),
                             legend.position = posi,
                             axis.text = element_text(size=textsize,
                                                      color="black"),

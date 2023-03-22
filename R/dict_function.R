@@ -25,7 +25,7 @@
 #' @param geom Graph type (columns - "bar" or segments "point")
 #' @param legend Legend title
 #' @param posi Legend position
-#' @param ylim y-axis scale
+#' @param ylim Define a numerical sequence referring to the y scale. You can use a vector or the `seq` command.
 #' @param width.bar width error bar
 #' @param size.bar size error bar
 #' @param xnumeric Declare x as numeric (\emph{default} is FALSE)
@@ -437,6 +437,7 @@ dadosm=data.frame(#time=as.numeric(as.character(rep(unique(time),e=length(unique
                   desvio=c(tapply(resp,list(trat,time),sd, na.rm=TRUE)[unique(as.character(trat)),]),
                   letra=m)
 if(xnumeric==TRUE){dadosm$time=as.numeric(as.character(dadosm$time))}
+if(xnumeric==FALSE){dadosm$time=factor(dadosm$time,unique(dadosm$time))}
 time=dadosm$time
 trat=dadosm$trat
 media=dadosm$media
@@ -473,6 +474,8 @@ if(addmean==FALSE && error==TRUE){grafico=grafico+
 if(addmean==TRUE && error==TRUE){grafico=grafico+
   geom_text_repel(aes(y=desvio+media+sup,
                       label=paste(format(media,digits = dec),letra)),family=family,size=labelsize)}
+if(is.na(ylim[1])==FALSE){grafico=grafico+scale_y_continuous(breaks = ylim)}
+
 }
 
 if(geom=="bar"){
@@ -509,7 +512,7 @@ if(addmean==TRUE && error==TRUE){grafico=grafico+
             position = position_dodge(width=0.9),family=family,size=labelsize)}
 }
 if(fill=="gray"){grafico=grafico+scale_fill_grey(start = 1, end = 0.1)}
-if(is.na(ylim)==FALSE){grafico=grafico+scale_y_continuous(breaks = ylim)}
+if(is.na(ylim[1])==FALSE){grafico=grafico+scale_y_continuous(breaks = ylim)}
 graficos=as.list(grafico)
 print(grafico)
 }

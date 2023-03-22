@@ -10,6 +10,7 @@ conjdic(
   local,
   response,
   transf = 1,
+  constant = 0,
   norm = "sw",
   homog = "bt",
   mcomp = "tukey",
@@ -41,6 +42,8 @@ conjdic(
 \item{response}{Numerical vector containing the response of the experiment.}
 
 \item{transf}{Applies data transformation (default is 1; for log consider 0)}
+
+\item{constant}{Add a constant for transformation (enter value)}
 
 \item{norm}{Error normality test (\emph{default} is Shapiro-Wilk)}
 

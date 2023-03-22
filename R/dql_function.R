@@ -36,6 +36,7 @@
 #' @param posi Legend position
 #' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error ("mean_se"). For parametric test it is possible to plot the square root of QMres (mean_qmres).
 #' @param angle.label label angle
+#' @param ylim Define a numerical sequence referring to the y scale. You can use a vector or the `seq` command.
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
 #' @note CV and p-value of the graph indicate coefficient of variation and p-value of the F test of the analysis of variance.
 #' @note In the final output when transformation (transf argument) is different from 1, the columns resp and respo in the mean test are returned, indicating transformed and non-transformed mean, respectively.
@@ -95,13 +96,15 @@ DQL=function(trat,
              errorbar=TRUE,
              posi="top",
              point="mean_sd",
-             angle.label=0)
+             angle.label=0,
+             ylim=NA)
 {if(is.na(sup==TRUE)){sup=0.2*mean(response)}
   if(angle.label==0){hjust=0.5}else{hjust=0}
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
-  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==1){resp=response+constant}else{if(transf!="angular"){resp=((response+constant)^transf-1)/transf}}
+  # if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
   if(transf==0){resp=log(response+constant)}
   if(transf==0.5){resp=sqrt(response+constant)}
   if(transf==-0.5){resp=1/sqrt(response+constant)}
@@ -356,6 +359,9 @@ DQL=function(trat,
           axis.text = element_text(size=textsize,color="black",family=family),
           axis.title = element_text(size=textsize,color="black",family=family),
           legend.position = "none")
+  if(is.na(ylim[1])==FALSE){
+    grafico=grafico+scale_y_continuous(breaks = ylim,
+                                       limits = c(min(ylim),max(ylim)))}
   if(angle !=0){grafico=grafico+theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
   if(CV==TRUE){grafico=grafico+labs(caption=paste("p-value ", if(a$`Pr(>F)`[1]<0.0001){paste("<", 0.0001)}
                                                   else{paste("=", round(a$`Pr(>F)`[1],4))},"; CV = ",
@@ -368,6 +374,9 @@ DQL=function(trat,
     if(grau==2){graph=polynomial(trat,response, grau = 2,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4])}
     if(grau==3){graph=polynomial(trat,response, grau = 3,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4])}
     grafico=graph[[1]]
+    if(is.na(ylim[1])==FALSE){
+      grafico=grafico+scale_y_continuous(breaks = ylim,
+                                         limits = c(min(ylim),max(ylim)))}
     print(grafico)
 
   }

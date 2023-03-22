@@ -26,7 +26,7 @@
 #' @param geom Graph type (columns - "bar" or segments "point")
 #' @param legend Legend title
 #' @param posi Legend position
-#' @param ylim y-axis scale
+#' @param ylim Define a numerical sequence referring to the y scale. You can use a vector or the `seq` command.
 #' @param width.bar width error bar
 #' @param size.bar size error bar
 #' @param xnumeric Declare x as numeric (\emph{default} is FALSE)
@@ -410,6 +410,7 @@ DBCT=function(trat,
                     desvio=c(tapply(resp,list(trat,time),sd, na.rm=TRUE)[unique(as.character(trat)),]),
                     letra=m)
   if(xnumeric==TRUE){dadosm$time=as.numeric(as.character(dadosm$time))}
+  if(xnumeric==FALSE){dadosm$time=factor(dadosm$time,unique(dadosm$time))}
   time=dadosm$time
   trat=dadosm$trat
   media=dadosm$media
@@ -446,6 +447,8 @@ DBCT=function(trat,
       geom_text_repel(aes(y=desvio+media+sup,
                           label=paste(format(media,digits = dec),
                                       letra)),family=family,size=labelsize)}
+    if(is.na(ylim[1])==FALSE){grafico=grafico+scale_y_continuous(breaks = ylim)}
+
   }
 
   if(geom=="bar"){

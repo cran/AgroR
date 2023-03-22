@@ -36,7 +36,8 @@ DQL(
   errorbar = TRUE,
   posi = "top",
   point = "mean_sd",
-  angle.label = 0
+  angle.label = 0,
+  ylim = NA
 )
 }
 \arguments{
@@ -103,6 +104,8 @@ DQL(
 \item{point}{Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error ("mean_se"). For parametric test it is possible to plot the square root of QMres (mean_qmres).}
 
 \item{angle.label}{label angle}
+
+\item{ylim}{Define a numerical sequence referring to the y scale. You can use a vector or the `seq` command.}
 }
 \value{
 The table of analysis of variance, the test of normality of errors (Shapiro-Wilk ("sw"), Lilliefors ("li"), Anderson-Darling ("ad"), Cramer-von Mises ("cvm"), Pearson ("pearson") and Shapiro-Francia ("sf")), the test of homogeneity of variances (Bartlett ("bt") or Levene ("levene")), the test of independence of Durbin-Watson errors, the test of multiple comparisons (Tukey ("tukey"), LSD ("lsd"), Scott-Knott ("sk") or Duncan ("duncan")) or adjustment of regression models up to grade 3 polynomial, in the case of quantitative treatments. The column, segment or box chart for qualitative treatments is also returned. The function also returns a standardized residual plot.

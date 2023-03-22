@@ -78,7 +78,7 @@ DQLT(
 
 \item{legend}{Legend title}
 
-\item{ylim}{y-axis scale}
+\item{ylim}{Define a numerical sequence referring to the y scale. You can use a vector or the `seq` command.}
 
 \item{width.bar}{width error bar}
 

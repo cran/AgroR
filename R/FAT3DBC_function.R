@@ -115,12 +115,14 @@ FAT3DBC=function(f1,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
-  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==1){resp=response+constant}else{if(transf!="angular"){resp=((response+constant)^transf-1)/transf}}
+  # if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
   if(transf==0){resp=log(response+constant)}
   if(transf==0.5){resp=sqrt(response+constant)}
   if(transf==-0.5){resp=1/sqrt(response+constant)}
   if(transf==-1){resp=1/(response+constant)}
   if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
+  ordempadronizado=data.frame(f1,f2,f3,block,response,resp)
   resp1=resp
   organiz=data.frame(f1,f2,f3,block,response,resp)
   organiz=organiz[order(organiz$block),]
@@ -157,7 +159,10 @@ FAT3DBC=function(f1,
     anovaF3=anavaF3
     colnames(anovaF3)=c("GL","SQ","QM","Fcal","p-value")
 
-    anavares<-aov(resp1~Fator1*Fator2*Fator3+bloco)
+    anavares<-aov(resp~as.factor(f1)*
+                    as.factor(f2)*
+                    as.factor(f3)+
+                    as.factor(block),data = ordempadronizado)
     respad=anavares$residuals/sqrt(anavaF3$`Mean Sq`[9])
     out=respad[respad>3 | respad<(-3)]
     out=names(out)
@@ -289,9 +294,9 @@ FAT3DBC=function(f1,
                 if(errorbar==TRUE){grafico=grafico+
                     geom_text(aes(y=media+sup+
                                       if(sup<0){-desvio}else{desvio},
-                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                 if(errorbar==FALSE){grafico=grafico+
-                    geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
+                    geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                 if(errorbar==TRUE){grafico=grafico+
                     geom_errorbar(data=dadosm,
                                   aes(ymin=media-desvio,
@@ -315,10 +320,10 @@ FAT3DBC=function(f1,
                     geom_point(aes(color=Tratamentos),color=fill,size=4)}
                 if(errorbar==TRUE){grafico=grafico+
                     geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                 if(errorbar==FALSE){grafico=grafico+
                     geom_text(aes(y=media+sup,
-                                  label=letra),family=family,angle=angle.label, hjust=hjust)}
+                                  label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                 if(errorbar==TRUE){grafico=grafico+
                     geom_errorbar(data=dadosm,
                                   aes(ymin=media-desvio,
@@ -560,7 +565,7 @@ FAT3DBC=function(f1,
                                       width=0.3,position = position_dodge(width=0.9))+
                         geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
                                       label=numero),
-                                  position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
+                                  position = position_dodge(width=0.9),angle=angle.label, hjust=hjust,size=labelsize)+
                         theme(text=element_text(size=textsize,family=family),
                               axis.text = element_text(size=textsize,color="black",family=family),
                               axis.title = element_text(size=textsize,color="black",family=family))
@@ -765,9 +770,9 @@ FAT3DBC=function(f1,
                             geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
                         if(errorbar==TRUE){grafico=grafico+
                             geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                                          label=letra),family=family,angle=angle.label, hjust=hjust)}
+                                          label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                         if(errorbar==FALSE){grafico=grafico+
-                            geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
+                            geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                         if(errorbar==TRUE){grafico=grafico+
                             geom_errorbar(data=dadosm,
                                           aes(ymin=media-desvio,
@@ -1000,7 +1005,7 @@ FAT3DBC=function(f1,
                           position = position_dodge(width=0.9))+
             geom_text(aes(y=media+desvio+sup,
                           label=numero),
-                      position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
+                      position = position_dodge(width=0.9),angle=angle.label, hjust=hjust,size=labelsize)+
             theme(text=element_text(size=textsize,family=family),
                   axis.text = element_text(size=textsize,color="black",family=family),
                   axis.title = element_text(size=textsize,color="black",family=family))
@@ -1203,9 +1208,10 @@ FAT3DBC=function(f1,
                         else{grafico=grafico+
                             geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
                         if(errorbar==TRUE){grafico=grafico+
-                            geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},label=letra),family=family,angle=angle.label, hjust=hjust)}
+                            geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},label=letra),family=family,
+                                      angle=angle.label, hjust=hjust,size=labelsize)}
                         if(errorbar==FALSE){grafico=grafico+
-                            geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
+                            geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                         if(errorbar==TRUE){grafico=grafico+
                             geom_errorbar(data=dadosm,aes(ymin=media-desvio,
                                                           ymax=media+desvio,color=1),
@@ -1430,7 +1436,7 @@ FAT3DBC=function(f1,
                                       width=0.3,position = position_dodge(width=0.9))+
                         geom_text(aes(y=media+desvio+sup,
                                       label=numero),
-                                  position = position_dodge(width=0.9),angle=angle.label, hjust=hjust)+
+                                  position = position_dodge(width=0.9),angle=angle.label, hjust=hjust,size=labelsize)+
                         theme(text=element_text(size=textsize,family=family),
                               axis.text = element_text(size=textsize,color="black",family=family),
                               axis.title = element_text(size=textsize,color="black",family=family))
@@ -1636,9 +1642,9 @@ FAT3DBC=function(f1,
                             geom_col(aes(fill=Tratamentos),fill=fill,color=1)}
                         if(errorbar==TRUE){grafico=grafico+
                             geom_text(aes(y=media+sup+if(sup<0){-desvio}else{desvio},
-                                          label=letra),family=family,angle=angle.label, hjust=hjust)}
+                                          label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                         if(errorbar==FALSE){grafico=grafico+
-                            geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust)}
+                            geom_text(aes(y=media+sup,label=letra),family=family,angle=angle.label, hjust=hjust,size=labelsize)}
                         if(errorbar==TRUE){grafico=grafico+
                             geom_errorbar(data=dadosm,
                                           aes(ymin=media-desvio,

@@ -27,7 +27,7 @@
 #' @param geom Graph type (columns - "bar" or segments "point")
 #' @param legend Legend title
 #' @param posi Legend position
-#' @param ylim y-axis scale
+#' @param ylim Define a numerical sequence referring to the y scale. You can use a vector or the `seq` command.
 #' @param width.bar width error bar
 #' @param size.bar size error bar
 #' @param xnumeric Declare x as numeric (\emph{default} is FALSE)
@@ -254,8 +254,9 @@ DQLT=function(trat,
                     media=c(tapply(resp,list(trat,tempo),mean, na.rm=TRUE)),
                     desvio=c(tapply(resp,list(trat,tempo),sd, na.rm=TRUE)),
                     letra=m)
-  if(xnumeric==TRUE){dadosm$time=as.numeric(as.character(dadosm$time))}
-  time=dadosm$time
+  if(xnumeric==TRUE){dadosm$tempo=as.numeric(as.character(dadosm$tempo))}
+  if(xnumeric==FALSE){dadosm$tempo=factor(dadosm$tempo,unique(dadosm$tempo))}
+  time=dadosm$tempo
   trat=dadosm$trat
   media=dadosm$media
   desvio=dadosm$desvio
@@ -292,6 +293,8 @@ DQLT=function(trat,
       geom_text(aes(y=desvio+media+sup,
                     label=paste(format(media,digits = dec),
                                 letra)),size=labelsize,family=family)}
+    if(is.na(ylim[1])==FALSE){grafico=grafico+scale_y_continuous(breaks = ylim)}
+
   }
 
   if(geom=="bar"){
@@ -330,6 +333,8 @@ DQLT=function(trat,
                       position = position_dodge(width=0.9))}
   }
   if(fill=="gray"){grafico=grafico+scale_fill_grey(start = 1, end = 0.1)}
+  if(is.na(ylim[1])==FALSE){grafico=grafico+scale_y_continuous(breaks = ylim)}
+
   graficos=as.list(grafico)
   print(grafico)
 }

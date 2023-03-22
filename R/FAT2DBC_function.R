@@ -133,13 +133,14 @@ FAT2DBC=function(f1,
   requireNamespace("crayon")
   requireNamespace("ggplot2")
   requireNamespace("nortest")
-  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==1){resp=response+constant}else{if(transf!="angular"){resp=((response+constant)^transf-1)/transf}}
+  # if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
   if(transf==0){resp=log(response+constant)}
   if(transf==0.5){resp=sqrt(response+constant)}
   if(transf==-0.5){resp=1/sqrt(response+constant)}
   if(transf==-1){resp=1/(response+constant)}
   if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
-
+  ordempadronizado=data.frame(f1,f2,block,resp,response)
   resp1=resp
   organiz=data.frame(f1,f2,block,resp,response)
   organiz=organiz[order(organiz$block),]
@@ -172,8 +173,8 @@ FAT2DBC=function(f1,
   b=aov(resp~Fator1*Fator2+bloco)
   anava=a
   colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
-
-  bres=aov(resp1~Fator1*Fator2+bloco)
+  bres=aov(resp~as.factor(f1)*as.factor(f2)+as.factor(block),
+           data = ordempadronizado)
   respad=bres$residuals/sqrt(a$`Mean Sq`[5])
   out=respad[respad>3 | respad<(-3)]
   out=names(out)

@@ -427,10 +427,10 @@ sketch=function(trat,
 
   if(pos=="line"){graph=ggplot(data,aes(x=x,y=block,fill=separate))+
     geom_tile(color="black")+labs(y="Block",x=label.x,fill="Treatments")+
-    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize))}
+    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),axis.title=element_text(size=axissize),legend.title=element_text(size=legendsize),legend.text=element_text(size=axissize))}
   if(pos=="column"){graph=ggplot(data,aes(y=x,x=block,fill=separate))+
     geom_tile(color="black")+labs(y=label.y,x="Block",fill="Treatments")+
-    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize))}
+    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),axis.title=element_text(size=axissize),legend.title=element_text(size=legendsize),legend.text=element_text(size=axissize))}
 
   if(is.na(add.streets.x[1])==FALSE | is.na(add.streets.y[1])==FALSE){
     data$block=factor(data$block,levels = rev(unique(data$block)))
@@ -438,7 +438,10 @@ sketch=function(trat,
       graph=ggplot(data,aes(x=x,y=block,fill=separate))+
         geom_tile(color="black")+
         labs(x=label.x,y="Block",fill="Treatments")+
-        theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+        theme_classic()+theme(axis.text=element_text(size=axissize),
+                              legend.text=element_text(size=axissize),
+                              axis.title=element_text(size=axissize),
+                              legend.title=element_text(size=legendsize))
 
       if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
         ruas1=rep(add.streets.x,(length(data$x)/length(add.streets.x)))
@@ -464,7 +467,7 @@ sketch=function(trat,
       graph=ggplot(data,aes(y=x,x=block,fill=separate))+
         geom_tile(color="black")+
         labs(x="Block",y=label.y,fill="Treatments")+
-        theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+        theme_classic()+theme(axis.text=element_text(size=axissize),axis.title=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
 
       if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
         ruas1=rep(add.streets.x,e=(length(data$x)/length(add.streets.x)))
@@ -506,7 +509,10 @@ sketch=function(trat,
 
   graph=ggplot(data,aes(x=row,y=col,fill=separate))+
     geom_tile(color="black")+labs(x="Row",y="Column",fill="Treatments")+
-    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                             axis.title=element_text(size=axissize),
+                                                             legend.text=element_text(size=axissize),
+                                                             legend.title=element_text(size=legendsize))
 
   if(is.na(add.streets.x[1])==FALSE | is.na(add.streets.y[1])==FALSE){
     data$row=factor(data$row,levels = rev(unique(data$row)))
@@ -558,17 +564,26 @@ sketch=function(trat,
 
   if(pos=="column"){graph=ggplot(data,aes(x=y,y=x,fill=separate))+
     geom_tile(color="black")+labs(x=label.x,y=label.y,fill="Treatments")+
-    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                             axis.title=element_text(size=axissize),
+                                                             legend.text=element_text(size=legendsize),
+                                                             legend.title=element_text(size=legendsize))}
   if(pos=="line"){graph=ggplot(data,aes(x=x,y=y,fill=separate))+
     geom_tile(color="black")+labs(x=label.x,y=label.y,fill="Treatments")+
-    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                             axis.title=element_text(size=axissize),
+                                                             legend.text=element_text(size=legendsize),
+                                                             legend.title=element_text(size=legendsize))}
 
   if(is.na(add.streets.x[1])==FALSE | is.na(add.streets.y[1])==FALSE){
     if(pos=="line"){
       data$y=factor(data$y,levels = rev(unique(data$y)))
       graph=ggplot(data,aes(x=x,y=y,fill=separate))+
         geom_tile(color="black")+labs(x=label.x,y=label.y,fill="Treatments")+
-        theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+        theme_classic()+theme(axis.text=element_text(size=axissize),
+                              axis.title=element_text(size=axissize),
+                              legend.text=element_text(size=legendsize),
+                              legend.title=element_text(size=legendsize))
 
       if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
         ruas1=rep(add.streets.x,(length(data$x)/length(add.streets.x)))
@@ -594,7 +609,10 @@ sketch=function(trat,
       graph=ggplot(data,aes(y=x,x=y,fill=separate))+
         geom_tile(color="black")+
         labs(x=label.x,y=label.y,fill="Treatments")+
-        theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+        theme_classic()+theme(axis.text=element_text(size=axissize),
+                              axis.title=element_text(size=axissize),
+                              legend.text=element_text(size=legendsize),
+                              legend.title=element_text(size=legendsize))
 
       if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
         ruas1=rep(add.streets.x,e=(length(data$x)/length(add.streets.x)))
@@ -640,16 +658,25 @@ sketch=function(trat,
 
   if(pos=="column"){graph=ggplot(data,aes(y=x,x=block,fill=separate))+
     geom_tile(color="black")+labs(x="Block",y=label.y,fill="Treatments")+
-    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                             axis.title=element_text(size=axissize),
+                                                             legend.text=element_text(size=legendsize),
+                                                             legend.title=element_text(size=legendsize))}
   if(pos=="line"){graph=ggplot(data,aes(y=block,x=x,fill=separate))+
     geom_tile(color="black")+labs(x=label.x,y="Block",fill="Treatments")+
-    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                             axis.title=element_text(size=axissize),
+                                                             legend.text=element_text(size=legendsize),
+                                                             legend.title=element_text(size=legendsize))}
   if(is.na(add.streets.x[1])==FALSE | is.na(add.streets.y[1])==FALSE){
     if(pos=="line"){
       data$y=factor(data$block,levels = rev(unique(data$block)))
       graph=ggplot(data,aes(x=x,y=y,fill=separate))+
         geom_tile(color="black")+labs(x=label.x,y="Block",fill="Treatments")+
-        theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+        theme_classic()+theme(axis.text=element_text(size=axissize),
+                              axis.title=element_text(size=axissize),
+                              legend.text=element_text(size=legendsize),
+                              legend.title=element_text(size=legendsize))
 
       if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
         ruas1=rep(add.streets.x,(length(data$x)/length(add.streets.x)))
@@ -675,7 +702,10 @@ sketch=function(trat,
       graph=ggplot(data,aes(y=x,x=y,fill=separate))+
         geom_tile(color="black")+
         labs(x="Block",y=label.y,fill="Treatments")+
-        theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+        theme_classic()+theme(axis.text=element_text(size=axissize),
+                              axis.title=element_text(size=axissize),
+                              legend.text=element_text(size=legendsize),
+                              legend.title=element_text(size=legendsize))
 
       if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
         ruas1=rep(add.streets.x,e=(length(data$x)/length(add.streets.x)))
@@ -762,7 +792,10 @@ sketch=function(trat,
         ylab("")+xlab("")+
         geom_text(aes(label=paste(t1,t2)))+
         theme_classic()+theme(axis.line = element_blank(),
-                              axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize),
+                              axis.text=element_text(size=axissize),
+                              axis.title=element_text(size=axissize),
+                              legend.text=element_text(size=legendsize),
+                              legend.title=element_text(size=legendsize),
                               strip.text = element_text(size=12))}
     requireNamespace("cowplot")
     graph=do.call("plot_grid", c(graphs, ncol=length(levels(book$block))))
@@ -791,17 +824,26 @@ sketch=function(trat,
 
   if(pos=="column"){graph=ggplot(data,aes(x=y,y=x,fill=separate))+
     geom_tile(color="black")+labs(x=label.x,y=label.y,fill="Treatments")+
-    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                             axis.title=element_text(size=axissize),
+                                                             legend.text=element_text(size=legendsize),
+                                                             legend.title=element_text(size=legendsize))}
   if(pos=="line"){graph=ggplot(data,aes(x=x,y=y,fill=separate))+
     geom_tile(color="black")+labs(x=label.x,y=label.y,fill="Treatments")+
-    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+    theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                             axis.title=element_text(size=axissize),
+                                                             legend.text=element_text(size=legendsize),
+                                                             legend.title=element_text(size=legendsize))}
 
   if(is.na(add.streets.x[1])==FALSE | is.na(add.streets.y[1])==FALSE){
     if(pos=="line"){
       data$y=factor(data$y,levels = rev(unique(data$y)))
       graph=ggplot(data,aes(x=x,y=y,fill=separate))+
         geom_tile(color="black")+labs(x=label.x,y=label.y,fill="Treatments")+
-        theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+        theme_classic()+theme(axis.text=element_text(size=axissize),
+                              axis.title=element_text(size=axissize),
+                              legend.text=element_text(size=legendsize),
+                              legend.title=element_text(size=legendsize))
 
       if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
         ruas1=rep(add.streets.x,(length(data$x)/length(add.streets.x)))
@@ -827,7 +869,10 @@ sketch=function(trat,
       graph=ggplot(data,aes(y=x,x=y,fill=separate))+
         geom_tile(color="black")+
         labs(x=label.x,y=label.y,fill="Treatments")+
-        theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+        theme_classic()+theme(axis.text=element_text(size=axissize),
+                              axis.title=element_text(size=axissize),
+                              legend.text=element_text(size=legendsize),
+                              legend.title=element_text(size=legendsize))
 
       if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
         ruas1=rep(add.streets.x,e=(length(data$x)/length(add.streets.x)))
@@ -880,17 +925,26 @@ sketch=function(trat,
 
     if(pos=="column"){graph=ggplot(data,aes(y=x,x=block,fill=separate))+
       geom_tile(color="black")+labs(x="Block",y=label.y,fill="Treatments")+
-      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                               axis.title=element_text(size=axissize),
+                                                               legend.text=element_text(size=legendsize),
+                                                               legend.title=element_text(size=legendsize))}
     if(pos=="line"){graph=ggplot(data,aes(y=block,x=x,fill=separate))+
       geom_tile(color="black")+labs(x=label.x,y="Block",fill="Treatments")+
-      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                               axis.title=element_text(size=axissize),
+                                                               legend.text=element_text(size=legendsize),
+                                                               legend.title=element_text(size=legendsize))}
 
     if(is.na(add.streets.x[1])==FALSE | is.na(add.streets.y[1])==FALSE){
       if(pos=="line"){
         data$y=factor(data$block,levels = rev(unique(data$block)))
         graph=ggplot(data,aes(x=x,y=y,fill=separate))+
           geom_tile(color="black")+labs(x=label.x,y="Block",fill="Treatments")+
-          theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+          theme_classic()+theme(axis.text=element_text(size=axissize),
+                                legend.text=element_text(size=legendsize),
+                                axis.title=element_text(size=axissize),
+                                legend.title=element_text(size=legendsize))
 
         if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
           ruas1=rep(add.streets.x,(length(data$x)/length(add.streets.x)))
@@ -916,7 +970,10 @@ sketch=function(trat,
         graph=ggplot(data,aes(y=x,x=y,fill=separate))+
           geom_tile(color="black")+
           labs(x="Block",y=label.y,fill="Treatments")+
-          theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+          theme_classic()+theme(axis.text=element_text(size=axissize),
+                                axis.title=element_text(size=axissize),
+                                legend.text=element_text(size=legendsize),
+                                legend.title=element_text(size=legendsize))
 
         if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
           ruas1=rep(add.streets.x,e=(length(data$x)/length(add.streets.x)))
@@ -969,16 +1026,25 @@ sketch=function(trat,
 
     if(pos=="line"){graph=ggplot(data,aes(x=y,y=x,fill=separate))+
       geom_tile(color="black")+labs(x=label.x,y=label.y,fill="Treatments")+
-      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                               axis.title=element_text(size=axissize),
+                                                               legend.text=element_text(size=legendsize),
+                                                               legend.title=element_text(size=legendsize))}
     if(pos=="column"){graph=ggplot(data,aes(x=x,y=y,fill=separate))+
       geom_tile(color="black")+labs(x=label.x,y=label.y,fill="Treatments")+
-      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                               axis.title=element_text(size=axissize),
+                                                               legend.text=element_text(size=legendsize),
+                                                               legend.title=element_text(size=legendsize))}
     if(is.na(add.streets.x[1])==FALSE | is.na(add.streets.y[1])==FALSE){
       if(pos=="line"){
         data$y=factor(data$y,levels = rev(unique(data$y)))
         graph=ggplot(data,aes(x=x,y=y,fill=separate))+
           geom_tile(color="black")+labs(x=label.x,y=label.y,fill="Treatments")+
-          theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+          theme_classic()+theme(axis.text=element_text(size=axissize),
+                                axis.title=element_text(size=axissize),
+                                legend.text=element_text(size=legendsize),
+                                legend.title=element_text(size=legendsize))
 
         if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
           ruas1=rep(add.streets.x,(length(data$x)/length(add.streets.x)))
@@ -1004,7 +1070,10 @@ sketch=function(trat,
         graph=ggplot(data,aes(y=x,x=y,fill=separate))+
           geom_tile(color="black")+
           labs(x=label.x,y=label.y,fill="Treatments")+
-          theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+          theme_classic()+theme(axis.text=element_text(size=axissize),
+                                axis.title=element_text(size=axissize),
+                                legend.text=element_text(size=legendsize),
+                                legend.title=element_text(size=legendsize))
 
         if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
           ruas1=rep(add.streets.x,e=(length(data$x)/length(add.streets.x)))
@@ -1060,17 +1129,26 @@ sketch=function(trat,
 
     if(pos=="line"){graph=ggplot(data,aes(x=y,y=x,fill=separate))+
       geom_tile(color="black")+labs(x="block",y=label.y,fill="Treatments")+
-      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                               axis.title=element_text(size=axissize),
+                                                               legend.text=element_text(size=legendsize),
+                                                               legend.title=element_text(size=legendsize))}
     if(pos=="column"){graph=ggplot(data,aes(x=x,y=y,fill=separate))+
       geom_tile(color="black")+labs(x=label.x,y="block",fill="Treatments")+
-      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                               axis.title=element_text(size=axissize),
+                                                               legend.text=element_text(size=legendsize),
+                                                               legend.title=element_text(size=legendsize))}
 
     if(is.na(add.streets.x[1])==FALSE | is.na(add.streets.y[1])==FALSE){
       if(pos=="line"){
         data$y=factor(data$y,levels = rev(unique(data$y)))
         graph=ggplot(data,aes(x=x,y=y,fill=separate))+
           geom_tile(color="black")+labs(x=label.x,y="Block",fill="Treatments")+
-          theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+          theme_classic()+theme(axis.text=element_text(size=axissize),
+                                axis.title=element_text(size=axissize),
+                                legend.text=element_text(size=legendsize),
+                                legend.title=element_text(size=legendsize))
 
         if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
           ruas1=rep(add.streets.x,e=(length(data$x)/length(add.streets.x)))
@@ -1096,7 +1174,10 @@ sketch=function(trat,
         graph=ggplot(data,aes(y=x,x=y,fill=separate))+
           geom_tile(color="black")+
           labs(x="Block",y=label.y,fill="Treatments")+
-          theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+          theme_classic()+theme(axis.text=element_text(size=axissize),
+                                axis.title=element_text(size=axissize),
+                                legend.text=element_text(size=legendsize),
+                                legend.title=element_text(size=legendsize))
 
         if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
           ruas1=rep(add.streets.x,(length(data$x)/length(add.streets.x)))
@@ -1159,17 +1240,26 @@ sketch=function(trat,
 
     if(pos=="line"){graph=ggplot(data,aes(x=y,y=x,fill=separate))+
       geom_tile(color="black")+labs(x="block",y=label.y,fill="Treatments")+
-      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                               axis.title=element_text(size=axissize),
+                                                               legend.text=element_text(size=legendsize),
+                                                               legend.title=element_text(size=legendsize))}
     if(pos=="column"){graph=ggplot(data,aes(x=x,y=y,fill=separate))+
       geom_tile(color="black")+labs(x=label.x,y="block",fill="Treatments")+
-      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))}
+      theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
+                                                               axis.title=element_text(size=axissize),
+                                                               legend.text=element_text(size=legendsize),
+                                                               legend.title=element_text(size=legendsize))}
 
     if(is.na(add.streets.x[1])==FALSE | is.na(add.streets.y[1])==FALSE){
       if(pos=="line"){
         data$y=factor(data$y,levels = rev(unique(data$y)))
         graph=ggplot(data,aes(x=x,y=y,fill=separate))+
           geom_tile(color="black")+labs(x=label.x,y="Block",fill="Treatments")+
-          theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+          theme_classic()+theme(axis.text=element_text(size=axissize),
+                                axis.title=element_text(size=axissize),
+                                legend.text=element_text(size=legendsize),
+                                legend.title=element_text(size=legendsize))
 
         if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
           ruas1=rep(add.streets.x,(length(data$x)/length(add.streets.x)))
@@ -1195,7 +1285,10 @@ sketch=function(trat,
         graph=ggplot(data,aes(y=x,x=y,fill=separate))+
           geom_tile(color="black")+
           labs(x="Block",y=label.y,fill="Treatments")+
-          theme_classic()+theme(axis.text=element_text(size=axissize),legend.text=element_text(size=axissize),legend.title=element_text(size=legendsize))
+          theme_classic()+theme(axis.text=element_text(size=axissize),
+                                axis.title=element_text(size=axissize),
+                                legend.text=element_text(size=legendsize),
+                                legend.title=element_text(size=legendsize))
 
         if(is.na(add.streets.x[1])==FALSE & is.na(add.streets.y[1])==TRUE){
           ruas1=rep(add.streets.x,e=(length(data$x)/length(add.streets.x)))

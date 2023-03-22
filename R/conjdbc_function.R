@@ -9,6 +9,7 @@
 #' @param local Numeric or complex vector with locations or times
 #' @param response Numerical vector containing the response of the experiment.
 #' @param transf Applies data transformation (default is 1; for log consider 0)
+#' @param constant Add a constant for transformation (enter value)
 #' @param norm Error normality test (\emph{default} is Shapiro-Wilk)
 #' @param homog Homogeneity test of variances (\emph{default} is Bartlett)
 #' @param homog.value Reference value for homogeneity of experiments. By default, this ratio should not be greater than 7
@@ -67,6 +68,7 @@ conjdbc=function(trat,
                  local,
                  response,
                  transf=1,
+                 constant = 0,
                  norm="sw",
                  homog="bt",
                  homog.value=7,
@@ -88,12 +90,16 @@ conjdbc=function(trat,
   sup=0.2*mean(response, na.rm=TRUE)
   requireNamespace("crayon")
   requireNamespace("ggplot2")
+  if(transf==1){resp=response+constant}else{if(transf!="angular"){resp=((response+constant)^transf-1)/transf}}
+  # if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==0){resp=log(response+constant)}
+  if(transf==0.5){resp=sqrt(response+constant)}
+  if(transf==-0.5){resp=1/sqrt(response+constant)}
+  if(transf==-1){resp=1/(response+constant)}
+  if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
 
-  if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
-  if(transf==0){resp=log(response)}
-  if(transf==0.5){resp=sqrt(response)}
-  if(transf==-0.5){resp=1/sqrt(response)}
-  if(transf==-1){resp=1/response}
+
+
   tratnum=trat
   tratamento=factor(trat,levels=unique(trat))
   bloco=as.factor(block)

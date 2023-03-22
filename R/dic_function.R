@@ -37,6 +37,7 @@
 #' @param posi Legend position
 #' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error ("mean_se"). For quali=FALSE or quali=TRUE. For parametric test it is possible to plot the square root of QMres (mean_qmres)
 #' @param angle.label label angle
+#' @param ylim Define a numerical sequence referring to the y scale. You can use a vector or the `seq` command.
 #' @import ggplot2
 #' @import stats
 #' @import multcompView
@@ -157,7 +158,8 @@ DIC <- function(trat,
                 errorbar=TRUE,
                 posi="top",
                 point="mean_sd",
-                angle.label=0){
+                angle.label=0,
+                ylim=NA){
   if(is.na(sup==TRUE)){sup=0.1*mean(response)}
   if(angle.label==0){hjust=0.5}else{hjust=0}
   requireNamespace("nortest")
@@ -165,7 +167,8 @@ DIC <- function(trat,
   requireNamespace("ggplot2")
 
   if(test=="parametric"){
-    if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+    if(transf==1){resp=response+constant}else{if(transf!="angular"){resp=((response+constant)^transf-1)/transf}}
+    # if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
     if(transf==0){resp=log(response+constant)}
     if(transf==0.5){resp=sqrt(response+constant)}
     if(transf==-0.5){resp=1/sqrt(response+constant)}
@@ -402,6 +405,9 @@ DIC <- function(trat,
         labs(caption=paste("p-value", if(a$`Pr(>F)`[1]<0.0001){paste("<", 0.0001)}
                            else{paste("=", round(a$`Pr(>F)`[1],4))},"; CV = ",
                            round(abs(sqrt(a$`Mean Sq`[2])/mean(resp))*100,2),"%"))}
+      if(is.na(ylim[1])==FALSE){
+        grafico=grafico+scale_y_continuous(breaks = ylim,
+                                           limits = c(min(ylim),max(ylim)))}
       grafico=as.list(grafico)
     }
     if(quali==FALSE){
@@ -411,6 +417,9 @@ DIC <- function(trat,
       if(grau==2){graph=polynomial(trat,response, grau = 2,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
       if(grau==3){graph=polynomial(trat,response, grau = 3,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
       grafico=graph[[1]]
+      if(is.na(ylim[1])==FALSE){
+        grafico=grafico+scale_y_continuous(breaks = ylim,
+                                           limits = c(min(ylim),max(ylim)))}
       print(grafico)
     }}
   if(test=="noparametric"){
@@ -676,6 +685,10 @@ DIC <- function(trat,
             axis.title = element_text(size=textsize,color="black", family = family),
             axis.text = element_text(size=textsize,color="black", family = family),
             legend.position = "none")
+    if(is.na(ylim[1])==FALSE){
+      grafico=grafico+scale_y_continuous(breaks = ylim,
+                                         limits = c(min(ylim),max(ylim)))}
+
     if(angle !=0){grafico=grafico+theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
   }
   if(quali==TRUE){print(grafico)}

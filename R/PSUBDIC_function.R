@@ -107,11 +107,15 @@ PSUBDIC=function(f1,
     requireNamespace("crayon")
     requireNamespace("ggplot2")
     requireNamespace("nortest")
-    if(transf==1){resp=response}else{resp=(response^transf-1)/transf}
-    if(transf==0){resp=log(response)}
-    if(transf==0.5){resp=sqrt(response)}
-    if(transf==-0.5){resp=1/sqrt(response)}
-    if(transf==-1){resp=1/response}
+    if(transf==1){resp=response+constant}else{if(transf!="angular"){resp=((response+constant)^transf-1)/transf}}
+    # if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+    if(transf==0){resp=log(response+constant)}
+    if(transf==0.5){resp=sqrt(response+constant)}
+    if(transf==-0.5){resp=1/sqrt(response+constant)}
+    if(transf==-1){resp=1/(response+constant)}
+    if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
+
+    ordempadronizado=data.frame(f1,f2,block,resp,response)
     resp1=resp
     organiz=data.frame(f1,f2,block,response,resp)
     organiz=organiz[order(organiz$block),]
@@ -161,7 +165,7 @@ PSUBDIC=function(f1,
     # -----------------------------
     # Pressupostos
     # -----------------------------
-    modp=lme4::lmer(resp1~Fator1*Fator2+(1|bloco/Fator1))
+    modp=lme4::lmer(resp~Fator1*Fator2+(1|bloco/Fator1),data = ordempadronizado)
     resids=residuals(modp,scaled=TRUE)
     Ids=ifelse(resids>3 | resids<(-3), "darkblue","black")
     residplot=ggplot(data=data.frame(resids,Ids),
@@ -428,7 +432,6 @@ PSUBDIC=function(f1,
                                theme=theme,
                                posi=posi,
                                textsize=textsize,
-                               se=errorbar,
                                family=family,
                                DFres = num(tab[2*i,1]),
                                SSq=num(tab[2*i,2]))

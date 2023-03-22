@@ -128,20 +128,23 @@ FAT2DIC.ad=function(f1,
   # ================================
   # Transformacao de dados
   # ================================
-  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==1){resp=response+constant}else{if(transf!="angular"){resp=((response+constant)^transf-1)/transf}}
+  # if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
   if(transf==0){resp=log(response+constant)}
   if(transf==0.5){resp=sqrt(response+constant)}
   if(transf==-0.5){resp=1/sqrt(response+constant)}
   if(transf==-1){resp=1/(response+constant)}
   if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
 
-  if(transf==1){respAd=responseAd+constant}else{respAd=((responseAd+constant)^transf-1)/transf}
+  if(transf==1){respAd=responseAd+constant}else{if(transf!="angular"){respAd=((responseAd+constant)^transf-1)/transf}}
+  # if(transf==1){respAd=responseAd+constant}else{respAd=((responseAd+constant)^transf-1)/transf}
   if(transf==0){respAd=log(responseAd+constant)}
   if(transf==0.5){respAd=sqrt(responseAd+constant)}
   if(transf==-0.5){respAd=1/sqrt(responseAd+constant)}
   if(transf==-1){respAd=1/(responseAd+constant)}
   if(transf=="angular"){respAd=asin(sqrt((responseAd+constant)/100))}
 
+  ordempadronizado=data.frame(f1,f2,resp,response)
   resp1=resp
   organiz=data.frame(f1,f2,resp,response)
   organiz=organiz[order(organiz$f2),]
@@ -192,7 +195,7 @@ FAT2DIC.ad=function(f1,
   rownames(anava1)[4]="Ad x Factorial"
   anava=anava1
 
-  b=aov(resp1 ~ Fator1 * Fator2)
+  b=aov(resp ~ as.factor(f1) * as.factor(f2),data = ordempadronizado)
   an=anova(b)
   respad=b$residuals/sqrt(an$`Mean Sq`[4])
   out=respad[respad>3 | respad<(-3)]

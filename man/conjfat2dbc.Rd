@@ -11,6 +11,7 @@ conjfat2dbc(
   experiment,
   response,
   transf = 1,
+  constant = 0,
   model = 1,
   norm = "sw",
   homog = "bt",
@@ -31,6 +32,8 @@ conjfat2dbc(
 \item{response}{Numerical vector containing the response of the experiment.}
 
 \item{transf}{Applies data transformation (default is 1; for log consider 0)}
+
+\item{constant}{Add a constant for transformation (enter value)}
 
 \item{model}{Define model of the analysis of variance}
 

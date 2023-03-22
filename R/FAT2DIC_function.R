@@ -130,13 +130,15 @@ FAT2DIC=function(f1,
   # ================================
   # Transformacao de dados
   # ================================
-  if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
+  if(transf==1){resp=response+constant}else{if(transf!="angular"){resp=((response+constant)^transf-1)/transf}}
+  # if(transf==1){resp=response+constant}else{resp=((response+constant)^transf-1)/transf}
   if(transf==0){resp=log(response+constant)}
   if(transf==0.5){resp=sqrt(response+constant)}
   if(transf==-0.5){resp=1/sqrt(response+constant)}
   if(transf==-1){resp=1/(response+constant)}
   if(transf=="angular"){resp=asin(sqrt((response+constant)/100))}
   if(is.na(sup==TRUE)){sup=0.1*mean(response)}
+  ordempadronizado=data.frame(f1,f2,resp,response)
   resp1=resp
   organiz=data.frame(f1,f2,resp,response)
   organiz=organiz[order(organiz$f2),]
@@ -167,7 +169,8 @@ FAT2DIC=function(f1,
   anava=a
   colnames(anava)=c("GL","SQ","QM","Fcal","p-value")
 
-  bres=aov(resp1~Fator1*Fator2)
+  bres=aov(resp~as.factor(f1)*as.factor(f2),
+           data = ordempadronizado)
   respad=bres$residuals/sqrt(a$`Mean Sq`[4])
   out=respad[respad>3 | respad<(-3)]
   out=names(out)
