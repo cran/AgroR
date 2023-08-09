@@ -211,9 +211,10 @@ DQLT=function(trat,
       mod=aov(resp~trat+line+column, data=dados[dados$tempo==levels(dados$tempo)[i],])
       anovag[[i]]=anova(mod)$`Pr(>F)`[1]
       cv[[i]]=sqrt(anova(mod)$`Mean Sq`[4])/mean(mod$model$resp)*100
-      nrep=with(dados[dados$time==levels(dados$time)[i],], table(trat)[1])
+      nrep=with(dados[dados$tempo==levels(dados$tempo)[i],], table(trat)[1])
       ao=anova(mod)
-      medias=sort(tapply(resp,trat,mean),decreasing = TRUE)
+      medias=with(dados[dados$tempo==levels(dados$tempo)[i],],
+                  sort(tapply(resp,trat,mean),decreasing = TRUE))
       letra=scottknott(means = medias,
                        df1 = ao$Df[4],
                        nrep = nrep,

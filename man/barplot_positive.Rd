@@ -10,7 +10,9 @@ barplot_positive(
   ylab = "Response",
   var_name = c("Var1", "Var2"),
   legend.title = "Variable",
-  fill_color = c("darkgreen", "brown")
+  fill_color = c("darkgreen", "brown"),
+  width.col = 0.9,
+  width.bar = 0.2
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ barplot_positive(
 \item{legend.title}{Legend title}
 
 \item{fill_color}{Bar fill color}
+
+\item{width.col}{Width Column}
+
+\item{width.bar}{Width error bar}
 }
 \value{
 The function returns a column chart with two positive sides

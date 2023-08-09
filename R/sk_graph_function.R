@@ -48,7 +48,7 @@ sk_graph=function(model,
                fill="lightyellow",hjust=0)}
     if(ploterror==FALSE){graph=graph+geom_label(aes(x=as.vector(media)+sup,
                      y=as.vector(trats),
-                     label = letra),
+                     label = letra),family=family,
                  fill="lightyellow",hjust=0)}
     graph=graph+
     labs(y=model[[1]]$labels$x,
@@ -72,7 +72,7 @@ sk_graph=function(model,
                  fill="lightyellow")}
     if(ploterror==FALSE){graph=graph+geom_label(aes(y=as.vector(media)+sup,
                                                     x=as.vector(trats),
-                                                    label = letra),
+                                                    label = letra),family=family,
                                                 fill="lightyellow",hjust=0)}
     graph=graph+
       labs(x=model[[1]]$labels$x,

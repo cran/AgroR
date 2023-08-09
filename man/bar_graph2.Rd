@@ -16,6 +16,8 @@ bar_graph2(
   y.text = 0,
   add.info = NA,
   y.info = 0,
+  width.col = 0.9,
+  width.bar = 0,
   color.info = "black",
   fill = "lightblue"
 )
@@ -42,6 +44,10 @@ bar_graph2(
 \item{add.info}{Add other information}
 
 \item{y.info}{Y-axis height for other information}
+
+\item{width.col}{Width Column}
+
+\item{width.bar}{Width error bar}
 
 \item{color.info}{Color text information}
 

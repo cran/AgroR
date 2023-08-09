@@ -103,7 +103,7 @@ conjdic=function(trat,
   tukey=c()
   graficos=list()
   nlocal=length(levels(local))
-  qmres=data.frame(QM=1:3)
+  qmres=data.frame(QM=1:nlocal)
   for(i in 1:length(levels(local))){
     anova[[i]]=anova(aov(resp~tratamento, data=dados[dados$local==levels(dados$local)[i],]))
     qm=anova[[i]]$`Mean Sq`[2]

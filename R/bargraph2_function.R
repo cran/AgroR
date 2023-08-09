@@ -17,6 +17,8 @@
 #' @param add.info Add other information
 #' @param y.info Y-axis height for other information
 #' @param color.info Color text information
+#' @param width.bar Width error bar
+#' @param width.col Width Column
 #' @export
 #' @return Returns a bar chart for one factor
 #' @seealso \link{radargraph}, \link{barplot_positive}, \link{plot_TH}, \link{plot_TH1}, \link{corgraph}, \link{spider_graph}, \link{line_plot}, \link{plot_cor}, \link{plot_interaction}, \link{plot_jitter}, \link{seg_graph}, \link{TBARPLOT.reverse}
@@ -40,6 +42,8 @@ bar_graph2=function(model,
                     y.text=0,
                     add.info=NA,
                     y.info=0,
+                    width.col=0.9,
+                    width.bar=0,
                     color.info="black",
                     fill="lightblue"){
   requireNamespace("ggplot2")
@@ -55,9 +59,9 @@ bar_graph2=function(model,
   graph=ggplot(data,aes(x=trats,
                         y=media))+
     model[[1]]$theme+
-    geom_col(fill=fill,size=0.3,color="black")+
+    geom_col(fill=fill,size=0.3,color="black",width = width.col)+
     geom_errorbar(aes(ymin=media-desvio,
-                      ymax=media+desvio),color=bar.color,width=0)+
+                      ymax=media+desvio),color=bar.color,width=width.bar)+
     geom_point(size=point.size,color=point.color,fill=point.color)+
     geom_text(aes(y=media+desvio+sup,
                   x=trats,

@@ -7,7 +7,7 @@
 jointcluster(qmres, information = "matrix", method.cluster = "ward.D")
 }
 \arguments{
-\item{qmres}{Vector containing the mean squares of the residuals}
+\item{qmres}{Vector containing mean squares of residuals or output from list DIC or DBC function}
 
 \item{information}{Option to choose the return type. `matrix`, `bar` or `cluster`}
 
@@ -24,6 +24,11 @@ qmres=c(0.344429, 0.300542, 0.124833, 0.04531, 0.039571, 0.011812, 0.00519)
 jointcluster(qmres,information = "cluster")
 jointcluster(qmres,information = "matrix")
 jointcluster(qmres,information = "bar")
+
+data(mirtilo)
+m=lapply(unique(mirtilo$exp),function(x){
+  m=with(mirtilo[mirtilo$exp==x,],DBC(trat,bloco,resp))})
+jointcluster(m)
 }
 \author{
 Gabriel Danilo Shimizu, \email{shimizu@uel.br}

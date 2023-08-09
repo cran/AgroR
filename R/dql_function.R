@@ -209,6 +209,7 @@ DQL=function(trat,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   anava1=as.matrix(data.frame(anava))
   colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+  rownames(anava1)=c("Treatment","Line","Column","Residuals")
   print(anava1,na.print = "")
   cat("\n")
   message(if (a$`Pr(>F)`[1]<alpha.f){

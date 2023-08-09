@@ -1,7 +1,7 @@
 #' Analysis: Method to evaluate similarity of experiments based on QMres
 #'
 #' @description This function presents a method to evaluate similarity of experiments based on a matrix of QMres of all against all. This is used as a measure of similarity and applied in clustering.
-#' @param qmres Vector containing the mean squares of the residuals
+#' @param qmres Vector containing mean squares of residuals or output from list DIC or DBC function
 #' @param information Option to choose the return type. `matrix`, `bar` or `cluster`
 #' @param method.cluster Grouping method
 #' @return Returns a residual mean square ratio matrix, bar graph with ratios sorted in ascending order, or cluster analysis.
@@ -13,10 +13,25 @@
 #' jointcluster(qmres,information = "cluster")
 #' jointcluster(qmres,information = "matrix")
 #' jointcluster(qmres,information = "bar")
+#'
+#' data(mirtilo)
+#' m=lapply(unique(mirtilo$exp),function(x){
+#'   m=with(mirtilo[mirtilo$exp==x,],DBC(trat,bloco,resp))})
+#' jointcluster(m)
 
 jointcluster=function(qmres,
                       information="matrix",
                       method.cluster="ward.D"){
+  if(is.list(qmres)==TRUE){
+    if(nrow(qmres[[1]][[1]]$plot$anava)==2){
+      qmres1=numeric(0)
+      for(i in 1:length(qmres)){
+        qmres1[i]=qmres[[i]][[1]]$plot$anava$QM[2]}}
+    if(nrow(qmres[[1]][[1]]$plot$anava)==3){
+      qmres1=numeric(0)
+      for(i in 1:length(qmres)){
+        qmres1[i]=qmres[[i]][[1]]$plot$anava$QM[3]}}
+    qmres=qmres1}
   resp=qmres
   requireNamespace("ggplot2")
   matriztodos=function(resp){
@@ -28,7 +43,7 @@ jointcluster=function(qmres,
   dados$resp2=rep(resp,e=length(resp))
   dados$resp=dados$resp1/dados$resp2
   graph=ggplot(dados,aes(x=Var1,y=Var2,fill=resp))+
-    geom_tile(color = "gray50", size = 1) +
+    geom_tile(color = "gray50", linewidth = 1) +
     scale_x_discrete(position = "top") +
     scale_fill_distiller(palette = "RdBu", direction = -1) +
     ylab("Numerator") + xlab("Denominator") +

@@ -13,6 +13,7 @@
 #' @param pos Repeat position (line or column),
 #' @param color.sep Color box
 #' @param ID plot Add only identification in sketch
+#' @param print.ID Print table ID
 #' @param label.x text in x
 #' @param label.y text in y
 #' @param labelsize Label size
@@ -67,7 +68,7 @@
 #' sketch(Trat,r=3)
 #' sketch(Trat,r=3,pos="column")
 #' sketch(Trat,r=3,color.sep="none")
-#' sketch(Trat,r=3,color.sep="none",ID=TRUE)
+#' sketch(Trat,r=3,color.sep="none",ID=TRUE,print.ID=TRUE)
 #' sketch(Trat,r=3,pos="column",add.streets.x=c(1,1,2,2,3,3))
 #'
 #' #=============================
@@ -76,6 +77,9 @@
 #' sketch(Trat, r=3, design="DBC")
 #' sketch(Trat, r=3, design="DBC",pos="column")
 #' sketch(Trat, r=3, design="DBC",pos="column",add.streets.x=c(1,1,2))
+#' sketch(Trat, r=3, design="DBC",pos="column",add.streets.x=c(1,2,3), add.streets.y=1:6)
+#' sketch(Trat, r=3, design="DBC",pos="line",add.streets.y=c(1,2,3), add.streets.x=1:6)
+#'
 #' #=============================
 #' # Completely randomized experiments in double factorial
 #' #=============================
@@ -98,6 +102,7 @@ sketch=function(trat,
                 pos="line",
                 color.sep="all",
                 ID=FALSE,
+                print.ID=TRUE,
                 add.streets.y=NA,
                 add.streets.x=NA,
                 label.x="",
@@ -1319,7 +1324,7 @@ sketch=function(trat,
                       "plot"=sorteiof1,
                       "split_plot"=sorteiof2,
                       "split_split_plot"=sorteiof3)}
-  if(isTRUE(ID)==TRUE){print(data)}
+  if(isTRUE(ID)==TRUE & isTRUE(print.ID)==TRUE){print(data)}
   if(export.csv==TRUE){write.csv(tabela,"dataset.csv")}
   #=================
   if(design!="STRIP-PLOT"){print(graph+labs(caption = comment.caption))}

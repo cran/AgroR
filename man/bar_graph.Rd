@@ -4,7 +4,7 @@
 \alias{bar_graph}
 \title{Graph: Bar graph for one factor}
 \usage{
-bar_graph(model, fill = "lightblue", horiz = TRUE)
+bar_graph(model, fill = "lightblue", horiz = TRUE, width.col = 0.9)
 }
 \arguments{
 \item{model}{DIC, DBC or DQL object}
@@ -12,6 +12,8 @@ bar_graph(model, fill = "lightblue", horiz = TRUE)
 \item{fill}{fill bars}
 
 \item{horiz}{Horizontal Column (\emph{default} is TRUE)}
+
+\item{width.col}{Width Column}
 }
 \value{
 Returns a bar chart for one factor

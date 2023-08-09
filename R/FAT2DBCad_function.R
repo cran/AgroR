@@ -12,6 +12,7 @@
 #' @param homog Homogeneity test of variances (\emph{default} is Bartlett)
 #' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD and Duncan)
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
+#' @param names.fat Name of factors
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with two elements.
@@ -84,6 +85,7 @@ FAT2DBC.ad=function(f1,
                     alpha.f=0.05,
                     alpha.t=0.05,
                     quali=c(TRUE,TRUE),
+                    names.fat=c("F1","F2"),
                     mcomp="tukey",
                     grau=c(NA,NA),
                     grau12=NA, # F1/F2
@@ -158,7 +160,6 @@ FAT2DBC.ad=function(f1,
   nv2 <- length(summary(Fator2))
   lf1 <- levels(Fator1)
   lf2 <- levels(Fator2)
-  fac.names = c("F1", "F2")
   fatores <- cbind(fator1, fator2)
   J = length(respAd)
   n.trat2 <- nv1 * nv2
@@ -283,6 +284,8 @@ FAT2DBC.ad=function(f1,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   anava1=as.matrix(data.frame(anava))
   colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+  rownames(anava1)=c(names.fat[1],names.fat[2],"Block",
+                     paste(names.fat[1],"x",names.fat[2]),"Ad x Factorial","Residuals")
   print(anava1,na.print = "")
   cat("\n")
   if(anava$`Pr(>F)`[5]<alpha.f){"The additional treatment does differ from the factorial by the F test"}else{"The additional treatment does not differ from the factorial by the F test "}
@@ -302,7 +305,7 @@ FAT2DBC.ad=function(f1,
 
     for (i in 1:2) {if (anava$`Pr(>F)`[i] <= alpha.f)
     {cat(green(bold("\n-----------------------------------------------------------------\n")))
-      cat(bold(fac.names[i]))
+      cat(bold(names.fat[i]))
       cat(green(bold("\n-----------------------------------------------------------------\n")))
       if(quali[i]==TRUE){
         if(mcomp=="tukey"){
@@ -426,7 +429,7 @@ FAT2DBC.ad=function(f1,
                            theme=theme,
                            textsize=textsize,
                            point=point,
-                           family=family)
+                           family=family,SSq = anava$`Sum Sq`[6],DFres = anava$Df[6])
         grafico=grafico[[1]]+
           geom_hline(aes(color=ad.label,group=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
           scale_color_manual(values = "black")+labs(color="")}
@@ -461,6 +464,10 @@ FAT2DBC.ad=function(f1,
     cat(green(bold("Significant interaction: analyzing the interaction")))
     cat(green(bold("\n-----------------------------------------------------------------\n")))
     des1<-aov(resp~Fator2/Fator1+block)
+    cat("\n-----------------------------------------------------------------\n")
+    cat("Analyzing ", names.fat[1], " inside of the level of ",names.fat[2])
+    cat("\n-----------------------------------------------------------------\n")
+    cat("\n")
 
     l1<-vector('list',nv2)
     names(l1)<-names(summary(Fator2))
@@ -475,6 +482,14 @@ FAT2DBC.ad=function(f1,
     des1.tab=des1.tab[-c(nlinhas),]
     des1.tab$`F value`=des1.tab$`Mean Sq`/anava$`Mean Sq`[6]
     des1.tab$`Pr(>F)`=1-pf(des1.tab$`F value`,des1.tab$Df,anava$Df[6])
+    rn<-numeric(0)
+    for (j in 1:nv2) {
+      rn <- c(rn, paste(paste(names.fat[1], ":", names.fat[2],
+                              sep = ""), lf2[j]))
+    }
+    rownames(des1.tab)=c(names.fat[2],"Block",
+                         paste(names.fat[1],"x",names.fat[2],"+",names.fat[1]),
+                         paste("  ",rn))
     print(des1.tab)
     desdobramento1=des1.tab
     if(quali[1]==TRUE & quali[2]==TRUE){
@@ -545,7 +560,7 @@ FAT2DBC.ad=function(f1,
                         alpha = alpha.t)
           sk=data.frame(respi=medias,groups=sk)
           # sk=sk(respi,trati,anava$Df[6],anava$`Sum Sq`[6],alpha.t)
-          if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+          if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
           skgrafico[[i]]=sk[levels(trati),2]
           ordem[[i]]=rownames(sk[levels(trati),])
         }
@@ -557,7 +572,7 @@ FAT2DBC.ad=function(f1,
     }
 
     cat("\n-----------------------------------------------------------------\n")
-    cat("Analyzing ", fac.names[2], " inside of the level of ",fac.names[1])
+    cat("Analyzing ", names.fat[2], " inside of the level of ",names.fat[1])
     cat("\n-----------------------------------------------------------------\n")
     cat("\n")
     des1<-aov(resp~Fator1/Fator2+block)
@@ -575,6 +590,14 @@ FAT2DBC.ad=function(f1,
     des1.tab=des1.tab[-c(nlinhas),]
     des1.tab$`F value`=des1.tab$`Mean Sq`/anava$`Mean Sq`[6]
     des1.tab$`Pr(>F)`=1-pf(des1.tab$`F value`,des1.tab$Df,anava$Df[6])
+    rn<-numeric(0)
+    for (i in 1:nv1) {
+      rn <- c(rn, paste(paste(names.fat[2], ":", names.fat[1],
+                              sep = ""), lf1[i]))
+    }
+    rownames(des1.tab)=c(names.fat[1],"Block",
+                         paste(names.fat[1],"x",names.fat[2],"+",names.fat[2]),
+                         paste("  ",rn))
     print(des1.tab)
     desdobramento2=des1.tab
 
@@ -645,7 +668,7 @@ FAT2DBC.ad=function(f1,
                             point=point,
                             textsize=textsize,
                             family=family,
-                            ylim=ylim)+
+                            ylim=ylim,SSq = anava$`Sum Sq`[6],DFres = anava$Df[6])+
           geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
           scale_color_manual(values = "black")+labs(color="")}
       if(quali[2]==TRUE){
@@ -661,7 +684,7 @@ FAT2DBC.ad=function(f1,
                             point=point,
                             textsize=textsize,
                             family=family,
-                            ylim=ylim)+
+                            ylim=ylim,SSq = anava$`Sum Sq`[6],DFres = anava$Df[6])+
           geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
           scale_color_manual(values = "black")+labs(color="")}
     }
@@ -679,7 +702,7 @@ FAT2DBC.ad=function(f1,
                                   point=point,
                                   textsize=textsize,
                                   family=family,
-                                  ylim=ylim)+
+                                  ylim=ylim,SSq = anava$`Sum Sq`[6],DFres = anava$Df[6])+
           geom_hline(aes(color=ad.label,group=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
           scale_color_manual(values = "black")+labs(color="")}
       if(quali[2]==TRUE){
@@ -695,7 +718,7 @@ FAT2DBC.ad=function(f1,
                                   point=point,
                                   textsize=textsize,
                                   family=family,
-                                  ylim=ylim)+
+                                  ylim=ylim,SSq = anava$`Sum Sq`[6],DFres = anava$Df[6])+
           geom_hline(aes(color=ad.label,group=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
           scale_color_manual(values = "black")+labs(color="")}
     }

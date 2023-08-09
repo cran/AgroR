@@ -144,7 +144,7 @@ FAT3DBC=function(f1,
     fator3a=fator3
 
     bloco=block
-    fac.names=names.fat
+    names.fat=names.fat
     fatores<-data.frame(fator1,fator2,fator3)
     Fator1<-factor(fator1,levels=unique(fator1));
     Fator2<-factor(fator2,levels=unique(fator2));
@@ -217,6 +217,15 @@ FAT3DBC=function(f1,
     cat(green(bold("\n------------------------------------------\n")))
     anava1=as.matrix(data.frame(anovaF3))
     colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+    rownames(anava1)=c(names.fat[1],
+                       names.fat[2],
+                       names.fat[3],
+                       "Block",
+                       paste(names.fat[1],"x",names.fat[2]),
+                       paste(names.fat[1],"x",names.fat[3]),
+                       paste(names.fat[2],"x",names.fat[3]),
+                       paste(names.fat[1],"x",names.fat[2],"x",names.fat[3]),
+                       "Residuals")
     print(anava1,na.print = "")
     cat("\n")
 
@@ -236,7 +245,7 @@ FAT3DBC=function(f1,
         for(i in 1:3){
             if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
                 cat(green(bold("\n------------------------------------------\n")))
-                cat(fac.names[i])
+                cat(names.fat[i])
                 cat(green(bold("\n------------------------------------------\n")))
                 if(mcomp=='tukey'){letra=TUKEY(resp,fatores[,i],anavaF3[9,1],anavaF3[9,3],alpha.t)
                 letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
@@ -341,16 +350,16 @@ FAT3DBC=function(f1,
 
             if(anavaF3[i,5]>alpha.f) {
                 cat(green(bold("\n------------------------------------------\n")))
-                cat(fac.names[i])
+                cat(names.fat[i])
                 cat(green(bold("\n------------------------------------------\n")))
-                mean.table<-mean.stat(response,fatores[,i],mean)
+                mean.table<-mean_stat(response,fatores[,i],mean)
                 colnames(mean.table)<-c('Niveis','Medias')
                 print(mean.table)
                 grafico=NA}
 
             if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
               cat(green(bold("\n------------------------------------------\n")))
-              cat(fac.names[i])
+              cat(names.fat[i])
               cat(green(bold("\n------------------------------------------\n")))
 
                 dose=as.numeric(as.vector(unlist(fatores[,i])))
@@ -365,10 +374,10 @@ FAT3DBC=function(f1,
 
     if(anavaF3[8,5]>alpha.f && anavaF3[5,5]<=alpha.f){
     cat(green(bold("\n------------------------------------------\n")))
-        cat(green(bold("Interaction",paste(fac.names[1],'*',fac.names[2],sep='')," significant: unfolding the interaction")))
+        cat(green(bold("Interaction",paste(names.fat[1],'*',names.fat[2],sep='')," significant: unfolding the interaction")))
     cat(green(bold("\n------------------------------------------\n")))
         cat(green(bold("\n------------------------------------------\n")))
-        cat("Analyzing ", fac.names[1], ' within the combination of levels ', fac.names[2])
+        cat("Analyzing ", names.fat[1], ' within the combination of levels ', names.fat[2])
         cat(green(bold("\n------------------------------------------\n")))
         des<-aov(resp~Fator2/Fator1+Fator3+Fator2+Fator2:Fator3+Fator1:Fator2:Fator3+bloco)
         l<-vector('list',nv2)
@@ -380,6 +389,14 @@ FAT3DBC=function(f1,
             v<-numeric(0)}
         des1<-summary(des,split=list('Fator2:Fator1'=l))[[1]]
         des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+        #============================
+        rn<-numeric(0)
+        for (j in 1:nv2) {
+          rn <- c(rn, paste(paste(names.fat[1], ":", names.fat[2],
+                                  sep = ""), lf2[j]))
+        }
+        rownames(des1a)=rn
+        #============================
         print(des1a)
 
         if(quali[1]==TRUE & quali[2]==TRUE){
@@ -450,7 +467,7 @@ FAT3DBC=function(f1,
                                   alpha = alpha.t)
                     sk=data.frame(respi=medias,groups=sk)
                     # sk=sk(respi,trati,anavaF3$Df[9],anavaF3$`Sum Sq`[9],alpha.t)
-                    if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+                    if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
                     skgrafico[[i]]=sk[levels(trati),2]
                     ordem[[i]]=rownames(sk[levels(trati),])
                     }
@@ -461,7 +478,7 @@ FAT3DBC=function(f1,
                 letra=datag$letra}}
 
         cat(green(bold("\n------------------------------------------\n")))
-        cat("Analyzing ", fac.names[2], " inside of the level of ",fac.names[1])
+        cat("Analyzing ", names.fat[2], " inside of the level of ",names.fat[1])
         cat(green(bold("\n------------------------------------------\n")))
 
         des<-aov(resp~Fator1/Fator2+Fator3+Fator1+Fator1:Fator3+Fator1:Fator2:Fator3+bloco)
@@ -474,6 +491,14 @@ FAT3DBC=function(f1,
                 v<-numeric(0)}
         des1<-summary(des,split=list('Fator1:Fator2'=l))[[1]]
         des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+        #============================
+        rn<-numeric(0)
+        for (j in 1:nv1) {
+          rn <- c(rn, paste(paste(names.fat[2], ":", names.fat[1],
+                                  sep = ""), lf1[j]))
+        }
+        rownames(des1a)=rn
+        #============================
         print(des1a)
 
         if(quali[1]==TRUE & quali[2]==TRUE){
@@ -558,7 +583,7 @@ FAT3DBC=function(f1,
                                              fill=f1))+
                         ylab(ylab)+xlab(xlab)+
                         theme+
-                        labs(fill=fac.names[1])+
+                        labs(fill=names.fat[1])+
                         geom_col(position = "dodge",color="black")+
                         geom_errorbar(aes(ymin=media-desvio,
                                           ymax=media+desvio),
@@ -690,7 +715,7 @@ FAT3DBC=function(f1,
                                       QME = anavaF3$`Mean Sq`[9],
                                       alpha = alpha.t)
                         sk=data.frame(respi=medias,groups=sk)
-                        if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+                        if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
                         cat("\n----------------------\n")
                         cat("Multiple comparison of F1 within level",lf2[i],"of F2")
                         cat("\n----------------------\n")
@@ -715,9 +740,9 @@ FAT3DBC=function(f1,
                 {
                     if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat(green(italic('Analyzing the simple effects of the factor ',fac.names[i])))
+                        cat(green(italic('Analyzing the simple effects of the factor ',names.fat[i])))
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat(fac.names[i])
+                        cat(names.fat[i])
                         if(mcomp=='tukey'){letra=TUKEY(resp,fatores[,i],anavaF3[9,1],anavaF3[9,3],alpha.t)
                         letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
                         if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
@@ -790,9 +815,9 @@ FAT3DBC=function(f1,
 
                     if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat('Analyzing the simple effects of the factor ',fac.names[3])
+                        cat('Analyzing the simple effects of the factor ',names.fat[3])
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat(fac.names[i])
+                        cat(names.fat[i])
                         grafico1=polynomial(resp, fatores[,i],grau=grau[i],
                                             DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=parse(text = xlab.factor[3]),point = point)[[1]]
                         cat(green("\nTo edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))}
@@ -801,10 +826,10 @@ FAT3DBC=function(f1,
 
     if(anavaF3[8,5]>alpha.f && anavaF3[6,5]<=alpha.f){
     cat(green(bold("\n------------------------------------------\n")))
-        cat(green(bold("Interaction",paste(fac.names[1],'*',fac.names[3],sep='')," significant: unfolding the interaction")))
+        cat(green(bold("Interaction",paste(names.fat[1],'*',names.fat[3],sep='')," significant: unfolding the interaction")))
     cat(green(bold("\n------------------------------------------")))
         cat(green(bold("\n------------------------------------------\n")))
-        cat("Analyzing ", fac.names[1], ' within the combination of levels ', fac.names[3])
+        cat("Analyzing ", names.fat[1], ' within the combination of levels ', names.fat[3])
         cat(green(bold("\n------------------------------------------\n")))
         des<-aov(resp~Fator3/Fator1+Fator2+Fator3+Fator2:Fator3+Fator1:Fator2:Fator3+bloco)
         l<-vector('list',nv3)
@@ -817,6 +842,14 @@ FAT3DBC=function(f1,
         }
         des1<-summary(des,split=list('Fator3:Fator1'=l))[[1]]
         des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+        #============================
+        rn<-numeric(0)
+        for (j in 1:nv3) {
+          rn <- c(rn, paste(paste(names.fat[1], ":", names.fat[3],
+                                  sep = ""), lf3[j]))
+        }
+        rownames(des1a)=rn
+        #============================
         print(des1a)
 
         if(quali[1]==TRUE & quali[3]==TRUE){
@@ -893,7 +926,7 @@ FAT3DBC=function(f1,
             letra=datag$letra}}
 
         cat(green(bold("\n------------------------------------------\n")))
-        cat("Analyzing ", fac.names[3], " inside of the level of ",fac.names[1])
+        cat("Analyzing ", names.fat[3], " inside of the level of ",names.fat[1])
         cat(green(bold("\n------------------------------------------\n")))
         des<-aov(resp~Fator1/Fator3+Fator1+Fator2+Fator2:Fator1+Fator1:Fator2:Fator3+bloco)
         l<-vector('list',nv1)
@@ -906,6 +939,14 @@ FAT3DBC=function(f1,
             }
         des1<-summary(des,split=list('Fator1:Fator3'=l))[[1]]
         des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+        #============================
+        rn<-numeric(0)
+        for (j in 1:nv1) {
+          rn <- c(rn, paste(paste(names.fat[3], ":", names.fat[1],
+                                  sep = ""), lf1[j]))
+        }
+        rownames(des1a)=rn
+        #============================
         print(des1a)
 
         if(quali[1]==TRUE & quali[3]==TRUE){
@@ -998,7 +1039,7 @@ FAT3DBC=function(f1,
             ylab(ylab)+
             xlab(xlab)+
             theme+
-            labs(fill=fac.names[1])+
+            labs(fill=names.fat[1])+
             geom_errorbar(aes(ymin=media-desvio,
                               ymax=media+desvio),
                           width=0.3,
@@ -1156,9 +1197,9 @@ FAT3DBC=function(f1,
                 {
                     if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat(green(italic('Analyzing the simple effects of the factor ',fac.names[i])))
+                        cat(green(italic('Analyzing the simple effects of the factor ',names.fat[i])))
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat(fac.names[i])
+                        cat(names.fat[i])
                         if(mcomp=='tukey'){letra=TUKEY(resp,fatores[,i],anavaF3[9,1],anavaF3[9,3],alpha.t)
                         letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
                         if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
@@ -1228,9 +1269,9 @@ FAT3DBC=function(f1,
 
                     if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat('Analyzing the simple effects of the factor ',fac.names[2])
+                        cat('Analyzing the simple effects of the factor ',names.fat[2])
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat(fac.names[i])
+                        cat(names.fat[i])
                         grafico2=polynomial(resp, fatores[,i],grau=grau[i],
                                             DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=parse(text = xlab.factor[2]),point = point)[[1]]
                         cat(green("\nTo edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
@@ -1243,10 +1284,10 @@ FAT3DBC=function(f1,
 
     if(anavaF3[8,5]>alpha.f && anavaF3[7,5]<=alpha.f){
         cat(green(bold("\n------------------------------------------\n")))
-        cat(green(bold("Interaction",paste(fac.names[2],'*',fac.names[3],sep='')," significant: unfolding the interaction")))
+        cat(green(bold("Interaction",paste(names.fat[2],'*',names.fat[3],sep='')," significant: unfolding the interaction")))
         cat(green(bold("\n------------------------------------------\n")))
         cat(green(bold("\n------------------------------------------\n")))
-        cat("Analyzing ", fac.names[2], ' within the combination of levels ', fac.names[3])
+        cat("Analyzing ", names.fat[2], ' within the combination of levels ', names.fat[3])
         cat("\n-------------------------------------------------\n")
         des<-aov(resp~Fator3/Fator2+Fator1+Fator3+Fator1:Fator3+Fator1:Fator2:Fator3+bloco)
         l<-vector('list',nv3)
@@ -1259,6 +1300,14 @@ FAT3DBC=function(f1,
         }
         des1<-summary(des,split=list('Fator3:Fator2'=l))[[1]]
         des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+        #============================
+        rn<-numeric(0)
+        for (j in 1:nv3) {
+          rn <- c(rn, paste(paste(names.fat[2], ":", names.fat[3],
+                                  sep = ""), lf3[j]))
+        }
+        rownames(des1a)=rn
+        #============================
         print(des1a)
 
         if(quali[2]==TRUE & quali[3]==TRUE){
@@ -1336,7 +1385,7 @@ FAT3DBC=function(f1,
                 letra=datag$letra}}
 
             cat(green(bold("\n------------------------------------------\n")))
-            cat("Analyzing ", fac.names[3], " inside of the level of ",fac.names[2])
+            cat("Analyzing ", names.fat[3], " inside of the level of ",names.fat[2])
             cat(green(bold("\n------------------------------------------\n")))
             cat("\n")
             des<-aov(resp~Fator2/Fator3+Fator1+Fator2+Fator1:Fator2+Fator1:Fator2:Fator3+bloco)
@@ -1350,6 +1399,14 @@ FAT3DBC=function(f1,
             }
             des1<-summary(des,split=list('Fator2:Fator3'=l))[[1]]
             des1a=des1[-c(1,2,3,4,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+            #============================
+            rn<-numeric(0)
+            for (j in 1:nv2) {
+              rn <- c(rn, paste(paste(names.fat[3], ":", names.fat[2],
+                                      sep = ""), lf2[j]))
+            }
+            rownames(des1a)=rn
+            #============================
             print(des1a)
 
             if(quali[2]==TRUE & quali[3]==TRUE){
@@ -1430,7 +1487,7 @@ FAT3DBC=function(f1,
                         geom_col(position = "dodge",color="black")+
                         ylab(ylab)+xlab(xlab)+
                         theme+
-                        labs(fill=fac.names[2])+
+                        labs(fill=names.fat[2])+
                         geom_errorbar(aes(ymin=media-desvio,
                                           ymax=media+desvio),
                                       width=0.3,position = position_dodge(width=0.9))+
@@ -1590,9 +1647,9 @@ FAT3DBC=function(f1,
                 {
                     if(quali[i]==TRUE && anavaF3[i,5]<=alpha.f) {
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat(green(italic('Analyzing the simple effects of the factor ',fac.names[i])))
+                        cat(green(italic('Analyzing the simple effects of the factor ',names.fat[i])))
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat(fac.names[i])
+                        cat(names.fat[i])
                         if(mcomp=='tukey'){letra=TUKEY(resp,fatores[,i],anavaF3[9,1],anavaF3[9,3],alpha.t)
                         letra1 <- letra$groups; colnames(letra1)=c("resp","groups")
                         if(transf !=1){letra1$respo=tapply(response,fatores[,i],mean, na.rm=TRUE)[rownames(letra1)]}}
@@ -1662,9 +1719,9 @@ FAT3DBC=function(f1,
 
                     if(quali[i]==FALSE && anavaF3[i,5]<=alpha.f){
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat('\nAnalyzing the simple effects of the factor ',fac.names[1],'\n')
+                        cat('\nAnalyzing the simple effects of the factor ',names.fat[1],'\n')
                         cat(green(bold("\n------------------------------------------\n")))
-                        cat(fac.names[i])
+                        cat(names.fat[i])
                         grafico3=polynomial(resp, fatores[,i],grau=grau[i],
                                             DFres= anavaF3[9,1],SSq = anavaF3[9,2],ylab=ylab,xlab=parse(text = xlab.factor[1]),point = point)[[1]]
                         cat(green("\nTo edit graphical parameters, I suggest analyzing using the \"polynomial\" command"))
@@ -1677,10 +1734,10 @@ FAT3DBC=function(f1,
 
     if(anavaF3[8,5]<=alpha.f){
         cat(green(bold("\n------------------------------------------\n")))
-        cat(green(bold("\nInteraction",paste(fac.names[1],'*',fac.names[2],'*',fac.names[3],sep='')," significant: unfolding the interaction\n")))
+        cat(green(bold("\nInteraction",paste(names.fat[1],'*',names.fat[2],'*',names.fat[3],sep='')," significant: unfolding the interaction\n")))
         cat(green(bold("\n------------------------------------------\n")))
         cat(green(bold("\n------------------------------------------\n")))
-        cat("Analyzing ", fac.names[1], ' within the combination of levels ', fac.names[2], 'and',fac.names[3])
+        cat("Analyzing ", names.fat[1], ' within the combination of levels ', names.fat[2], 'and',names.fat[3])
         cat(green(bold("\n------------------------------------------\n")))
 
         m1=aov(resp~(Fator2*Fator3)/Fator1+bloco)
@@ -1692,8 +1749,10 @@ FAT3DBC=function(f1,
         des1.tab <- summary(m1, split = list("Fator2:Fator3:Fator1" = des.tab))
         desd=des1.tab[[1]][-c(1,2,3,4,5),]
         desd=data.frame(desd[-length(rownames(desd)),])
-        rownames(desd)=cbind(paste("Fator2:",rep(levels(Fator2),length(levels(Fator3))),
-                                   "Fator3:",rep(levels(Fator3),e=length(levels(Fator2)))))
+        # rownames(desd)=cbind(paste("Fator2:",rep(levels(Fator2),length(levels(Fator3))),
+        #                            "Fator3:",rep(levels(Fator3),e=length(levels(Fator2)))))
+        rownames(desd)=cbind(paste(names.fat[2],":",rep(levels(Fator2),length(levels(Fator3))),
+                                   names.fat[3],":",rep(levels(Fator3),e=length(levels(Fator2)))))
         colnames(desd)=c("Df",  "Sum Sq", "Mean Sq", "F value", "Pr(>F)")
         print(desd)
 
@@ -1702,7 +1761,7 @@ FAT3DBC=function(f1,
             for(j in 1:nv3) {
                 ii<-ii+1
                 if(quali[1]==TRUE){
-                    cat('\n\n',fac.names[1],' inside of each level of ',lf2[i],' of ',fac.names[2],' and ',lf3[j],' of ',fac.names[3],"\n")
+                    cat('\n\n',names.fat[1],' inside of each level of ',lf2[i],' of ',names.fat[2],' and ',lf3[j],' of ',names.fat[3],"\n")
                     if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                                                       fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                                                       anavaF3[9,1],
@@ -1736,7 +1795,7 @@ FAT3DBC=function(f1,
                         levels(fat1)=1:length(levels(fat1))
                         resp1=resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]]
                         nrep=table(fat1)[1]
-                        medias=sort(tapply(respi,fat1,mean),decreasing = TRUE)
+                        medias=sort(tapply(resp1,fat1,mean),decreasing = TRUE)
                         sk=scottknott(means = medias,
                                       df1 = anavaF3$Df[9],
                                       nrep = nrep,
@@ -1750,7 +1809,7 @@ FAT3DBC=function(f1,
                     print(sk)}
                 }
                 if(quali[1]==FALSE){
-                    cat('\n',fac.names[1],' within the combination of levels ',lf2[i],' of  ',fac.names[2],' and ',lf3[j],' of  ',fac.names[3],"\n")
+                    cat('\n',names.fat[1],' within the combination of levels ',lf2[i],' of  ',names.fat[2],' and ',lf3[j],' of  ',names.fat[3],"\n")
                     polynomial(fatores[,1][Fator2==lf2[i] & Fator3==lf3[j]],
                                resp[fatores[,2]==lf2[i] & fatores[,3]==lf3[j]],
                                grau=grau123,
@@ -1761,7 +1820,7 @@ FAT3DBC=function(f1,
         cat('\n\n')
 
         cat("\n------------------------------------------\n")
-        cat("Analyzing ", fac.names[2], ' within the combination of levels ', fac.names[1], 'and',fac.names[3])
+        cat("Analyzing ", names.fat[2], ' within the combination of levels ', names.fat[1], 'and',names.fat[3])
         cat("\n------------------------------------------\n")
         m1=aov(resp~(Fator1*Fator3)/Fator2+bloco)
         anova(m1)
@@ -1772,8 +1831,10 @@ FAT3DBC=function(f1,
         des1.tab <- summary(m1, split = list("Fator1:Fator3:Fator2" = des.tab))
         desd=des1.tab[[1]][-c(1,2,3,4,5),]
         desd=data.frame(desd[-length(rownames(desd)),])
-        rownames(desd)=cbind(paste("Fator1:",rep(levels(Fator1),length(levels(Fator3))),
-                                   "Fator3:",rep(levels(Fator3),e=length(levels(Fator1)))))
+        # rownames(desd)=cbind(paste("Fator1:",rep(levels(Fator1),length(levels(Fator3))),
+        #                            "Fator3:",rep(levels(Fator3),e=length(levels(Fator1)))))
+        rownames(desd)=cbind(paste(names.fat[1],":",rep(levels(Fator1),length(levels(Fator3))),
+                                   names.fat[3],":",rep(levels(Fator3),e=length(levels(Fator1)))))
         colnames(desd)=c("Df",  "Sum Sq", "Mean Sq", "F value", "Pr(>F)")
         print(desd)
 
@@ -1782,7 +1843,7 @@ FAT3DBC=function(f1,
             for(j in 1:nv3) {
                 ii<-ii+1
                 if(quali[2]==TRUE){
-                    cat('\n\n',fac.names[2],' inside of each level of ',lf1[k],' of ',fac.names[1],' and ',lf3[j],' of ',fac.names[3],'\n')
+                    cat('\n\n',names.fat[2],' inside of each level of ',lf1[k],' of ',names.fat[1],' and ',lf3[j],' of ',names.fat[3],'\n')
                     if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                                                       fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                                                       anavaF3[9,1],
@@ -1817,7 +1878,7 @@ FAT3DBC=function(f1,
                         levels(fat1)=1:length(levels(fat1))
                         resp1=resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]]
                         nrep=table(fat1)[1]
-                        medias=sort(tapply(respi,fat1,mean),decreasing = TRUE)
+                        medias=sort(tapply(resp1,fat1,mean),decreasing = TRUE)
                         sk=scottknott(means = medias,
                                       df1 = anavaF3$Df[9],
                                       nrep = nrep,
@@ -1832,7 +1893,7 @@ FAT3DBC=function(f1,
 
                 }
                 if(quali[2]==FALSE){
-                    cat('\n\n',fac.names[2],' within the combination of levels ',lf1[k],' of  ',fac.names[1],' and ',lf3[j],' of  ',fac.names[3],'\n')
+                    cat('\n\n',names.fat[2],' within the combination of levels ',lf1[k],' of  ',names.fat[1],' and ',lf3[j],' of  ',names.fat[3],'\n')
                     polynomial(fatores[,2][Fator1==lf1[k] & fatores[,3]==lf3[j]],
                                resp[fatores[,1]==lf1[k] & fatores[,3]==lf3[j]],
                                grau=grau213,
@@ -1841,7 +1902,7 @@ FAT3DBC=function(f1,
         }
 
         cat(green(bold("\n------------------------------------------\n")))
-        cat("Analyzing ", fac.names[3], ' within the combination of levels ', fac.names[1], 'and',fac.names[2])
+        cat("Analyzing ", names.fat[3], ' within the combination of levels ', names.fat[1], 'and',names.fat[2])
         cat(green(bold("\n------------------------------------------\n")))
 
         m1=aov(resp~(Fator1*Fator2)/Fator3+bloco)
@@ -1853,8 +1914,10 @@ FAT3DBC=function(f1,
         des1.tab <- summary(m1, split = list("Fator1:Fator2:Fator3" = des.tab))
         desd=des1.tab[[1]][-c(1,2,3,4,5),]
         desd=data.frame(desd[-length(rownames(desd)),])
-        rownames(desd)=cbind(paste("Fator1:",rep(levels(Fator1),length(levels(Fator2))),
-                                   "Fator2:",rep(levels(Fator2),e=length(levels(Fator1)))))
+        # rownames(desd)=cbind(paste("Fator1:",rep(levels(Fator1),length(levels(Fator2))),
+        #                            "Fator2:",rep(levels(Fator2),e=length(levels(Fator1)))))
+        rownames(desd)=cbind(paste(names.fat[1],":",rep(levels(Fator1),length(levels(Fator2))),
+                                   names.fat[2],":",rep(levels(Fator2),e=length(levels(Fator1)))))
         colnames(desd)=c("Df",  "Sum Sq", "Mean Sq", "F value", "Pr(>F)")
         print(desd)
 
@@ -1863,7 +1926,7 @@ FAT3DBC=function(f1,
             for(i in 1:nv2) {
                 ii<-ii+1
                 if(quali[3]==TRUE){
-                    cat('\n\n',fac.names[3],' inside of each level of ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of ',fac.names[2],'\n')
+                    cat('\n\n',names.fat[3],' inside of each level of ',lf1[k],' of ',names.fat[1],' and ',lf2[i],' of ',names.fat[2],'\n')
                     if(mcomp=='tukey'){tukey=TUKEY(resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                                       fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                                       anavaF3[9,1],
@@ -1900,7 +1963,7 @@ FAT3DBC=function(f1,
                         levels(fat1)=1:length(levels(fat1))
                         resp1=resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]]
                         nrep=table(fat1)[1]
-                        medias=sort(tapply(respi,fat1,mean),decreasing = TRUE)
+                        medias=sort(tapply(resp1,fat1,mean),decreasing = TRUE)
                         sk=scottknott(means = medias,
                                       df1 = anavaF3$Df[9],
                                       nrep = nrep,
@@ -1917,7 +1980,7 @@ FAT3DBC=function(f1,
 
                 }
                 if(quali[3]==FALSE){
-                    cat('\n\n',fac.names[3],' inside of each level of ',lf1[k],' of ',fac.names[1],' and ',lf2[i],' of ',fac.names[2],'\n')
+                    cat('\n\n',names.fat[3],' inside of each level of ',lf1[k],' of ',names.fat[1],' and ',lf2[i],' of ',names.fat[2],'\n')
                     polynomial(fatores[,3][fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                resp[fatores[,1]==lf1[k] & fatores[,2]==lf2[i]],
                                grau=grau312,

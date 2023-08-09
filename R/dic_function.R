@@ -267,6 +267,7 @@ DIC <- function(trat,
     cat(green(bold("\n-----------------------------------------------------------------\n")))
     anava1=as.matrix(data.frame(anava))
     colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+    rownames(anava1)=c("Treatment","Residuals")
     print(anava1,na.print = "")
     cat("\n\n")
     message(if (a$`Pr(>F)`[1]<alpha.f){
@@ -435,23 +436,23 @@ DIC <- function(trat,
       p.adj <- match.arg(p.adj)
       junto <- subset(data.frame(y, trt), is.na(y) == FALSE)
       N <- nrow(junto)
-      medians<-mean.stat(junto[,1],junto[,2],stat="median")
+      medians<-mean_stat(junto[,1],junto[,2],stat="median")
       for(i in c(1,5,2:4)) {
-        x <- mean.stat(junto[,1],junto[,2],function(x)quantile(x)[i])
+        x <- mean_stat(junto[,1],junto[,2],function(x)quantile(x)[i])
         medians<-cbind(medians,x[,2])}
       medians<-medians[,3:7]
       names(medians)<-c("Min","Max","Q25","Q50","Q75")
-      Means <- mean.stat(junto[,1],junto[,2],stat="mean")
-      sds <-   mean.stat(junto[,1],junto[,2], stat="sd")
-      nn <-   mean.stat(junto[,1],junto[,2],stat="length")
+      Means <- mean_stat(junto[,1],junto[,2],stat="mean")
+      sds <-   mean_stat(junto[,1],junto[,2], stat="sd")
+      nn <-   mean_stat(junto[,1],junto[,2],stat="length")
       Means<-data.frame(Means,std=sds[,2],r=nn[,2],medians)
       rownames(Means)<-Means[,1]
       Means<-Means[,-1]
       names(Means)[1]<-name.y
       junto[, 1] <- rank(junto[, 1])
-      means <- mean.stat(junto[, 1], junto[, 2], stat = "sum")
-      sds <- mean.stat(junto[, 1], junto[, 2], stat = "sd")
-      nn <- mean.stat(junto[, 1], junto[, 2], stat = "length")
+      means <- mean_stat(junto[, 1], junto[, 2], stat = "sum")
+      sds <- mean_stat(junto[, 1], junto[, 2], stat = "sd")
+      nn <- mean_stat(junto[, 1], junto[, 2], stat = "length")
       means <- data.frame(means, r = nn[, 2])
       names(means)[1:2] <- c(name.t, name.y)
       ntr <- nrow(means)

@@ -1,3 +1,11 @@
+# AgroR 1.3.4
+
+* Fixed the following error: The Scott-Knott test failed when data are transformed for factorial and split-plot schemes.
+
+* As suggested by users, the `names.factor` argument was implemented to change the name of factors in the output of functions that encompass more than one factor
+
+* Fixed function summarise_anova in case of analysis using kruskal-wallis test
+
 # AgroR 1.3.3
 
 * Fixed residual graph bug for `FAT2DIC`, `FAT2DBC`, `PSUBDIC`, `PSUBDBC`, `FAT2DIC.ad`, `FAT2DBC.ad`, `FAT3DIC`, `FAT3DBC`, `FAT3DIC.ad`, `FAT3DBC .ad` when data is unsorted or ordered by block.

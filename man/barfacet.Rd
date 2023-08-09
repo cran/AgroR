@@ -12,7 +12,8 @@ barfacet(
   geom = "bar",
   fill = "lightblue",
   pointsize = 4.5,
-  width.bar = 0.15
+  width.bar = 0.15,
+  facet.background = "gray80"
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ barfacet(
 \item{pointsize}{Point size}
 
 \item{width.bar}{width of the error bars of a regression graph.}
+
+\item{facet.background}{Color background in facet}
 }
 \value{
 Returns a bar chart for one factor

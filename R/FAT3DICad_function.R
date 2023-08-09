@@ -255,6 +255,15 @@ FAT3DIC.ad = function(f1,
   cat(green(bold("\n------------------------------------------\n")))
   anava1=as.matrix(data.frame(anovaF3))
   colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+  rownames(anava1)=c(names.fat[1],
+                     names.fat[2],
+                     names.fat[3],
+                     paste(names.fat[1],"x",names.fat[2]),
+                     paste(names.fat[1],"x",names.fat[3]),
+                     paste(names.fat[2],"x",names.fat[3]),
+                     paste(names.fat[1],"x",names.fat[2],"x",names.fat[3]),
+                     "Factorial vs Aditional",
+                     "Residuals")
   print(anava1,na.print = "")
   cat("\n")
 
@@ -386,7 +395,7 @@ FAT3DIC.ad = function(f1,
         cat(green(bold("\n------------------------------------------\n")))
         cat(fac.names[i])
         cat(green(bold("\n------------------------------------------\n")))
-        mean.table<-mean.stat(response,fatores[,i],mean)
+        mean.table<-mean_stat(response,fatores[,i],mean)
         colnames(mean.table)<-c('Niveis','Medias')
         print(mean.table)
         grafico=NA}
@@ -428,6 +437,14 @@ FAT3DIC.ad = function(f1,
                          des1$Df[1:nrow(des1)-1],
                          des1$Df[nrow(des1)]),NA)
     des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+    #============================
+    rn<-numeric(0)
+    for (j in 1:nv2) {
+      rn <- c(rn, paste(paste(names.fat[1], ":", names.fat[2],
+                              sep = ""), lf2[j]))
+    }
+    rownames(des1a)=rn
+    #============================
     print(des1a)
 
     if(quali[1]==TRUE & quali[2]==TRUE){
@@ -497,7 +514,7 @@ FAT3DIC.ad = function(f1,
                         QME = anavaF3$`Mean Sq`[9],
                         alpha = alpha.t)
           sk=data.frame(respi=medias,groups=sk)
-          if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+          if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
           skgrafico[[i]]=sk[levels(trati),2]
           ordem[[i]]=rownames(sk[levels(trati),])
         }
@@ -525,6 +542,14 @@ FAT3DIC.ad = function(f1,
                          des1$Df[1:nrow(des1)-1],
                          des1$Df[nrow(des1)]),NA)
     des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+    #============================
+    rn<-numeric(0)
+    for (j in 1:nv1) {
+      rn <- c(rn, paste(paste(names.fat[2], ":", names.fat[1],
+                              sep = ""), lf1[j]))
+    }
+    rownames(des1a)=rn
+    #============================
     print(des1a)
 
     if(quali[1]==TRUE & quali[2]==TRUE){
@@ -743,7 +768,7 @@ FAT3DIC.ad = function(f1,
                           QME = anavaF3$`Mean Sq`[9],
                           alpha = alpha.t)
             sk=data.frame(respi=medias,groups=sk)
-            if(transf !="1"){sk$groups$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+            if(transf !="1"){sk$respo=tapply(respi,trati,mean, na.rm=TRUE)[rownames(sk)]}
             cat("\n----------------------\n")
             cat("Multiple comparison of F1 within level",lf2[i],"of F2")
             cat("\n----------------------\n")
@@ -879,6 +904,14 @@ FAT3DIC.ad = function(f1,
                          des1$Df[1:nrow(des1)-1],
                          des1$Df[nrow(des1)]),NA)
     des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+    #============================
+    rn<-numeric(0)
+    for (j in 1:nv3) {
+      rn <- c(rn, paste(paste(names.fat[1], ":", names.fat[3],
+                              sep = ""), lf3[j]))
+    }
+    rownames(des1a)=rn
+    #============================
     print(des1a)
 
     if(quali[1]==TRUE & quali[3]==TRUE){
@@ -973,6 +1006,14 @@ FAT3DIC.ad = function(f1,
                          des1$Df[1:nrow(des1)-1],
                          des1$Df[nrow(des1)]),NA)
     des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+    #============================
+    rn<-numeric(0)
+    for (j in 1:nv1) {
+      rn <- c(rn, paste(paste(names.fat[3], ":", names.fat[1],
+                              sep = ""), lf1[j]))
+    }
+    rownames(des1a)=rn
+    #============================
     print(des1a)
 
     if(quali[1]==TRUE & quali[3]==TRUE){
@@ -1334,6 +1375,14 @@ FAT3DIC.ad = function(f1,
                          des1$Df[1:nrow(des1)-1],
                          des1$Df[nrow(des1)]),NA)
     des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+    #============================
+    rn<-numeric(0)
+    for (j in 1:nv3) {
+      rn <- c(rn, paste(paste(names.fat[2], ":", names.fat[3],
+                              sep = ""), lf3[j]))
+    }
+    rownames(des1a)=rn
+    #============================
     print(des1a)
 
     if(quali[2]==TRUE & quali[3]==TRUE){
@@ -1430,6 +1479,14 @@ FAT3DIC.ad = function(f1,
                          des1$Df[1:nrow(des1)-1],
                          des1$Df[nrow(des1)]),NA)
     des1a=des1[-c(1,2,3,length(des1[,1]),length(des1[,1])-1,length(des1[,1])-2),]
+    #============================
+    rn<-numeric(0)
+    for (j in 1:nv2) {
+      rn <- c(rn, paste(paste(names.fat[3], ":", names.fat[2],
+                              sep = ""), lf2[j]))
+    }
+    rownames(des1a)=rn
+    #============================
     print(des1a)
 
     if(quali[2]==TRUE & quali[3]==TRUE){
@@ -1781,8 +1838,10 @@ FAT3DIC.ad = function(f1,
                                   des1.tab[[1]]$Df[nrow(des1.tab[[1]])]),NA)
     desd=des1.tab[[1]][-c(1,2,3,4),]
     desd=data.frame(desd[-length(rownames(desd)),])
-    rownames(desd)=cbind(paste("Fator2:",rep(levels(Fator2),length(levels(Fator3))),
-                               "Fator3:",rep(levels(Fator3),e=length(levels(Fator2)))))
+    # rownames(desd)=cbind(paste("Fator2:",rep(levels(Fator2),length(levels(Fator3))),
+    #                            "Fator3:",rep(levels(Fator3),e=length(levels(Fator2)))))
+    rownames(desd)=cbind(paste(names.fat[2],":",rep(levels(Fator2),length(levels(Fator3))),
+                               names.fat[3],":",rep(levels(Fator3),e=length(levels(Fator2)))))
     colnames(desd)=c("Df",  "Sum Sq", "Mean Sq", "F value", "Pr(>F)")
     print(desd)
 
@@ -1868,8 +1927,10 @@ FAT3DIC.ad = function(f1,
 
     desd=des1.tab[[1]][-c(1,2,3,4),]
     desd=data.frame(desd[-length(rownames(desd)),])
-    rownames(desd)=cbind(paste("Fator1:",rep(levels(Fator1),length(levels(Fator3))),
-                               "Fator3:",rep(levels(Fator3),e=length(levels(Fator1)))))
+    # rownames(desd)=cbind(paste("Fator1:",rep(levels(Fator1),length(levels(Fator3))),
+    #                            "Fator3:",rep(levels(Fator3),e=length(levels(Fator1)))))
+    rownames(desd)=cbind(paste(names.fat[1],":",rep(levels(Fator1),length(levels(Fator3))),
+                               names.fat[3],":",rep(levels(Fator3),e=length(levels(Fator1)))))
     colnames(desd)=c("Df",  "Sum Sq", "Mean Sq", "F value", "Pr(>F)")
     print(desd)
 
@@ -1955,8 +2016,10 @@ FAT3DIC.ad = function(f1,
                                   des1.tab[[1]]$Df[nrow(des1.tab[[1]])]),NA)
     desd=des1.tab[[1]][-c(1,2,3,4),]
     desd=data.frame(desd[-length(rownames(desd)),])
-    rownames(desd)=cbind(paste("Fator1:",rep(levels(Fator1),length(levels(Fator2))),
-                               "Fator2:",rep(levels(Fator2),e=length(levels(Fator1)))))
+    # rownames(desd)=cbind(paste("Fator1:",rep(levels(Fator1),length(levels(Fator2))),
+    #                            "Fator2:",rep(levels(Fator2),e=length(levels(Fator1)))))
+    rownames(desd)=cbind(paste(names.fat[1],":",rep(levels(Fator1),length(levels(Fator2))),
+                               names.fat[2],":",rep(levels(Fator2),e=length(levels(Fator1)))))
     colnames(desd)=c("Df",  "Sum Sq", "Mean Sq", "F value", "Pr(>F)")
     print(desd)
 

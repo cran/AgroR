@@ -76,7 +76,7 @@ dunnett=function(trat,
     mod=aov(resp~trat1+block)}
   if(model=="DQL"){
     column=as.factor(column)
-    lines=as.factor(lines)
+    line=as.factor(line)
     mod=aov(resp~trat1+column+line)}
   requireNamespace("multcomp")
   dados=data.frame(trat1,resp)

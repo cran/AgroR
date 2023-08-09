@@ -179,7 +179,7 @@ PSUBSUBDBC=function(f1,
       if(pvalor[i]>alpha.f) {
         cat(fac.names[i])
         cat(green(bold("\n------------------------------------------\n")))
-        mean.table<-mean.stat(response,fatores[,i],mean)
+        mean.table<-mean_stat(response,fatores[,i],mean)
         colnames(mean.table)<-c('Levels','Mean')
         print(mean.table)
         grafico=NA

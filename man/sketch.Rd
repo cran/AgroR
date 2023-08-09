@@ -13,6 +13,7 @@ sketch(
   pos = "line",
   color.sep = "all",
   ID = FALSE,
+  print.ID = TRUE,
   add.streets.y = NA,
   add.streets.x = NA,
   label.x = "",
@@ -40,6 +41,8 @@ sketch(
 \item{color.sep}{Color box}
 
 \item{ID}{plot Add only identification in sketch}
+
+\item{print.ID}{Print table ID}
 
 \item{add.streets.y}{Adds streets by separating treatments in row or column. The user must supply a numeric vector grouping the rows or columns that must be together. See the example.}
 
@@ -106,7 +109,7 @@ Trat=paste("Tr",1:6)
 sketch(Trat,r=3)
 sketch(Trat,r=3,pos="column")
 sketch(Trat,r=3,color.sep="none")
-sketch(Trat,r=3,color.sep="none",ID=TRUE)
+sketch(Trat,r=3,color.sep="none",ID=TRUE,print.ID=TRUE)
 sketch(Trat,r=3,pos="column",add.streets.x=c(1,1,2,2,3,3))
 
 #=============================
@@ -115,6 +118,9 @@ sketch(Trat,r=3,pos="column",add.streets.x=c(1,1,2,2,3,3))
 sketch(Trat, r=3, design="DBC")
 sketch(Trat, r=3, design="DBC",pos="column")
 sketch(Trat, r=3, design="DBC",pos="column",add.streets.x=c(1,1,2))
+sketch(Trat, r=3, design="DBC",pos="column",add.streets.x=c(1,2,3), add.streets.y=1:6)
+sketch(Trat, r=3, design="DBC",pos="line",add.streets.y=c(1,2,3), add.streets.x=1:6)
+
 #=============================
 # Completely randomized experiments in double factorial
 #=============================

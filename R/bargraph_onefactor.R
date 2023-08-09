@@ -7,7 +7,8 @@
 #' @param ocult.box Hide box
 #' @param facet.size Font size facets
 #' @param ylab Y-axis name
-#' @param width.bar Width bar
+#' @param width.bar Width error bar
+#' @param width.col Width Column
 #' @param sup Number of units above the standard deviation or average bar on the graph
 #'
 #' @return Returns a column chart grouped by facets
@@ -28,6 +29,7 @@ bargraph_onefactor=function(analysis,
                             facet.size=14,
                             ylab=NULL,
                             width.bar=0.3,
+                            width.col=0.9,
                             sup=NULL){
   requireNamespace("ggplot2")
   results=as.list(1:length(analysis))
@@ -43,7 +45,7 @@ bargraph_onefactor=function(analysis,
   trats=tabela$trats
   letra=tabela$letra
   graph=ggplot(tabela,aes(y=media,x=trats))+
-    geom_col(color="black",fill="lightblue")+
+    geom_col(color="black",fill="lightblue",width = width.col)+
     facet_grid(~facet,scales = "free", space='free')+
     geom_errorbar(aes(ymin=media-desvio,ymax=media+desvio),width=width.bar)+
     geom_text(aes(y=media+desvio+sup,x=trats,label=letra))+xlab("")+

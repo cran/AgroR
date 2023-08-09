@@ -217,7 +217,8 @@ DBCT=function(trat,
       cv[[i]]=sqrt(anova(mod)$`Mean Sq`[3])/mean(mod$model$resp)*100
       nrep=with(dados[dados$time==levels(dados$time)[i],], table(trat)[1])
       ao=anova(mod)
-      medias=sort(tapply(resp,trat,mean),decreasing = TRUE)
+      medias=with(dados[dados$time==levels(dados$time)[i],],
+                  sort(tapply(resp,trat,mean),decreasing = TRUE))
       letra=scottknott(means = medias,
                        df1 = ao$Df[3],
                        nrep = nrep,
@@ -264,15 +265,15 @@ DBCT=function(trat,
       }
       vv<-as.numeric(v)
       junto <- data.frame(evaluation, trt)
-      medians<-mean.stat(junto[,1],junto[,2],stat="median")
+      medians<-mean_stat(junto[,1],junto[,2],stat="median")
       for(i in c(1,5,2:4)) {
-        x <- mean.stat(junto[,1],junto[,2],function(x)quantile(x)[i])
+        x <- mean_stat(junto[,1],junto[,2],function(x)quantile(x)[i])
         medians<-cbind(medians,x[,2])}
       medians<-medians[,3:7]
       names(medians)<-c("Min","Max","Q25","Q50","Q75")
-      Means <- mean.stat(junto[,1],junto[,2],stat="mean")
-      sds <-   mean.stat(junto[,1],junto[,2],stat="sd")
-      nn <-   mean.stat(junto[,1],junto[,2],stat="length")
+      Means <- mean_stat(junto[,1],junto[,2],stat="mean")
+      sds <-   mean_stat(junto[,1],junto[,2],stat="sd")
+      nn <-   mean_stat(junto[,1],junto[,2],stat="length")
       nr<-unique(nn[,2])
       s<-array(0,m[2])
       for (j in 1:m[2]){

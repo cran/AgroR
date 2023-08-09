@@ -45,6 +45,13 @@ c=DIC(trat, AT, geom = "point", ylab = "AT")
 summarise_anova(analysis = list(a,b,c), divisor = TRUE)
 library(knitr)
 kable(summarise_anova(analysis = list(a,b,c), divisor = FALSE))
+
+#=====================================
+vari=c("WL","SS","AT")
+output=lapply(vari,function(x){
+output=DIC(trat,response = unlist(pomegranate[,x]),ylab = parse(text=x))})
+summarise_anova(analysis = output, divisor = TRUE)
+
 #=====================================
 # DBC
 #=====================================

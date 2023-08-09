@@ -15,6 +15,7 @@ FAT2DBC.ad(
   alpha.f = 0.05,
   alpha.t = 0.05,
   quali = c(TRUE, TRUE),
+  names.fat = c("F1", "F2"),
   mcomp = "tukey",
   grau = c(NA, NA),
   grau12 = NA,
@@ -67,6 +68,8 @@ FAT2DBC.ad(
 \item{alpha.t}{Significance level of the multiple comparison test (\emph{default} is 0.05)}
 
 \item{quali}{Defines whether the factor is quantitative or qualitative (\emph{qualitative})}
+
+\item{names.fat}{Name of factors}
 
 \item{mcomp}{Multiple comparison test (Tukey (\emph{default}), LSD and Duncan)}
 

@@ -209,7 +209,9 @@ DBC.glm=function(trat,
                    Letters=letters,reversed=TRUE)
       rownames(letra)=letra$trat
       letra=letra[unique(as.character(trat)),]
-      print(letra[,-4])
+      out=letra[,-4]
+      out[,c(2,3,4,5)]=round(out[,c(2,3,4,5)],2)
+      print(out)
       rate=letra$rate
       superior=letra$asymp.UCL
       inferior=letra$asymp.LCL

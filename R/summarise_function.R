@@ -28,6 +28,13 @@
 #' summarise_anova(analysis = list(a,b,c), divisor = TRUE)
 #' library(knitr)
 #' kable(summarise_anova(analysis = list(a,b,c), divisor = FALSE))
+#'
+#' #=====================================
+#' vari=c("WL","SS","AT")
+#' output=lapply(vari,function(x){
+#' output=DIC(trat,response = unlist(pomegranate[,x]),ylab = parse(text=x))})
+#' summarise_anova(analysis = output, divisor = TRUE)
+#'
 #' #=====================================
 #' # DBC
 #' #=====================================
@@ -121,7 +128,7 @@ summarise_anova=function(analysis,
       infor1[,i]=ifelse(pvalor<0.001,"p<0.001",pvalor)}
       if(tests=="noparametric"){
         variable[i]=analysis[[i]][[1]]$plot$ylab
-        pvalor=round(analysis[[i]][[1]]$plot$krusk$statistics[3][[1]],round)
+        pvalor=round(analysis[[i]][[1]]$plot$krusk$statistics[2],round)
         infor1[,i]=ifelse(pvalor<0.001,"p<0.001",pvalor)}}
 
     names(infor1)=variable
@@ -581,7 +588,7 @@ summarise_anova=function(analysis,
       variable[i]=analysis[[i]][[1]]$plot$ylab
       infor2[,i]=round(analysis[[i]][[1]]$plot$anava[1:nc,n],round)}
     names(infor2)=variable
-    rownames(infor2)=c("f_F1","f_F2","p_bl","f_F1xF2")
+    rownames(infor2)=c("f_F1","f_F2","f_bl","f_F1xF2")
 
     n=3
     nc=5
@@ -591,7 +598,7 @@ summarise_anova=function(analysis,
       variable[i]=analysis[[i]][[1]]$plot$ylab
       infor3[,i]=round(analysis[[i]][[1]]$plot$anava[1:nc,n],round)}
     names(infor3)=variable
-    rownames(infor3)=c("QM_F1","QM_F2","p_bl","QM_F1xF2","QM_r")
+    rownames(infor3)=c("QM_F1","QM_F2","QM_bl","QM_F1xF2","QM_r")
 
     n=2
     nc=5
@@ -601,7 +608,7 @@ summarise_anova=function(analysis,
       variable[i]=analysis[[i]][[1]]$plot$ylab
       infor4[,i]=round(analysis[[i]][[1]]$plot$anava[1:nc,n],round)}
     names(infor4)=variable
-    rownames(infor4)=c("SQ_F1","SQ_F2","p_bl","SQ_F1xF2","SQ_r")
+    rownames(infor4)=c("SQ_F1","SQ_F2","SQ_bl","SQ_F1xF2","SQ_r")
 
     variable=1:length(analysis)
     nf1=analysis[[1]][[1]]$plot$anava[1,1]+1
@@ -918,7 +925,7 @@ summarise_anova=function(analysis,
       variable[i]=analysis[[i]][[1]]$plot$ylab
       infor2[,i]=round(analysis[[i]][[1]]$plot$anava[1:nc,n],round)}
     names(infor2)=variable
-    rownames(infor2)=c("f_F1","f_F2","p_bl","f_F1xF2","f_Fat x Ad")
+    rownames(infor2)=c("f_F1","f_F2","f_bl","f_F1xF2","f_Fat x Ad")
 
     n=3
     nc=6
@@ -928,7 +935,7 @@ summarise_anova=function(analysis,
       variable[i]=analysis[[i]][[1]]$plot$ylab
       infor3[,i]=round(analysis[[i]][[1]]$plot$anava[1:nc,n],round)}
     names(infor3)=variable
-    rownames(infor3)=c("QM_F1","QM_F2","p_bl","QM_F1xF2","QM_Fat x Ad","QM_r")
+    rownames(infor3)=c("QM_F1","QM_F2","SQ_bl","QM_F1xF2","QM_Fat x Ad","QM_r")
 
     n=2
     nc=6
@@ -938,7 +945,7 @@ summarise_anova=function(analysis,
       variable[i]=analysis[[i]][[1]]$plot$ylab
       infor4[,i]=round(analysis[[i]][[1]]$plot$anava[1:nc,n],round)}
     names(infor4)=variable
-    rownames(infor4)=c("SQ_F1","SQ_F2","p_bl","SQ_F1xF2","SQ_Fat x Ad","SQ_r")
+    rownames(infor4)=c("SQ_F1","SQ_F2","SQ_bl","SQ_F1xF2","SQ_Fat x Ad","SQ_r")
 
     variable=1:length(analysis)
     nf1=analysis[[1]][[1]]$plot$anava[1,1]+1

@@ -14,6 +14,7 @@
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
+#' @param names.fat Name of factors
 #' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with three elements.
 #' @param grau12 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 2, in the case of interaction f1 x f2 and qualitative factor 2 and quantitative factor 1.
 #' @param grau21 Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with n levels of factor 1, in the case of interaction f1 x f2 and qualitative factor 1 and quantitative factor 2.
@@ -78,6 +79,7 @@ PSUBDIC=function(f1,
                  alpha.f=0.05,
                  alpha.t=0.05,
                  quali=c(TRUE,TRUE),
+                 names.fat=c("F1","F2"),
                  mcomp = "tukey",
                  grau=c(NA,NA),
                  grau12=NA, # F1/F2
@@ -497,6 +499,12 @@ PSUBDIC=function(f1,
         tab.f1f2 <- round(tab.f1f2, 6)
         tab.f1f2[nv2 + 1, 2] <- tab.f1f2[nv2 + 1, 3] * tab.f1f2[nv2 + 1, 1]
         tab.f1f2[nv2 + 1, 5] <- tab.f1f2[nv2 + 1, 4] <- ""
+        rn<-numeric(0)
+        for (j in 1:nv2) {
+          rn <- c(rn, paste(paste(names.fat[1], ":", names.fat[2],
+                                  sep = ""), lf2[j]))
+        }
+        rownames(tab.f1f2)=c(rn,"Combined error")
         print(tab.f1f2)
         desdobramento1=tab.f1f2
         #-------------------------------------
@@ -572,7 +580,7 @@ PSUBDIC=function(f1,
                     #              num(tab.f1f2[nv2+1,1]),
                     #              num(tab.f1f2[nv2+1,2]),alpha.t)
                     if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
-                                                     trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+                                                     trati,mean, na.rm=TRUE)[rownames(sk)]}
                     skgrafico[[i]]=sk[levels(trati),2]
                     ordem[[i]]=rownames(sk[levels(trati),])
                 }
@@ -612,6 +620,12 @@ PSUBDIC=function(f1,
         rownames(tab.f2f1) <- nome.f2f1
         tab.f2f1 <- round(tab.f2f1, 6)
         tab.f2f1[nv1 + 1, 5] <- tab.f2f1[nv1 + 1, 4] <- ""
+        rn<-numeric(0)
+        for (i in 1:nv1) {
+          rn <- c(rn, paste(paste(names.fat[2], ":", names.fat[1],
+                                  sep = ""), lf1[i]))
+        }
+        rownames(tab.f2f1)=c(rn,"Error b")
         print(tab.f2f1)
         desdobramento2=tab.f2f1
         #-------------------------------------
@@ -814,7 +828,7 @@ PSUBDIC=function(f1,
                         #              num(tab.f2f1[nv1+1,1]),
                         #              num(tab.f2f1[nv1+1,2]),alpha.t)
                         if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
-                                                         trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+                                                         trati,mean, na.rm=TRUE)[rownames(sk)]}
                         cat("\n----------------------\n")
                         cat("Multiple comparison of F1 within level",lf2[i],"of F2")
                         cat("\n----------------------\n")
@@ -835,8 +849,8 @@ PSUBDIC=function(f1,
                                     ylim=ylim,
                                     textsize=textsize,
                                     family=family,
-                                    DFres = num(tab.f1f2[nv2+1,1]),
-                                    SSq = num(tab.f1f2[nv2+1,2]))
+                                    DFres = num(tab.f2f1[nv1+1,1]),
+                                    SSq = num(tab.f2f1[nv1+1,2]))
                 if(quali[1]==FALSE & quali[2]==FALSE){
                     graf=list(grafico,NA)}
                 }
@@ -926,8 +940,8 @@ PSUBDIC=function(f1,
                                     ylim=ylim,
                                     textsize=textsize,
                                     family=family,
-                                    DFres = num(tab.f2f1[nv1+1,1]),
-                                    SSq = num(tab.f2f1[nv1+1,2]))
+                                    DFres = num(tab.f1f2[nv2+1,1]),
+                                    SSq = num(tab.f1f2[nv2+1,2]))
                 if(quali[1]==FALSE & quali[2]==FALSE){
                     graf[[2]]=grafico
                     grafico=graf}
@@ -986,7 +1000,7 @@ PSUBDIC=function(f1,
                         #              num(tab.f1f2[nv2+1,1]),
                         #              num(tab.f1f2[nv2+1,2]),alpha.t)
                         if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
-                                                         trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+                                                         trati,mean, na.rm=TRUE)[rownames(sk)]}
                         cat("\n----------------------\n")
                         cat("Multiple comparison of F1 within level",lf2[i],"of F2")
                         cat("\n----------------------\n")
@@ -1006,8 +1020,8 @@ PSUBDIC=function(f1,
                                           ylim=ylim,
                                           textsize=textsize,
                                           family=family,
-                                          DFres = num(tab.f1f2[nv2 +1, 1]),
-                                          SSq = num(tab.f1f2[nv2 + 1, 2]))
+                                          DFres = num(tab.f2f1[nv1 +1, 1]),
+                                          SSq = num(tab.f2f1[nv1 + 1, 2]))
             if(quali[1]==FALSE & quali[2]==FALSE){
                     graf=list(grafico,NA)}
             }
@@ -1098,8 +1112,8 @@ PSUBDIC=function(f1,
                                           ylim=ylim,
                                           textsize=textsize,
                                           family=family,
-                                          DFres = num(tab.f2f1[nv1 +1, 1]),
-                                          SSq = num(tab.f2f1[nv1 + 1, 2]))
+                                          DFres = num(tab.f1f2[nv2 +1, 1]),
+                                          SSq = num(tab.f1f2[nv2 + 1, 2]))
                 if(quali[1]==FALSE & quali[2]==FALSE){
                     graf[[2]]=grafico
                     grafico=graf}

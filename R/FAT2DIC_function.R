@@ -10,6 +10,7 @@
 #' @param homog Homogeneity test of variances (\emph{default} is Bartlett)
 #' @param mcomp Multiple comparison test (Tukey (\emph{default}), LSD, Scott-Knott and Duncan)
 #' @param quali Defines whether the factor is quantitative or qualitative (\emph{qualitative})
+#' @param names.fat Name of factors
 #' @param alpha.f Level of significance of the F test (\emph{default} is 0.05)
 #' @param alpha.t Significance level of the multiple comparison test (\emph{default} is 0.05)
 #' @param grau Polynomial degree in case of quantitative factor (\emph{default} is 1). Provide a vector with two elements.
@@ -94,6 +95,7 @@ FAT2DIC=function(f1,
                  alpha.f=0.05,
                  alpha.t=0.05,
                  quali=c(TRUE,TRUE),
+                 names.fat=c("F1", "F2"),
                  mcomp="tukey",
                  grau=c(NA,NA),
                  grau12=NA, # F1/F2
@@ -159,7 +161,7 @@ FAT2DIC=function(f1,
   nv2 <- length(summary(Fator2))
   lf1 <- levels(Fator1)
   lf2 <- levels(Fator2)
-  fac.names = c("F1", "F2")
+  # fac.names = c("F1", "F2")
   fatores <- data.frame(Fator1, Fator2)
   graph=data.frame(Fator1,Fator2,resp)
 
@@ -262,6 +264,8 @@ FAT2DIC=function(f1,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   anava1=as.matrix(data.frame(anava))
   colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
+  rownames(anava1)=c(names.fat[1],names.fat[2],
+                     paste(names.fat[1],"x",names.fat[2]),"Residuals")
   print(anava1,na.print = "")
   cat("\n")
 
@@ -281,7 +285,7 @@ FAT2DIC=function(f1,
 
     for (i in 1:2) {if (a$`Pr(>F)`[i] <= alpha.f)
     {cat(green(bold("\n-----------------------------------------------------------------\n")))
-      cat(bold(fac.names[i]))
+      cat(bold(names.fat[i]))
       cat(green(bold("\n-----------------------------------------------------------------\n")))
       if(quali[i]==TRUE){
         if(mcomp=="tukey"){
@@ -441,7 +445,7 @@ FAT2DIC=function(f1,
       cat(green(bold("Significant interaction: analyzing the interaction")))
       cat(green(bold("\n-----------------------------------------------------------------\n")))
       cat("\n-----------------------------------------------------------------\n")
-      cat("Analyzing ", fac.names[1], " inside of each level of ",fac.names[2])
+      cat("Analyzing ", names.fat[1], " inside of each level of ",names.fat[2])
       cat("\n-----------------------------------------------------------------\n")
       cat("\n")
       des1<-aov(resp~Fator2/Fator1)
@@ -454,7 +458,15 @@ FAT2DIC=function(f1,
         l1[[j]]<-v
         v<-numeric(0)
       }
+      rn<-numeric(0)
+      for (j in 1:nv2) {
+        rn <- c(rn, paste(paste(names.fat[1], ":", names.fat[2],
+                                sep = ""), lf2[j]))
+      }
       des1.tab<-summary(des1,split=list('Fator2:Fator1'=l1))[[1]]
+      rownames(des1.tab)=c(names.fat[2],
+                           paste(names.fat[1],"x",names.fat[2],"+",names.fat[1]),
+                           paste("  ",rn),"Residuals")
       print(des1.tab)
       desdobramento1=des1.tab
 
@@ -526,7 +538,7 @@ FAT2DIC=function(f1,
                              alpha = alpha.t)
             sk=data.frame(respi=medias,groups=sk)
             if(transf !="1"){sk$respo=tapply(response[Fator2 == lf2[i]],
-                                             trati,mean, na.rm=TRUE)[rownames(sk$groups)]}
+                                             trati,mean, na.rm=TRUE)[rownames(sk)]}
             skgrafico[[i]]=sk[levels(trati),2]
             ordem[[i]]=rownames(sk[levels(trati),])
           }
@@ -538,7 +550,7 @@ FAT2DIC=function(f1,
       }
 
       cat("\n-----------------------------------------------------------------\n")
-      cat("Analyzing ", fac.names[2], " inside of the level of ",fac.names[1])
+      cat("Analyzing ", names.fat[2], " inside of the level of ",names.fat[1])
       cat("\n-----------------------------------------------------------------\n")
       cat("\n")
       des1<-aov(resp~Fator1/Fator2)
@@ -551,7 +563,17 @@ FAT2DIC=function(f1,
         l1[[j]]<-v
         v<-numeric(0)
       }
+      rn<-numeric(0)
+      for (i in 1:nv1) {
+        rn <- c(rn, paste(paste(names.fat[2], ":", names.fat[1],
+                                sep = ""), lf1[i]))
+      }
+
       des1.tab<-summary(des1,split=list('Fator1:Fator2'=l1))[[1]]
+      rownames(des1.tab)=c(names.fat[1],
+                           paste(names.fat[1],"x",names.fat[2],"+",names.fat[2]),
+                           paste("  ",rn),"Residuals")
+
       print(des1.tab)
       desdobramento2=des1.tab
 

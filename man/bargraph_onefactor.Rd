@@ -12,6 +12,7 @@ bargraph_onefactor(
   facet.size = 14,
   ylab = NULL,
   width.bar = 0.3,
+  width.col = 0.9,
   sup = NULL
 )
 }
@@ -28,7 +29,9 @@ bargraph_onefactor(
 
 \item{ylab}{Y-axis name}
 
-\item{width.bar}{Width bar}
+\item{width.bar}{Width error bar}
+
+\item{width.col}{Width Column}
 
 \item{sup}{Number of units above the standard deviation or average bar on the graph}
 }

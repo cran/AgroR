@@ -8,6 +8,8 @@
 #' @param var_name Name of the variable
 #' @param fill_color Bar fill color
 #' @param legend.title Legend title
+#' @param width.bar Width error bar
+#' @param width.col Width Column
 #' @seealso \link{radargraph}, \link{sk_graph}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}
 #' @return The function returns a column chart with two positive sides
 #' @note When there is only an effect of the isolated factor in the case of factorial or subdivided plots, it is possible to use the barplot_positive function.
@@ -25,7 +27,9 @@ barplot_positive=function(a,
                           var_name=c("Var1","Var2"),
                           legend.title="Variable",
                           fill_color=c("darkgreen",
-                                       "brown")){
+                                       "brown"),
+                          width.col=0.9,
+                          width.bar=0.2){
   requireNamespace("ggplot2")
   dataA=a[[1]]$data
   dataB=b[[1]]$data
@@ -50,10 +54,10 @@ barplot_positive=function(a,
   ggplot(data,aes(x=trats,
                   y=media,
                   fill=vari))+
-    geom_col(color="black")+
+    geom_col(color="black",width = width.col)+
     geom_errorbar(aes(ymin=media-desvio,
                       ymax=media+desvio),
-                  width=0.2)+
+                  width=width.bar)+
     scale_y_continuous(breaks = pretty(media*1.5),
                        labels = abs(pretty(media*1.5)))+
     theme_classic()+xlab("")+ylab(ylab)+

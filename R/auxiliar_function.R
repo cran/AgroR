@@ -2,7 +2,7 @@
 # algumas sao do pacote agricolae
 # Mendiburu, F., and de Mendiburu, M. F. (2019). Package ‘agricolae’. R Package, Version, 1-2.
 
-mean.stat <-
+mean_stat <-
   function (y, x, stat = "mean")
   {k<-0
     numerico<- NULL
@@ -194,16 +194,16 @@ duncan <- function(y,
     junto <- subset(data.frame(y, trt), is.na(y) == FALSE)
     Mean<-mean(junto[,1])
     CV<-sqrt(MSerror)*100/Mean
-    medians<-mean.stat(junto[,1],junto[,2],stat="median")
+    medians<-mean_stat(junto[,1],junto[,2],stat="median")
     for(i in c(1,5,2:4)) {
-      x <- mean.stat(junto[,1],junto[,2],function(x)quantile(x)[i])
+      x <- mean_stat(junto[,1],junto[,2],function(x)quantile(x)[i])
       medians<-cbind(medians,x[,2])
     }
     medians<-medians[,3:7]
     names(medians)<-c("Min","Max","Q25","Q50","Q75")
-    means <- mean.stat(junto[,1],junto[,2],stat="mean") # change
-    sds <-   mean.stat(junto[,1],junto[,2],stat="sd") #change
-    nn <-   mean.stat(junto[,1],junto[,2],stat="length") # change
+    means <- mean_stat(junto[,1],junto[,2],stat="mean") # change
+    sds <-   mean_stat(junto[,1],junto[,2],stat="sd") #change
+    nn <-   mean_stat(junto[,1],junto[,2],stat="length") # change
     means<-data.frame(means,std=sds[,2],r=nn[,2],medians)
     names(means)[1:2]<-c(name.t,name.y)
     ntr<-nrow(means)
@@ -343,16 +343,16 @@ TUKEY <- function(y, trt, DFerror,
     junto <- subset(data.frame(y, trt), is.na(y) == FALSE)
     Mean<-mean(junto[,1])
     CV<-sqrt(MSerror)*100/Mean
-    medians<-mean.stat(junto[,1],junto[,2],stat="median")
+    medians<-mean_stat(junto[,1],junto[,2],stat="median")
     for(i in c(1,5,2:4)) {
-      x <- mean.stat(junto[,1],junto[,2],function(x)quantile(x)[i])
+      x <- mean_stat(junto[,1],junto[,2],function(x)quantile(x)[i])
       medians<-cbind(medians,x[,2])
     }
     medians<-medians[,3:7]
     names(medians)<-c("Min","Max","Q25","Q50","Q75")
-    means <- mean.stat(junto[,1],junto[,2],stat="mean")
-    sds <-   mean.stat(junto[,1],junto[,2],stat="sd")
-    nn <-   mean.stat(junto[,1],junto[,2],stat="length")
+    means <- mean_stat(junto[,1],junto[,2],stat="mean")
+    sds <-   mean_stat(junto[,1],junto[,2],stat="sd")
+    nn <-   mean_stat(junto[,1],junto[,2],stat="length")
     means<-data.frame(means,std=sds[,2],r=nn[,2],medians)
     names(means)[1:2]<-c(name.t,name.y)
     ntr<-nrow(means)
@@ -479,15 +479,15 @@ LSD = function(y,
   junto <- subset(data.frame(y, trt), is.na(y) == FALSE)
   Mean<-mean(junto[,1])
   CV<-sqrt(MSerror)*100/Mean
-  medians<-mean.stat(junto[,1],junto[,2],stat="median")
+  medians<-mean_stat(junto[,1],junto[,2],stat="median")
   for(i in c(1,5,2:4)) {
-    x <- mean.stat(junto[,1],junto[,2],function(x)quantile(x)[i])
+    x <- mean_stat(junto[,1],junto[,2],function(x)quantile(x)[i])
     medians<-cbind(medians,x[,2])}
   medians<-medians[,3:7]
   names(medians)<-c("Min","Max","Q25","Q50","Q75")
-  means <- mean.stat(junto[, 1], junto[, 2], stat = "mean")
-  sds <- mean.stat(junto[, 1], junto[, 2], stat = "sd")
-  nn <- mean.stat(junto[, 1], junto[, 2], stat = "length")
+  means <- mean_stat(junto[, 1], junto[, 2], stat = "mean")
+  sds <- mean_stat(junto[, 1], junto[, 2], stat = "sd")
+  nn <- mean_stat(junto[, 1], junto[, 2], stat = "length")
   std.err <- sqrt(MSerror)/sqrt(nn[, 2])
   Tprob <- qt(1 - alpha/2, DFerror)
   LCL <- means[, 2] - Tprob * std.err
