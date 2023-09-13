@@ -1,3 +1,9 @@
+# AgroR 1.3.5
+
+* Fixed test_two function bug for paired data.
+
+* Implemented the option to merge non-parametric and parametric tests in barplot_positive
+
 # AgroR 1.3.4
 
 * Fixed the following error: The Scott-Knott test failed when data are transformed for factorial and split-plot schemes.

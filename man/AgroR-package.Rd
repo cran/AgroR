@@ -20,7 +20,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Gabriel Danilo Shimizu \email{shimizu@uel.br} (\href{https://orcid.org/0000-0001-8524-508X}{ORCID})
+\strong{Maintainer}: Gabriel Danilo Shimizu \email{gabrield.shimizu@gmail.com} (\href{https://orcid.org/0000-0001-8524-508X}{ORCID})
 
 Authors:
 \itemize{

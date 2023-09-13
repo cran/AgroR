@@ -1,11 +1,11 @@
-1529fbad7b435906dead467a257074da *DESCRIPTION
+5bef92e888de0c414f241158d43cf0f9 *DESCRIPTION
 e08ab4c88b7667eab992c7aa9c556b87 *NAMESPACE
-0db738f5c853bfec96c4317d47eb2749 *NEWS.md
+f25760b1420d978a853c1d88b6ba281b *NEWS.md
 6e2704b6b1cb8ceffa1f795b865cced8 *R/DBCglm_function.R
 a75b754c0018d03137c72d62041733be *R/DICglm_function.R
 b4d14fb8badcba1b7bc53812a3ffe283 *R/FAT2DBC_function.R
 e7e9a9944ab2ba27c4f3cfe1bef4accd *R/FAT2DBCad_function.R
-64f7c646eb993bb1ba878aab5e75209a *R/FAT2DIC_function.R
+7c8d8ff0502245fad15fe868e8ecad25 *R/FAT2DIC_function.R
 03f0a63e80caf8fd2345fc8ebd860842 *R/FAT2DICad_function.R
 e44aafd8e96169431fd70a7270e42c89 *R/FAT3DBC_function.R
 274cc4abcaa6177abe92193f2164ce13 *R/FAT3DBCad_function.R
@@ -24,7 +24,7 @@ d8344ddc5603f51e727570195559a0e6 *R/aristolochia_data.R
 b07c044c459f1672754350c6f24f1960 *R/bargraph_function.R
 e9b67c2afd54822f9bcb6f171d1c8b63 *R/bargraph_onefactor.R
 1615baba884475c810f5b8e5a2b162d4 *R/bargraph_twofactor.R
-101ff3019ae777c9dc3c3733986fcb1f *R/barplot_positive_function.R
+670f2965bf35cb0796f21ff996bd535e *R/barplot_positive_function.R
 b50c4f5182392e40c9aff46a7cdb085f *R/bean_dataset.R
 5b2ad84bcf577141d3a37cfbbe2646f4 *R/cloro.R
 2831b0c263f2f75984e662e8a8fe2e52 *R/confinterval_function.R
@@ -35,7 +35,7 @@ da65cb25f74dffa0960f4dd515584a42 *R/conjfatdbc_function.R
 49cb97e88a77f5dc7f1ee443391e8d1a *R/corn_dataset.R
 bb950afeb035fa899639c258f05b7880 *R/correlation_function.R
 904dff957401e1cc050fc96f08f12e47 *R/covercrops_dataset.R
-4fd30dd5c9b074d1a316898270201736 *R/croqui_function.R
+4cf7e2d82cff420ebd4747f369cd7766 *R/croqui_function.R
 98d70bf76ddf55b58b9d763dd6627758 *R/dbc_ad.R
 be5509754a1ab45fc31552362e0abfc9 *R/dbc_function.R
 33d08b6907cac7b4185e8604c1ba8bcc *R/dbct_function.R
@@ -44,7 +44,7 @@ be5509754a1ab45fc31552362e0abfc9 *R/dbc_function.R
 e6bdcab141d7209a26f053f215464ed8 *R/desc_function.R
 e58c29f8ab015dd28dd0379d71dd0476 *R/desd_fat2_quant_ad.R
 ac3ce54e82888fead6b2d064a7160670 *R/dic_ad.R
-eb373a0e41ad7b303698323d1349b67f *R/dic_function.R
+3e59fdc94961b4555c45615c6f25c15e *R/dic_function.R
 70328e6ac32305782e8a40a9e61849fe *R/dict_function.R
 2c575bb77af80e93cd15053a6f40d81e *R/dispvar_function.R
 2942021c7ca194374f26f28f32bd02dc *R/dql_function.R
@@ -92,7 +92,7 @@ c54addd81851c3a2c316cb72c5cacdee *R/sensorial.R
 34d189956dda13c4695e666bdc8964c0 *R/summarise_function.R
 9c70bb40f421411b902bb5a6c3dc7e9f *R/tabledesc_function.R
 886c5508feb17142208ef16ad8ebafb3 *R/tbarplotreverse_function.R
-72440bf2cc06ea28d8e6ae824f729eb0 *R/test_two_function.R
+5586d6634b4dcb2b641933bbcefc2a67 *R/test_two_function.R
 f3c7a6b3c47cb47d19cd82bfbd829ab7 *R/time_plot_function.R
 47177614075f902fd3b7b4b8d85dc499 *R/tomate.R
 7e178fc7fb5f91954cbf3befb253a853 *R/tonetest_function.R
@@ -123,7 +123,7 @@ daf51b2b4d16003a0b46553024574f8c *data/porco.RData
 a6ba5968c7d46b7b151dfe443cde848f *data/soybean.RData
 0dc3ff00393e241a04b3f5fe262607ed *data/tomate.RData
 315720620d871a1a253246c3465a55a4 *data/weather.RData
-bec4444b17d929e2869e565dfce9e4c0 *man/AgroR-package.Rd
+0a83df713029d5d8717c3a311027a019 *man/AgroR-package.Rd
 af2fe997970f7d9c3421d04d10ea0b12 *man/DBC.Rd
 329d2e86cfcb220e372e58bd1c7ab457 *man/DBC.glm.Rd
 7fe9ac73c496fb81227275812af868e2 *man/DBCT.Rd
@@ -155,7 +155,7 @@ e2a65bb2f9ddb9797ec3158316fabab8 *man/aristolochia.Rd
 f988603b3e51e66ebc1400adc5a30778 *man/barfacet.Rd
 5a88a3345270b91a52b7f2d817ae35cb *man/bargraph_onefactor.Rd
 2c4c9fb5977615f59e7da9e7bd2a398c *man/bargraph_twofactor.Rd
-1242fc548fb061fac169458521c58491 *man/barplot_positive.Rd
+27df675dc291177e316dd3ab085a9437 *man/barplot_positive.Rd
 b273f7c7f25a626a0d0a6cc69d8def14 *man/bean.Rd
 6baba22f9fc58e00acf53033e949956b *man/cloro.Rd
 9c8a98822d1a15e2fe802e6ee2195d30 *man/confinterval.Rd

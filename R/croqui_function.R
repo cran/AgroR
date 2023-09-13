@@ -429,6 +429,21 @@ sketch=function(trat,
   if(color.sep=="all"){separate=data$trat}
   if(color.sep=="block"){separate=data$block}
   if(color.sep=="none"){separate=rep("white",e=length(data$trat))}
+  #======================================
+  # if(line.divisor.block>=2){
+  #   quantcoluna=length(trat)/line.divisor.block
+  #   if(is.integer(quantcoluna)==FALSE){
+  #     quant=c(rep(ceiling(quantcoluna),line.divisor.block-1),floor(quantcoluna))
+  #     sublinhas=rep(1:line.divisor.block,
+  #                   quant)
+  #     data$x=rep(rep(1:ceiling(length(unique(data$trat))/line.divisor.block),
+  #                    line.divisor.block)[1:length(trat)],
+  #                ceiling(length(unique(block))/line.divisor.block))
+  #   }else{sublinhas=rep(1:line.divisor.block,
+  #                                             quantcoluna)}
+  #   data$block=paste(block,"L",sublinhas)}
+
+  #===========================================
 
   if(pos=="line"){graph=ggplot(data,aes(x=x,y=block,fill=separate))+
     geom_tile(color="black")+labs(y="Block",x=label.x,fill="Treatments")+
@@ -660,7 +675,20 @@ sketch=function(trat,
   if(color.sep=="f1"){separate=data$trat}
   if(color.sep=="f2"){separate=data$trat1}
   if(color.sep=="none"){separate=rep("white",e=length(data$trat))}
-
+  #======================================
+  # if(line.divisor.block>=2){
+  #   quantcoluna=length(unique(paste(data$trat,data$trat1)))/line.divisor.block
+  #   if(is.integer(quantcoluna)==FALSE){
+  #     quant=c(rep(ceiling(quantcoluna),line.divisor.block-1),floor(quantcoluna))
+  #     sublinhas=rep(1:line.divisor.block,
+  #                   quant)
+  #     data$x=rep(rep(1:ceiling(length(unique(paste(data$trat,data$trat1)))/
+  #                                line.divisor.block),
+  #                    line.divisor.block)[1:length(unique(paste(data$trat,data$trat1)))],
+  #                length(unique(block))/line.divisor.block)
+  #   }else{sublinhas=rep(1:line.divisor.block,
+  #                       quantcoluna)}
+  #   data$block=paste(block,"L",sublinhas)}
   if(pos=="column"){graph=ggplot(data,aes(y=x,x=block,fill=separate))+
     geom_tile(color="black")+labs(x="Block",y=label.y,fill="Treatments")+
     theme_classic()+theme(axis.line = element_blank())+theme(axis.text=element_text(size=axissize),
@@ -927,6 +955,21 @@ sketch=function(trat,
     if(color.sep=="f1"){separate=data$A}
     if(color.sep=="f2"){separate=data$B}
     if(color.sep=="none"){separate=rep("white",e=length(data$A))}
+    #======================================
+    # if(line.divisor.block>=2){
+    #   quantcoluna=length(unique(paste(data$trat,data$trat1)))/line.divisor.block
+    #   if(is.integer(quantcoluna)==FALSE){
+    #     quant=c(rep(ceiling(quantcoluna),line.divisor.block-1),floor(quantcoluna))
+    #     sublinhas=rep(1:line.divisor.block,
+    #                   quant)
+    #     data$x=rep(rep(1:ceiling(length(unique(paste(data$trat,data$trat1)))/
+    #                                line.divisor.block),
+    #                    line.divisor.block)[1:length(unique(paste(data$trat,data$trat1)))],
+    #                length(unique(block))/line.divisor.block)
+    #   }else{sublinhas=rep(1:line.divisor.block,
+    #                       quantcoluna)}
+    #   data$block=paste(block,"L",sublinhas)}
+    #=========================================
 
     if(pos=="column"){graph=ggplot(data,aes(y=x,x=block,fill=separate))+
       geom_tile(color="black")+labs(x="Block",y=label.y,fill="Treatments")+

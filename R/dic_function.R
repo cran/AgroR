@@ -604,6 +604,7 @@ DIC <- function(trat,
     if(point=="mean_sd"){dadosm$std=tapply(response, trat, sd, na.rm=TRUE)[rownames(krusk$means)]}
     if(point=="mean_se"){dadosm$std=tapply(response, trat, sd, na.rm=TRUE)/
       sqrt(tapply(response, trat, length))[rownames(krusk$means)]}
+    dadosm$limite=dadosm$response+dadosm$std
     if(addmean==TRUE){dadosm$letra=paste(format(dadosm$response,digits = dec),dadosm$groups)}
     if(addmean==FALSE){dadosm$letra=dadosm$groups}
     trats=dadosm$trats

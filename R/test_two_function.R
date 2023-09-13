@@ -44,19 +44,30 @@ test_two=function(trat,
                   yposition.p=NA,
                   xposition.p=NA,
                   fill = "white"){
-  if(test=="t"){teste = t.test(
+  if(test=="t" & isTRUE(paired)==FALSE){teste = t.test(
     resp ~ trat,
-    paired = paired,
     correct = correct,
     alternative = alternative,
     conf.level = conf.level,
     var.equal = var.equal)}
-  if(test=="w"){teste=wilcox.test(resp~trat,
-                                  paired = paired,
+  if(test=="t" & isTRUE(paired)==TRUE){
+    teste=t.test(Pair(resp[trat==unique(trat)[1]],
+                      resp[trat==unique(trat)[2]])~1,
+                 alternative = alternative,
+                 conf.level = conf.level,
+                 correct = correct,
+                 exact = FALSE)}
+  if(test=="w"& isTRUE(paired)==FALSE){teste=wilcox.test(resp~trat,
                                   alternative = alternative,
                                   conf.level = conf.level,
                                   correct = correct,
                                   var.equal = var.equal,
+                                  exact = FALSE)}
+  if(test=="w" & isTRUE(paired)==TRUE){teste=wilcox.test(Pair(resp[trat==unique(trat)[1]],
+                                                              resp[trat==unique(trat)[2]])~1,
+                                  alternative = alternative,
+                                  conf.level = conf.level,
+                                  correct = correct,
                                   exact = FALSE)}
   dados=data.frame(resp,trat)
   media=data.frame(media=tapply(resp,trat,mean, na.rm=TRUE))
@@ -66,7 +77,7 @@ test_two=function(trat,
   grafico=ggplot(dados,aes(y=resp,x=trat))+
   geom_boxplot(size=0.8,outlier.colour = "white", fill=fill)+
   geom_jitter(width=0.1,alpha=0.2,size=pointsize)+
-  stat_boxplot(geom="errorbar", size=0.8,width=0.2)+
+  stat_boxplot(geom="errorbar", linewidth=0.8,width=0.2)+
   geom_label(data=media,aes(y=media,
                             x=trat,
                             label=round(media,2)),fill="lightyellow")+

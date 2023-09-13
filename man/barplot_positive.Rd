@@ -47,6 +47,10 @@ attach(passiflora)
 a=with(passiflora, DBC(trat, bloco, MSPA))
 b=with(passiflora, DBC(trat, bloco, MSR))
 barplot_positive(a, b, var_name = c("DMAP","DRM"), ylab = "Dry root (g)")
+
+a=with(passiflora, DIC(trat, MSPA,test = "noparametric"))
+b=with(passiflora, DIC(trat, MSR))
+barplot_positive(a, b, var_name = c("DMAP","DRM"), ylab = "Dry root (g)")
 }
 \seealso{
 \link{radargraph}, \link{sk_graph}, \link{plot_TH}, \link{corgraph}, \link{spider_graph}, \link{line_plot}
