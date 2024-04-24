@@ -36,6 +36,7 @@
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param posi Legend position
 #' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error ("mean_se"). For quali=FALSE or quali=TRUE. For parametric test it is possible to plot the square root of QMres (mean_qmres)
+#' @param pointsize Point size
 #' @param angle.label label angle
 #' @param ylim Define a numerical sequence referring to the y scale. You can use a vector or the `seq` command.
 #' @import ggplot2
@@ -158,6 +159,7 @@ DIC <- function(trat,
                 errorbar=TRUE,
                 posi="top",
                 point="mean_sd",
+                pointsize=5,
                 angle.label=0,
                 ylim=NA){
   if(is.na(sup==TRUE)){sup=0.1*mean(response)}
@@ -360,11 +362,11 @@ DIC <- function(trat,
                           ymax=media+desvio,color=1),
                       color="black",width=width.bar)}
       if(fill=="trat"){grafico=grafico+
-        geom_point(aes(color=trats),size=5)}
+        geom_point(aes(color=trats),size=pointsize)}
       else{grafico=grafico+
         geom_point(aes(color=trats),
                    color="black",
-                   fill=fill,shape=21,size=5)}}
+                   fill=fill,shape=21,size=pointsize)}}
       if(geom=="box"){
         datam1=data.frame(trats=factor(trat,levels = unique(as.character(trat))),
                           response)
@@ -414,9 +416,9 @@ DIC <- function(trat,
     if(quali==FALSE){
       trat=trat1
       # trat=as.numeric(as.character(trat))
-      if(grau==1){graph=polynomial(trat,response, grau = 1,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
-      if(grau==2){graph=polynomial(trat,response, grau = 2,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
-      if(grau==3){graph=polynomial(trat,response, grau = 3,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point)}
+      if(grau==1){graph=polynomial(trat,response, grau = 1,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point,pointsize = pointsize)}
+      if(grau==2){graph=polynomial(trat,response, grau = 2,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point,pointsize = pointsize)}
+      if(grau==3){graph=polynomial(trat,response, grau = 3,textsize=textsize,xlab=xlab,ylab=ylab, family=family,posi=posi,point=point,pointsize = pointsize)}
       grafico=graph[[1]]
       if(is.na(ylim[1])==FALSE){
         grafico=grafico+scale_y_continuous(breaks = ylim,
@@ -646,11 +648,11 @@ DIC <- function(trat,
                         color=1),
                     color="black",width=width.bar)}
     if(fill=="trat"){grafico=grafico+
-      geom_point(aes(color=trats),size=5)}
+      geom_point(aes(color=trats),size=pointsize)}
     else{grafico=grafico+
       geom_point(aes(color=trats),
                  color="black",
-                 fill=fill,shape=21,size=5)}}
+                 fill=fill,shape=21,size=pointsize)}}
     if(geom=="box"){
       datam1=data.frame(trats=factor(trat,levels = unique(as.character(trat))),response)
       dadosm2=data.frame(krusk$means)

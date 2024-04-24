@@ -219,10 +219,10 @@ FAT3DIC=function(f1,
   rownames(anava1)=c(names.fat[1],
                      names.fat[2],
                      names.fat[3],
-                     paste(names.fat[1],"x",names.fat[2]),
-                     paste(names.fat[1],"x",names.fat[3]),
-                     paste(names.fat[2],"x",names.fat[3]),
-                     paste(names.fat[1],"x",names.fat[2],"x",names.fat[3]),
+                     paste(names.fat[1],"\u00D7",names.fat[2]),
+                     paste(names.fat[1],"\u00D7",names.fat[3]),
+                     paste(names.fat[2],"\u00D7",names.fat[3]),
+                     paste(names.fat[1],"\u00D7",names.fat[2],"\u00D7",names.fat[3]),
                      "Residuals")
   print(anava1,na.print = "")
   cat("\n")

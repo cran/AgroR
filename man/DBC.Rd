@@ -36,6 +36,7 @@ DBC(
   errorbar = TRUE,
   posi = "top",
   point = "mean_sd",
+  pointsize = 5,
   angle.label = 0,
   ylim = NA
 )
@@ -102,6 +103,8 @@ DBC(
 \item{posi}{Legend position}
 
 \item{point}{Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error ("mean_se"). For parametric test it is possible to plot the square root of QMres (mean_qmres).}
+
+\item{pointsize}{Point size}
 
 \item{angle.label}{label angle}
 

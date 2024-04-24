@@ -10,6 +10,7 @@
 #' @note The column names in the final output are imported from the ylab argument within each function.
 #' @note This function is only for declared qualitative factors. In the case of a quantitative factor and the other qualitative in projects with two factors, this function will not work.
 #' @note Triple factorials and split-split-plot do not work in this function.
+#' @return returns a data.frame or print with a summary of the analysis of several experimental projects.
 #' @import knitr
 #' @export
 #' @examples
@@ -180,11 +181,45 @@ summarise_anova=function(analysis,
         infor4[,i]=""}}
     names(infor4)=variable
     rownames(infor4)=c("SQ_tr","SQ_r")
-    if(inf=="p"){juntos=rbind(infor,cvs,infor1,transf)}
-    if(inf=="f"){juntos=rbind(infor,cvs,infor2,transf)}
-    if(inf=="QM"){juntos=rbind(infor,cvs,infor3,transf)}
-    if(inf=="SQ"){juntos=rbind(infor,cvs,infor4,transf)}
-    if(inf=="all"){juntos=rbind(infor,cvs,infor1,infor2,infor3,infor4,transf)}
+
+    ##############################################
+    # normalidade
+    ##############################################
+    norm=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      if(tests=="parametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        norm[,i]=round(analysis[[i]][[1]]$plot$norm1$p.value,round)}
+      if(tests=="noparametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        norm[,i]=" "}}
+    rownames(norm)="p-value Normality of errors"
+    names(norm)=variable
+
+    ##############################################
+    # homogeneidade
+    ##############################################
+    homog=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      if(tests=="parametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        homog[,i]=round(analysis[[i]][[1]]$plot$homog1$p.value,round)}
+      if(tests=="noparametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        homog[,i]=" "}}
+    rownames(homog)="p-value Homogeneity of variances"
+    names(homog)=variable
+
+
+    if(inf=="p"){juntos=rbind(infor,cvs,infor1,transf,norm,homog)}
+    if(inf=="f"){juntos=rbind(infor,cvs,infor2,transf,norm,homog)}
+    if(inf=="QM"){juntos=rbind(infor,cvs,infor3,transf,norm,homog)}
+    if(inf=="SQ"){juntos=rbind(infor,cvs,infor4,transf,norm,homog)}
+    if(inf=="all"){juntos=rbind(infor,cvs,infor1,infor2,infor3,infor4,transf,norm,homog)}
   if(divisor==TRUE){
   nl=nrow(juntos)
   nc=ncol(juntos)
@@ -198,10 +233,6 @@ summarise_anova=function(analysis,
     colnames(juntosnovo)[c(ordem[,i]+1)]=c(nomes[i],"|")}
   juntos=juntosnovo}
   }
-
-
-
-
   if(design=="DBC"){
     nlinhas=length(analysis[[1]][[1]]$plot$dadosm$groups)
     infor=data.frame(matrix(ncol=length(analysis),nrow = nlinhas))
@@ -322,11 +353,44 @@ summarise_anova=function(analysis,
         infor4[,i]=c("-","-","-")}}
     names(infor4)=variable
     rownames(infor4)=c("SQ_tr","SQ_bl","SQ_r")
-    if(inf=="p"){juntos=rbind(infor,cvs,infor1,transf)}
-    if(inf=="f"){juntos=rbind(infor,cvs,infor2,transf)}
-    if(inf=="QM"){juntos=rbind(infor,cvs,infor3,transf)}
-    if(inf=="SQ"){juntos=rbind(infor,cvs,infor4,transf)}
-    if(inf=="all"){juntos=rbind(infor,cvs,infor1,infor2,infor3,infor4,transf)}
+
+    ##############################################
+    # normalidade
+    ##############################################
+    norm=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      if(tests=="parametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        norm[,i]=round(analysis[[i]][[1]]$plot$norm1$p.value,round)}
+      if(tests=="noparametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        norm[,i]=" "}}
+    rownames(norm)="p-value Normality of errors"
+    names(norm)=variable
+
+    ##############################################
+    # homogeneidade
+    ##############################################
+    homog=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      if(tests=="parametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        homog[,i]=round(analysis[[i]][[1]]$plot$homog1$p.value,round)}
+      if(tests=="noparametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        homog[,i]=" "}}
+    rownames(homog)="p-value Homogeneity of variances"
+    names(homog)=variable
+
+    if(inf=="p"){juntos=rbind(infor,cvs,infor1,transf,norm,homog)}
+    if(inf=="f"){juntos=rbind(infor,cvs,infor2,transf,norm,homog)}
+    if(inf=="QM"){juntos=rbind(infor,cvs,infor3,transf,norm,homog)}
+    if(inf=="SQ"){juntos=rbind(infor,cvs,infor4,transf,norm,homog)}
+    if(inf=="all"){juntos=rbind(infor,cvs,infor1,infor2,infor3,infor4,transf,norm,homog)}
 
     if(divisor==TRUE){
       nl=nrow(juntos)
@@ -418,11 +482,43 @@ summarise_anova=function(analysis,
       infor4[,i]=round(analysis[[i]][[1]]$plot$anava[1:nc,n],round)}
     names(infor4)=variable
     rownames(infor4)=c("SQ_tr","SQ_l","SQ_c","SQ_r")
-    if(inf=="p"){juntos=rbind(infor,cvs,infor1,transf)}
-    if(inf=="f"){juntos=rbind(infor,cvs,infor2,transf)}
-    if(inf=="QM"){juntos=rbind(infor,cvs,infor3,transf)}
-    if(inf=="SQ"){juntos=rbind(infor,cvs,infor4,transf)}
-    if(inf=="all"){juntos=rbind(infor,cvs,infor1,infor2,infor3,infor4,transf)}
+    ##############################################
+    # normalidade
+    ##############################################
+    norm=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      if(tests=="parametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        norm[,i]=round(analysis[[i]][[1]]$plot$norm1$p.value,round)}
+      if(tests=="noparametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        norm[,i]=" "}}
+    rownames(norm)="p-value Normality of errors"
+    names(norm)=variable
+
+    ##############################################
+    # homogeneidade
+    ##############################################
+    homog=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      if(tests=="parametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        homog[,i]=round(analysis[[i]][[1]]$plot$homog1$p.value,round)}
+      if(tests=="noparametric"){
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        homog[,i]=" "}}
+    rownames(homog)="p-value Homogeneity of variances"
+    names(homog)=variable
+
+    if(inf=="p"){juntos=rbind(infor,cvs,infor1,transf,norm,homog)}
+    if(inf=="f"){juntos=rbind(infor,cvs,infor2,transf,norm,homog)}
+    if(inf=="QM"){juntos=rbind(infor,cvs,infor3,transf,norm,homog)}
+    if(inf=="SQ"){juntos=rbind(infor,cvs,infor4,transf,norm,homog)}
+    if(inf=="all"){juntos=rbind(infor,cvs,infor1,infor2,infor3,infor4,transf,norm,homog)}
 
     if(divisor==TRUE){
       nl=nrow(juntos)
@@ -525,12 +621,35 @@ summarise_anova=function(analysis,
     names(f1mean)=variable
     names(f2mean)=variable
     names(f1f2mean)=variable
+    ##############################################
+    # normalidade
+    ##############################################
+    norm=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+        norm[,i]=round(analysis[[i]][[1]]$plot$norm1$p.value,round)}
+    rownames(norm)="p-value Normality of errors"
+    names(norm)=variable
+
+    ##############################################
+    # homogeneidade
+    ##############################################
+    homog=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+        variable[i]=analysis[[i]][[1]]$plot$ylab
+        homog[,i]=round(analysis[[i]][[1]]$plot$homog1$p.value,round)}
+    rownames(homog)="p-value Homogeneity of variances"
+    names(homog)=variable
     # juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,transf)
-    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,transf)}
-    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,transf)}
-    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,transf)}
-    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,transf)}
-    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,transf)}
+    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,transf,norm,homog)}
+    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,transf,norm,homog)}
+    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,transf,norm,homog)}
+    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,transf,norm,homog)}
+    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,transf,norm,homog)}
 
     if(divisor==TRUE){
       nl=nrow(juntos)
@@ -635,11 +754,35 @@ summarise_anova=function(analysis,
     names(f1mean)=variable
     names(f2mean)=variable
     names(f1f2mean)=variable
-    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,transf)}
-    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,transf)}
-    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,transf)}
-    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,transf)}
-    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,transf)}
+    ##############################################
+    # normalidade
+    ##############################################
+    norm=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+      norm[,i]=round(analysis[[i]][[1]]$plot$norm1$p.value,round)}
+    rownames(norm)="p-value Normality of errors"
+    names(norm)=variable
+
+    ##############################################
+    # homogeneidade
+    ##############################################
+    homog=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+      homog[,i]=round(analysis[[i]][[1]]$plot$homog1$p.value,round)}
+    rownames(homog)="p-value Homogeneity of variances"
+    names(homog)=variable
+
+    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,transf,norm,homog)}
+    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,transf,norm,homog)}
+    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,transf,norm,homog)}
+    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,transf,norm,homog)}
+    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,transf,norm,homog)}
 
 
     if(divisor==TRUE){
@@ -743,11 +886,35 @@ summarise_anova=function(analysis,
     names(f1mean)=variable
     names(f2mean)=variable
     names(f1f2mean)=variable
-    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,transf)}
-    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,transf)}
-    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,transf)}
-    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,transf)}
-    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,transf)}
+    ##############################################
+    # normalidade
+    ##############################################
+    norm=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+      norm[,i]=round(analysis[[i]][[1]]$plot$norm1$p.value,round)}
+    rownames(norm)="p-value Normality of errors"
+    names(norm)=variable
+
+    ##############################################
+    # homogeneidade
+    ##############################################
+    homog=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+      homog[,i]=round(analysis[[i]][[1]]$plot$homog1$p.value,round)}
+    rownames(homog)="p-value Homogeneity of variances"
+    names(homog)=variable
+
+    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,transf,norm,homog)}
+    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,transf,norm,homog)}
+    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,transf,norm,homog)}
+    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,transf,norm,homog)}
+    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,transf,norm,homog)}
 
     if(divisor==TRUE){
       nl=nrow(juntos)
@@ -850,11 +1017,35 @@ summarise_anova=function(analysis,
     names(f1mean)=variable
     names(f2mean)=variable
     names(f1f2mean)=variable
-    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,transf)}
-    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,transf)}
-    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,transf)}
-    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,transf)}
-    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,transf)}
+    ##############################################
+    # normalidade
+    ##############################################
+    norm=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+      norm[,i]=round(analysis[[i]][[1]]$plot$norm1$p.value,round)}
+    rownames(norm)="p-value Normality of errors"
+    names(norm)=variable
+
+    ##############################################
+    # homogeneidade
+    ##############################################
+    homog=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+      homog[,i]=round(analysis[[i]][[1]]$plot$homog1$p.value,round)}
+    rownames(homog)="p-value Homogeneity of variances"
+    names(homog)=variable
+
+    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,transf,norm,homog)}
+    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,transf,norm,homog)}
+    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,transf,norm,homog)}
+    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,transf,norm,homog)}
+    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,transf,norm,homog)}
 
 
 
@@ -972,11 +1163,35 @@ summarise_anova=function(analysis,
     names(f1mean)=variable
     names(f2mean)=variable
     names(f1f2mean)=variable
-    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,respAd,transf)}
-    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,respAd,transf)}
-    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,respAd,transf)}
-    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,respAd,transf)}
-    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,respAd,transf)}
+    ##############################################
+    # normalidade
+    ##############################################
+    norm=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+      norm[,i]=round(analysis[[i]][[1]]$plot$norm1$p.value,round)}
+    rownames(norm)="p-value Normality of errors"
+    names(norm)=variable
+
+    ##############################################
+    # homogeneidade
+    ##############################################
+    homog=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+      homog[,i]=round(analysis[[i]][[1]]$plot$homog1$p.value,round)}
+    rownames(homog)="p-value Homogeneity of variances"
+    names(homog)=variable
+
+    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,respAd,transf,norm,homog)}
+    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,respAd,transf,norm,homog)}
+    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,respAd,transf,norm,homog)}
+    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,respAd,transf,norm,homog)}
+    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,respAd,transf,norm,homog)}
 
 
     if(divisor==TRUE){
@@ -1092,11 +1307,35 @@ summarise_anova=function(analysis,
     names(f1mean)=variable
     names(f2mean)=variable
     names(f1f2mean)=variable
-    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,respAd,transf)}
-    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,respAd,transf)}
-    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,respAd,transf)}
-    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,respAd,transf)}
-    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,respAd,transf)}
+    ##############################################
+    # normalidade
+    ##############################################
+    norm=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+      norm[,i]=round(analysis[[i]][[1]]$plot$norm1$p.value,round)}
+    rownames(norm)="p-value Normality of errors"
+    names(norm)=variable
+
+    ##############################################
+    # homogeneidade
+    ##############################################
+    homog=data.frame(matrix(ncol=length(analysis),nrow = 1))
+    variable=1:length(analysis)
+    for(i in 1:length(analysis)){
+      tests=analysis[[i]][[1]]$plot$test
+      variable[i]=analysis[[i]][[1]]$plot$ylab
+      homog[,i]=round(analysis[[i]][[1]]$plot$homog1$p.value,round)}
+    rownames(homog)="p-value Homogeneity of variances"
+    names(homog)=variable
+
+    if(inf=="p"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,respAd,transf,norm,homog)}
+    if(inf=="f"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor2,respAd,transf,norm,homog)}
+    if(inf=="QM"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor3,respAd,transf,norm,homog)}
+    if(inf=="SQ"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor4,respAd,transf,norm,homog)}
+    if(inf=="all"){juntos=rbind(f1mean,f2mean,f1f2mean,cvs,infor1,infor2,infor3,infor4,respAd,transf,norm,homog)}
 
     if(divisor==TRUE){
       nl=nrow(juntos)

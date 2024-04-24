@@ -10,7 +10,13 @@ corgraph(
   legendsize = 12,
   legendposition = c(0.9, 0.2),
   legendtitle = "Correlation",
-  method = "pearson"
+  method = "pearson",
+  pallete = "RdBu",
+  color.marginal = "gray50",
+  size.tile.lty = 1,
+  size.label.cor = 1,
+  fill.label.cor = "lightyellow",
+  font.family = "sans"
 )
 }
 \arguments{
@@ -25,6 +31,18 @@ corgraph(
 \item{legendtitle}{Legend title (\emph{default} is "Correlation")}
 
 \item{method}{Method correlation (\emph{default} is Pearson)}
+
+\item{pallete}{If a string, will use that named palette. See scale_fill_distiller in the ggplot2.}
+
+\item{color.marginal}{Box border color}
+
+\item{size.tile.lty}{Box margin line thickness}
+
+\item{size.label.cor}{Label font size}
+
+\item{fill.label.cor}{Label fill color}
+
+\item{font.family}{Font family (\emph{default} is sans)}
 }
 \value{
 The function returns a correlation matrix

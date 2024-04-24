@@ -19,8 +19,10 @@ tabledesc=function(data,
                    fun=mean){
   dados=data[,-1]
   trat=as.vector(unlist(data[,1]))
+  trat=factor(trat,unique(trat))
   n=nlevels(as.factor(trat))
   nr=ncol(dados)-1
+  if(nr==0){nr=1}
   medias=data.frame(matrix(1:(n*nr),ncol = nr))
   for(i in 1:ncol(dados)){
     medias[,i]=tapply(as.vector(unlist(dados[,i])), trat, fun, na.rm=TRUE)[unique(trat)]}

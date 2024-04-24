@@ -35,6 +35,7 @@
 #' @param errorbar Plot the standard deviation bar on the graph (In the case of a segment and column graph) - \emph{default} is TRUE
 #' @param posi Legend position
 #' @param point Defines whether to plot mean ("mean"), mean with standard deviation ("mean_sd" - \emph{default}) or mean with standard error ("mean_se"). For parametric test it is possible to plot the square root of QMres (mean_qmres).
+#' @param pointsize Point size
 #' @param angle.label label angle
 #' @param ylim Define a numerical sequence referring to the y scale. You can use a vector or the `seq` command.
 #' @note The ordering of the graph is according to the sequence in which the factor levels are arranged in the data sheet. The bars of the column and segment graphs are standard deviation.
@@ -96,6 +97,7 @@ DQL=function(trat,
              errorbar=TRUE,
              posi="top",
              point="mean_sd",
+             pointsize=5,
              angle.label=0,
              ylim=NA)
 {if(is.na(sup==TRUE)){sup=0.2*mean(response)}
@@ -321,11 +323,11 @@ DQL=function(trat,
                       ymax=media+desvio,color=1),
                   color="black", width=width.bar)}
     if(fill=="trat"){grafico=grafico+
-      geom_point(aes(color=trats),size=5)}
+      geom_point(aes(color=trats),size=pointsize)}
   else{grafico=grafico+
     geom_point(aes(color=trats),
                color=fill,
-               size=5)}}
+               size=pointsize)}}
 
   if(geom=="box"){
   datam1=data.frame(trats=factor(trat,levels = unique(as.character(trat))),response)
@@ -371,9 +373,9 @@ DQL=function(trat,
 
   if(quali==FALSE){
     trat=trat1
-    if(grau==1){graph=polynomial(trat,response, grau = 1,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4])}
-    if(grau==2){graph=polynomial(trat,response, grau = 2,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4])}
-    if(grau==3){graph=polynomial(trat,response, grau = 3,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4])}
+    if(grau==1){graph=polynomial(trat,response, grau = 1,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4],pointsize = pointsize)}
+    if(grau==2){graph=polynomial(trat,response, grau = 2,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4],pointsize = pointsize)}
+    if(grau==3){graph=polynomial(trat,response, grau = 3,xlab=xlab,ylab=ylab,textsize=textsize, family=family,posi=posi,point=point,SSq=a$`Sum Sq`[4],DFres = a$Df[4],pointsize = pointsize)}
     grafico=graph[[1]]
     if(is.na(ylim[1])==FALSE){
       grafico=grafico+scale_y_continuous(breaks = ylim,

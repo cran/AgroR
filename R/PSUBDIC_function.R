@@ -120,6 +120,7 @@ PSUBDIC=function(f1,
     ordempadronizado=data.frame(f1,f2,block,resp,response)
     resp1=resp
     organiz=data.frame(f1,f2,block,response,resp)
+    organiz$f1=factor(organiz$f1,unique(organiz$f1))
     organiz=organiz[order(organiz$block),]
     organiz=organiz[order(organiz$f2),]
     organiz=organiz[order(organiz$f1),]
@@ -721,8 +722,8 @@ PSUBDIC=function(f1,
                               rep(unique(Fator2),length(rownames(media)))),]
             graph$letra=letra
             graph$letra1=letra1
-            graph$f1=factor(graph$f1,levels = unique(Fator1))
-            graph$f2=factor(graph$f2,levels = unique(Fator2))
+            graph$f1=factor(graph$f1,levels = unique(fator1))
+            graph$f2=factor(graph$f2,levels = unique(fator2))
             if(addmean==TRUE){graph$numero=paste(format(graph$media,digits = dec),
                                               graph$letra,
                                               graph$letra1,
@@ -749,15 +750,15 @@ PSUBDIC=function(f1,
                 geom_text(aes(y=media+sup+
                                   if(sup<0){-desvio}else{desvio},
                               label=numero),
-                          position = position_dodge(width=0.9),angle=angle.label, hjust=hjust,size=labelsize)}
+                          position = position_dodge(width=0.9),angle=angle.label, hjust=hjust,size=labelsize,family=family)}
             if(errorbar==FALSE){colint=colint+
                 geom_text(aes(y=media+sup,
                               label=numero),
-                          position = position_dodge(width=0.9),angle=angle.label, hjust=hjust,size=labelsize)}
+                          position = position_dodge(width=0.9),angle=angle.label,family=family, hjust=hjust,size=labelsize)}
             colint=colint+
-                theme(text=element_text(size=textsize),
-                      axis.text = element_text(size=textsize,color="black"),
-                      axis.title = element_text(size=textsize,color="black"),
+                theme(text=element_text(size=textsize,family=family),
+                      axis.text = element_text(size=textsize,color="black",family=family),
+                      axis.title = element_text(size=textsize,color="black",family=family),
                       legend.position = posi)+labs(fill=legend)
             if(angle !=0){colint=colint+theme(axis.text.x=element_text(hjust = 1.01,angle = angle))}
             if(color=="gray"){colint=colint+scale_fill_grey()}
@@ -850,7 +851,8 @@ PSUBDIC=function(f1,
                                     textsize=textsize,
                                     family=family,
                                     DFres = num(tab.f2f1[nv1+1,1]),
-                                    SSq = num(tab.f2f1[nv1+1,2]))
+                                    SSq = num(tab.f2f1[nv1+1,2]),
+                                    legend.title=legend)
                 if(quali[1]==FALSE & quali[2]==FALSE){
                     graf=list(grafico,NA)}
                 }
@@ -941,7 +943,8 @@ PSUBDIC=function(f1,
                                     textsize=textsize,
                                     family=family,
                                     DFres = num(tab.f1f2[nv2+1,1]),
-                                    SSq = num(tab.f1f2[nv2+1,2]))
+                                    SSq = num(tab.f1f2[nv2+1,2]),
+                                    legend.title=legend)
                 if(quali[1]==FALSE & quali[2]==FALSE){
                     graf[[2]]=grafico
                     grafico=graf}
@@ -1021,7 +1024,8 @@ PSUBDIC=function(f1,
                                           textsize=textsize,
                                           family=family,
                                           DFres = num(tab.f2f1[nv1 +1, 1]),
-                                          SSq = num(tab.f2f1[nv1 + 1, 2]))
+                                          SSq = num(tab.f2f1[nv1 + 1, 2]),
+                                          legend.title=legend)
             if(quali[1]==FALSE & quali[2]==FALSE){
                     graf=list(grafico,NA)}
             }
@@ -1113,7 +1117,8 @@ PSUBDIC=function(f1,
                                           textsize=textsize,
                                           family=family,
                                           DFres = num(tab.f1f2[nv2 +1, 1]),
-                                          SSq = num(tab.f1f2[nv2 + 1, 2]))
+                                          SSq = num(tab.f1f2[nv2 + 1, 2]),
+                                          legend.title=legend)
                 if(quali[1]==FALSE & quali[2]==FALSE){
                     graf[[2]]=grafico
                     grafico=graf}

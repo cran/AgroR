@@ -66,8 +66,8 @@ dunnett=function(trat,
                  widthsize=0.2,
                  label="Response",
                  fontfamily="sans"){
-  trat1=as.factor(trat)
-  trat=as.factor(trat)
+  trat1=factor(trat,unique(trat))
+  trat=factor(trat,unique(trat))
   levels(trat1)=paste("T",1:length(levels(trat1)),sep = "")
   controle=as.character(trat1[trat==control][1])
   if(model=="DIC"){mod=aov(resp~trat1)}
@@ -85,13 +85,14 @@ dunnett=function(trat,
                linfct = mcp(trat1=paste(contras,"-",
                                        controle,
                                        "==0",sep=""))),
-          level = 1-alpha.t,)
+          level = 1-alpha.t)
   a=summary(a)
   teste=cbind(a$confint,
         round(a$test$tstat,4),
         round(a$test$pvalues,4))
   nomes=rownames(teste)
-  nomes1=as.factor(t(matrix(unlist(strsplit(nomes," - ")),nrow=2))[,1])
+  nomes1=t(matrix(unlist(strsplit(nomes," - ")),nrow=2))[,1]
+  nomes1=factor(nomes1,unique(nomes1))
   levels(nomes1)=levels(trat)[!levels(trat)==control]
   rownames(teste)=paste(control," - ",nomes1)
   teste=data.frame(teste)
@@ -109,7 +110,7 @@ dunnett=function(trat,
     geom_point(shape=pointshape,size=pointsize,color="black",fill="gray")+
     theme_classic()+
     labs(y="")+
-    geom_vline(xintercept = 0,lty=2,size=linesize)+
+    geom_vline(xintercept = 0,lty=2,linewidth=linesize)+
     geom_label(aes(label=paste(round(Estimate,3),
                                sig)),fill="lightyellow",size=labelsize,
                vjust=-0.5,family=fontfamily)+

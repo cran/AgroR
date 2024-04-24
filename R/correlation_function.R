@@ -6,6 +6,12 @@
 #' @param legendposition Legend position (\emph{default} is c(0.9,0.2))
 #' @param legendtitle Legend title (\emph{default} is "Correlation")
 #' @param method Method correlation (\emph{default} is Pearson)
+#' @param pallete If a string, will use that named palette. See scale_fill_distiller in the ggplot2.
+#' @param font.family Font family (\emph{default} is sans)
+#' @param color.marginal Box border color
+#' @param size.tile.lty Box margin line thickness
+#' @param size.label.cor Label font size
+#' @param fill.label.cor Label fill color
 #' @author Gabriel Danilo Shimizu, \email{shimizu@uel.br}
 #' @author Leandro Simoes Azeredo Goncalves
 #' @author Rodrigo Yudi Palhaci Marubayashi
@@ -16,11 +22,17 @@
 #' corgraph(pomegranate[,-1])
 
 corgraph=function(data,
-                     axissize=12,
-                     legendsize=12,
-                     legendposition=c(0.9,0.2),
-                     legendtitle="Correlation",
-                     method="pearson"){
+                  axissize=12,
+                  legendsize=12,
+                  legendposition=c(0.9,0.2),
+                  legendtitle="Correlation",
+                  method="pearson",
+                  pallete="RdBu",
+                  color.marginal="gray50",
+                  size.tile.lty=1,
+                  size.label.cor=1,
+                  fill.label.cor="lightyellow",
+                  font.family="sans"){
   dm=data
   requireNamespace("ggplot2")
   pearson=function(data,method="pearson"){
@@ -57,15 +69,17 @@ corgraph=function(data,
   grafico=ggplot(dados,aes(x=Var2,
                            y=Var1,
                            fill=cor))+
-    geom_tile(color="gray50",size=1)+
+    geom_tile(color=color.marginal,size=size.tile.lty)+
     scale_x_discrete(position = "top")+
-    scale_fill_distiller(palette = "RdBu",direction = 1,limits=c(-1,1))+
+    scale_fill_distiller(palette = pallete,direction = 1,limits=c(-1,1))+
     geom_label(aes(label=paste(format(cor,digits=2),p)),
-               fill="lightyellow",label.size = 1)+
+               fill=fill.label.cor,label.size = size.label.cor,family = font.family)+
     ylab("")+xlab("")+
     labs(fill=legendtitle)+
-    theme(axis.text = element_text(size=axissize,color="black"),
-          legend.text = element_text(size=legendsize),
+    theme(axis.text = element_text(size=axissize,color="black",family = font.family),
+          legend.text = element_text(size=legendsize,color="black",family = font.family),
+          legend.title = element_text(size=legendsize,color="black",family = font.family),
+          text=element_text(color="black",family = font.family),
           legend.position = legendposition,
           axis.ticks = element_blank(),
           panel.background = element_blank(),

@@ -458,7 +458,7 @@ conjdbc=function(trat,
       print(anova,na.print = "")
       teste=if(mcomp=="tukey"){"Tukey HSD"}else{
         if(mcomp=="sk"){"Scott-Knott"}else{
-          if(mcomp=="lsd"){"LSD-Fischer"}else{
+          if(mcomp=="lsd"){"LSD-Fisher"}else{
             if(mcomp=="duncan"){"Duncan"}}}}
       cat(green(bold("\n-----------------------------------------------------------------\n")))
       cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
@@ -484,6 +484,9 @@ conjdbc=function(trat,
     }
   }
   if(a$`Pr(>F)`[1] > alpha.f && qmresmedio < homog.value){
+    GLconj=datas$Df[5]
+    SQconj=datas$`Sum Sq`[5]
+    QMconj=datas$`Mean Sq`[5]
     if(quali==TRUE){
       if(mcomp=="tukey"){
         tukeyjuntos=(TUKEY(resp,tratamento,a$Df[1], a$`Mean Sq`[1], alpha = alpha.t))
@@ -549,7 +552,7 @@ conjdbc=function(trat,
       if(angulo !=0){grafico1=grafico1+theme(axis.text.x=element_text(hjust = 1.01,angle = angulo))}
       teste=if(mcomp=="tukey"){"Tukey HSD"}else{
         if(mcomp=="sk"){"Scott-Knott"}else{
-          if(mcomp=="lsd"){"LSD-Fischer"}else{
+          if(mcomp=="lsd"){"LSD-Fisher"}else{
             if(mcomp=="duncan"){"Duncan"}}}}
       cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
 
@@ -573,5 +576,5 @@ conjdbc=function(trat,
   if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 && homog1$p.value<0.05){cat(red("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric test and try to transform the data"))}
   if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){cat(red("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric test"))}
   # print(graficos)
-  graph=as.list(graficos)
+  (graph=as.list(graficos))
 }

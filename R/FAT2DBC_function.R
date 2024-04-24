@@ -269,7 +269,7 @@ FAT2DBC=function(f1,
   anava1=as.matrix(data.frame(anava))
   colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
   rownames(anava1)=c(names.fat[1],names.fat[2],"Block",
-                     paste(names.fat[1],"x",names.fat[2]),"Residuals")
+                     paste(names.fat[1],"\u00D7",names.fat[2]),"Residuals")
   print(anava1,na.print = "")
   cat("\n")
   if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 &&homog1$p.value<0.05){
@@ -461,7 +461,7 @@ FAT2DBC=function(f1,
     }
     des1.tab<-summary(des1,split=list('Fator2:Fator1'=l1))[[1]]
     rownames(des1.tab)=c("Block",names.fat[2],
-                         paste(names.fat[1],"x",names.fat[2],"+",names.fat[1]),
+                         paste(names.fat[1],"\u00D7",names.fat[2],"+",names.fat[1]),
                          paste("  ",rn),"Residuals")
 
     print(des1.tab)
@@ -567,7 +567,7 @@ FAT2DBC=function(f1,
     }
     des2.tab<-summary(des2,split=list('Fator1:Fator2'=l2))[[1]]
     rownames(des2.tab)=c("Block",names.fat[1],
-                         paste(names.fat[1],"x",names.fat[2],"+",names.fat[2]),
+                         paste(names.fat[1],"\u00D7",names.fat[2],"+",names.fat[2]),
                          paste("  ",rn),"Residuals")
     print(des2.tab)
     desdobramento2=des2.tab
@@ -719,7 +719,8 @@ FAT2DBC=function(f1,
                             textsize=textsize,
                             family=family,
                             SSq=ab$`Sum Sq`[5],
-                            DFres = ab$Df[5])
+                            DFres = ab$Df[5],
+                            legend.title=legend)
         if(quali[1]==FALSE & quali[2]==FALSE){
           graf=list(grafico,NA)}
 
@@ -801,7 +802,8 @@ FAT2DBC=function(f1,
                             family=family,
                             ylim=ylim,
                             SSq=ab$`Sum Sq`[5],
-                            DFres = ab$Df[5])
+                            DFres = ab$Df[5],
+                            legend.title=legend)
         if(quali[1]==FALSE & quali[2]==FALSE){
           graf[[2]]=grafico
           grafico=graf}
@@ -893,7 +895,8 @@ FAT2DBC=function(f1,
                                   textsize=textsize,
                                   family=family,
                                   SSq=ab$`Sum Sq`[5],
-                                  DFres = ab$Df[5])
+                                  DFres = ab$Df[5],
+                                  legend.title=legend)
         if(quali[1]==FALSE & quali[2]==FALSE){
           graf=list(grafico,NA)}
 
@@ -976,7 +979,8 @@ FAT2DBC=function(f1,
                                   textsize=textsize,
                                   family=family,
                                   SSq=ab$`Sum Sq`[5],
-                                  DFres = ab$Df[5])
+                                  DFres = ab$Df[5],
+                                  legend.title=legend)
         if(quali[1]==FALSE & quali[2]==FALSE){
           graf[[2]]=grafico
           grafico=graf}

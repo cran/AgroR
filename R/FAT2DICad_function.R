@@ -149,6 +149,7 @@ FAT2DIC.ad=function(f1,
   ordempadronizado=data.frame(f1,f2,resp,response)
   resp1=resp
   organiz=data.frame(f1,f2,resp,response)
+  organiz$f1=factor(organiz$f1,unique(organiz$f1))
   organiz=organiz[order(organiz$f2),]
   organiz=organiz[order(organiz$f1),]
   f1=organiz$f1
@@ -218,7 +219,7 @@ FAT2DIC.ad=function(f1,
     method=paste("Bartlett test","(",names(statistic),")",sep="")
   }
   if(homog=="levene"){
-    homog1 = levenehomog(c$res~trat)
+    homog1 = levenehomog(c$res~trat)[1,]
     statistic=homog1$`F value`[1]
     phomog=homog1$`Pr(>F)`[1]
     method="Levene's Test (center = median)(F)"
@@ -284,8 +285,8 @@ FAT2DIC.ad=function(f1,
   cat(paste("\nCV (%) = ",round(sqrt(anava$`Mean Sq`[5])/mean(c(resp,respAd),na.rm=TRUE)*100,2)))
   cat(paste("\nMean Factorial = ",round(mean(response,na.rm=TRUE),4)))
   cat(paste("\nMedian Factorial = ",round(median(response,na.rm=TRUE),4)))
-  cat(paste("\nMean Aditional = ",round(mean(responseAd,na.rm=TRUE),4)))
-  cat(paste("\nMedian Aditional = ",round(median(responseAd,na.rm=TRUE),4)))
+  cat(paste("\nMean Additional = ",round(mean(responseAd,na.rm=TRUE),4)))
+  cat(paste("\nMedian Additional = ",round(median(responseAd,na.rm=TRUE),4)))
   cat("\nPossible outliers = ", out)
   cat("\n")
   cat(green(bold("\n-----------------------------------------------------------------\n")))
@@ -294,7 +295,7 @@ FAT2DIC.ad=function(f1,
   anava1=as.matrix(data.frame(anava))
   colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
   rownames(anava1)=c(names.fat[1],names.fat[2],
-                     paste(names.fat[1],"x",names.fat[2]),"Ad x Factorial","Residuals")
+                     paste(names.fat[1],"\u00D7",names.fat[2]),"Ad \u00D7 Factorial","Residuals")
   print(anava1,na.print = "")
   cat("\n")
   if(anava$`Pr(>F)`[4]<alpha.f){"The additional treatment does differ from the factorial by the F test"}else{"The additional treatment does not differ from the factorial by the F test "}
@@ -504,7 +505,7 @@ FAT2DIC.ad=function(f1,
                               sep = ""), lf2[j]))
     }
     rownames(des1.tab)=c(names.fat[2],
-                         paste(names.fat[1],"x",names.fat[2],"+",names.fat[1]),
+                         paste(names.fat[1],"\u00D7",names.fat[2],"+",names.fat[1]),
                          paste("  ",rn))
     print(des1.tab)
     desdobramento1=des1.tab
@@ -612,7 +613,7 @@ FAT2DIC.ad=function(f1,
                               sep = ""), lf1[i]))
     }
     rownames(des1.tab)=c(names.fat[1],
-                         paste(names.fat[1],"x",names.fat[2],"+",names.fat[2]),
+                         paste(names.fat[1],"\u00D7",names.fat[2],"+",names.fat[2]),
                          paste("  ",rn))
     print(des1.tab)
     desdobramento2=des1.tab
@@ -683,7 +684,8 @@ FAT2DIC.ad=function(f1,
                             point=point,
                             textsize=textsize,
                             family=family,
-                            ylim=ylim,SSq = anava$`Sum Sq`[5],DFres = anava$Df[5])+
+                            ylim=ylim,SSq = anava$`Sum Sq`[5],DFres = anava$Df[5],
+                            legend.title=legend)+
           geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
           scale_color_manual(values = "black")+labs(color="")}
       if(quali[2]==TRUE){
@@ -699,7 +701,8 @@ FAT2DIC.ad=function(f1,
                             point=point,
                             textsize=textsize,
                             family=family,
-                            ylim=ylim,SSq = anava$`Sum Sq`[5],DFres = anava$Df[5])+
+                            ylim=ylim,SSq = anava$`Sum Sq`[5],DFres = anava$Df[5],
+                            legend.title=legend)+
           geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
           scale_color_manual(values = "black")+labs(color="")}
     }
@@ -717,7 +720,8 @@ FAT2DIC.ad=function(f1,
                                   point=point,
                                   textsize=textsize,
                                   family=family,
-                                  ylim=ylim,SSq = anava$`Sum Sq`[5],DFres = anava$Df[5])+
+                                  ylim=ylim,SSq = anava$`Sum Sq`[5],DFres = anava$Df[5],
+                                  legend.title=legend)+
           geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
           scale_color_manual(values = "black")+labs(color="")}
       if(quali[2]==TRUE){
@@ -733,7 +737,8 @@ FAT2DIC.ad=function(f1,
                                   point=point,
                                   textsize=textsize,
                                   family=family,
-                                  ylim=ylim,SSq = anava$`Sum Sq`[5],DFres = anava$Df[5])+
+                                  ylim=ylim,SSq = anava$`Sum Sq`[5],DFres = anava$Df[5],
+                                  legend.title=legend)+
           geom_hline(aes(color=ad.label,yintercept=mean(responseAd,na.rm=TRUE)),lty=2)+
           scale_color_manual(values = "black")+labs(color="")}
     }

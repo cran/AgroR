@@ -4,12 +4,14 @@
 \alias{sk_graph}
 \title{Graph: Scott-Knott graphics}
 \usage{
-sk_graph(model, horiz = TRUE)
+sk_graph(model, horiz = TRUE, fill.label = "lightyellow")
 }
 \arguments{
 \item{model}{DIC, DBC or DQL object}
 
 \item{horiz}{Horizontal Column (\emph{default} is TRUE)}
+
+\item{fill.label}{fill Label box fill color}
 }
 \value{
 Returns a bar chart with columns separated by color according to the Scott-Knott test

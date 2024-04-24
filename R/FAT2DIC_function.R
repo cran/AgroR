@@ -265,7 +265,7 @@ FAT2DIC=function(f1,
   anava1=as.matrix(data.frame(anava))
   colnames(anava1)=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
   rownames(anava1)=c(names.fat[1],names.fat[2],
-                     paste(names.fat[1],"x",names.fat[2]),"Residuals")
+                     paste(names.fat[1],"\u00D7",names.fat[2]),"Residuals")
   print(anava1,na.print = "")
   cat("\n")
 
@@ -465,7 +465,7 @@ FAT2DIC=function(f1,
       }
       des1.tab<-summary(des1,split=list('Fator2:Fator1'=l1))[[1]]
       rownames(des1.tab)=c(names.fat[2],
-                           paste(names.fat[1],"x",names.fat[2],"+",names.fat[1]),
+                           paste(names.fat[1],"\u00D7",names.fat[2],"+",names.fat[1]),
                            paste("  ",rn),"Residuals")
       print(des1.tab)
       desdobramento1=des1.tab
@@ -571,7 +571,7 @@ FAT2DIC=function(f1,
 
       des1.tab<-summary(des1,split=list('Fator1:Fator2'=l1))[[1]]
       rownames(des1.tab)=c(names.fat[1],
-                           paste(names.fat[1],"x",names.fat[2],"+",names.fat[2]),
+                           paste(names.fat[1],"\u00D7",names.fat[2],"+",names.fat[2]),
                            paste("  ",rn),"Residuals")
 
       print(des1.tab)
@@ -708,7 +708,8 @@ FAT2DIC=function(f1,
                               family=family,
                               ylim=ylim,
                               SSq=ab$`Sum Sq`[4],
-                              DFres = ab$Df[4])
+                              DFres = ab$Df[4],
+                              legend.title=legend)
           if(quali[1]==FALSE & quali[2]==FALSE){
             graf=list(grafico,NA)}
           }
@@ -781,7 +782,8 @@ FAT2DIC=function(f1,
                               family=family,
                               ylim=ylim,
                               SSq=ab$`Sum Sq`[4],
-                              DFres = ab$Df[4])
+                              DFres = ab$Df[4],
+                              legend.title=legend)
           if(quali[1]==FALSE & quali[2]==FALSE){
             graf[[2]]=grafico
             grafico=graf}
@@ -860,7 +862,8 @@ FAT2DIC=function(f1,
                                     family=family,
                                     ylim=ylim,
                                     SSq=ab$`Sum Sq`[4],
-                                    DFres = ab$Df[4])
+                                    DFres = ab$Df[4],
+                                    legend.title=legend)
           if(quali[1]==FALSE & quali[2]==FALSE){
             graf=list(grafico,NA)}
         }
@@ -933,7 +936,8 @@ FAT2DIC=function(f1,
                                     family=family,
                                     ylim=ylim,
                                     SSq=ab$`Sum Sq`[4],
-                                    DFres = ab$Df[4])
+                                    DFres = ab$Df[4],
+                                    legend.title=legend)
           if(quali[1]==FALSE & quali[2]==FALSE){
             graf[[2]]=grafico
             grafico=graf}

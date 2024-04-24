@@ -15,7 +15,7 @@ polynomial2_color(
   theme = theme_classic(),
   se = FALSE,
   point = "mean_se",
-  legend.title = "Tratamentos",
+  legend.title = "Treatments",
   posi = "top",
   textsize = 12,
   ylim = NA,

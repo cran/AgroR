@@ -17,6 +17,9 @@ summarise_anova(analysis, inf = "p", design = "DIC", round = 3, divisor = TRUE)
 
 \item{divisor}{Add divider between columns}
 }
+\value{
+returns a data.frame or print with a summary of the analysis of several experimental projects.
+}
 \description{
 Summarizes the output of the analysis of variance and the multiple comparisons test for completely randomized (DIC), randomized block (DBC) and Latin square (DQL) designs.
 }

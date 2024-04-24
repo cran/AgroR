@@ -16,9 +16,9 @@ Type: Package
 
 Title: Experimental Statistics and Graphics for Agricultural Sciences 
 
-Version: 1.3.1
+Version: 1.3.6
 
-Date: 2022-08-29
+Date: 2023-26-12
 
 Authors: 
  

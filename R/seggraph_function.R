@@ -45,8 +45,8 @@ seg_graph=function(model,
                     label = letra),hjust=0,family=model[[1]]$plot$family)+
       labs(y=model[[1]]$labels$x,
            x=model[[1]]$labels$y)+
-      theme(axis.text = element_text(size=12,color="black"),
-            strip.text = element_text(size=12),
+      theme(axis.text = element_text(size=model[[1]]$plot$textsize,color="black"),
+            strip.text = element_text(size=model[[1]]$plot$textsize),
             legend.position = "none")+
       scale_y_discrete(limits=trats)+
       xlim(layer_scales(model[[1]])$y$range$range)}
@@ -62,8 +62,8 @@ seg_graph=function(model,
                     label = letra),vjust=0,family=model[[1]]$plot$family)+
       labs(x=model[[1]]$labels$x,
            y=model[[1]]$labels$y)+
-      theme(axis.text = element_text(size=12,color="black"),
-            strip.text = element_text(size=12),
+      theme(axis.text = element_text(size=model[[1]]$plot$textsize,color="black"),
+            strip.text = element_text(size=model[[1]]$plot$textsize),
             legend.position = "none")+
       scale_x_discrete(limits=trats)+
       ylim(layer_scales(model[[1]])$y$range$range)}

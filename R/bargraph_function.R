@@ -8,6 +8,7 @@
 #' @param fill fill bars
 #' @param horiz Horizontal Column (\emph{default} is TRUE)
 #' @param width.col Width Column
+#' @param axis.0 If TRUE causes the columns or bars to start just above the axis line.
 #' @export
 #' @return Returns a bar chart for one factor
 #' @seealso \link{radargraph}, \link{barplot_positive}, \link{plot_TH}, \link{plot_TH1}, \link{corgraph}, \link{spider_graph}, \link{line_plot}, \link{plot_cor}, \link{plot_interaction}, \link{plot_jitter}, \link{seg_graph}, \link{TBARPLOT.reverse}
@@ -22,7 +23,8 @@
 bar_graph=function(model,
                    fill="lightblue",
                    horiz=TRUE,
-                   width.col=0.9){
+                   width.col=0.9,
+                   axis.0=FALSE){
   requireNamespace("ggplot2")
   data=model[[1]]$data
   media=data$media
@@ -49,7 +51,8 @@ bar_graph=function(model,
             strip.text = element_text(size=model[[1]]$plot$textsize),
             legend.position = "none")+
       scale_y_discrete(limits=trats)+
-      xlim(layer_scales(model[[1]])$y$range$range*1.1)}
+      xlim(layer_scales(model[[1]])$y$range$range*1.1)
+    if(axis.0==TRUE){graph=graph+scale_x_continuous(expand = c(0,0))}}
   if(horiz==FALSE){
     graph=ggplot(data,aes(x=trats,
                           y=media))+
@@ -66,6 +69,7 @@ bar_graph=function(model,
             strip.text = element_text(model[[1]]$plot$textsize),
             legend.position = "none")+
       scale_x_discrete(limits=trats)+
-      ylim(layer_scales(model[[1]])$y$range$range*1.1)}
+      ylim(layer_scales(model[[1]])$y$range$range*1.1)
+    if(axis.0==TRUE){graph=graph+scale_y_continuous(expand = c(0,0))}}
   graph
 }

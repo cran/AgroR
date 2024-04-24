@@ -101,7 +101,7 @@ DBC.glm=function(trat,
     if(quali==TRUE){cat(green(bold("Multiple Comparison Test")))}else{cat(green(bold("Regression")))}
     cat(green(bold("\n-----------------------------------------------------------------\n")))
     if(quali==TRUE){
-      letra <- cld(regrid(emmeans(a, "trat", alpha=alpha.t)),
+      letra <- cld(regrid(emmeans(a, "trat", level=1-alpha.t)),
                    Letters=letters,reversed=TRUE,adjusted="tukey")
       rownames(letra)=letra$trat
       letra=letra[unique(as.character(trat)),]
@@ -205,7 +205,7 @@ DBC.glm=function(trat,
     if(quali==TRUE){cat(green(bold("Multiple Comparison Test")))}else{cat(green(bold("Regression")))}
     cat(green(bold("\n-----------------------------------------------------------------\n")))
     if(quali==TRUE){
-      letra <- cld(regrid(emmeans(a, "trat", alpha=alpha.t,adjusted="tukey")),
+      letra <- cld(regrid(emmeans(a, "trat", level=1-alpha.t,adjusted="tukey")),
                    Letters=letters,reversed=TRUE)
       rownames(letra)=letra$trat
       letra=letra[unique(as.character(trat)),]

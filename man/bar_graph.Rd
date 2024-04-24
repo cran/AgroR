@@ -4,7 +4,13 @@
 \alias{bar_graph}
 \title{Graph: Bar graph for one factor}
 \usage{
-bar_graph(model, fill = "lightblue", horiz = TRUE, width.col = 0.9)
+bar_graph(
+  model,
+  fill = "lightblue",
+  horiz = TRUE,
+  width.col = 0.9,
+  axis.0 = FALSE
+)
 }
 \arguments{
 \item{model}{DIC, DBC or DQL object}
@@ -14,6 +20,8 @@ bar_graph(model, fill = "lightblue", horiz = TRUE, width.col = 0.9)
 \item{horiz}{Horizontal Column (\emph{default} is TRUE)}
 
 \item{width.col}{Width Column}
+
+\item{axis.0}{If TRUE causes the columns or bars to start just above the axis line.}
 }
 \value{
 Returns a bar chart for one factor

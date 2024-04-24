@@ -35,7 +35,7 @@ seg_graph2=function(model,
   letra=data$letra
   groups=data$groups
   sup=model[[1]]$plot$sup
-
+  textsize=model[[1]]$plot$textsize
   if(horiz==TRUE){
   graph=ggplot(data,aes(y=trats,
                           x=media))+theme+
@@ -63,8 +63,8 @@ seg_graph2=function(model,
                      label = letra),vjust=vjust,angle=90,family=model[[1]]$plot$family)+
       labs(x=model[[1]]$labels$x,
            y=model[[1]]$labels$y)+
-      theme(axis.text = element_text(size=12,color="black"),
-            strip.text = element_text(size=12),
+      theme(axis.text = element_text(size=textsize,color="black"),
+            strip.text = element_text(size=textsize),
             legend.position = "none")+
       scale_x_discrete(limits=trats)+
       ylim(layer_scales(model[[1]])$y$range$range)}

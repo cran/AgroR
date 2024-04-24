@@ -1,8 +1,20 @@
+# AgroR 1.3.6
+
+* fixed the bug when there are more than 10 treatments for `dunnett` function
+
+* The `summarize_conj` function has been implemented. So far, it is limited to summarizing the main analysis of variance framework, in addition to returning the QMres ratio and the means test when the assumptions for jointly analyzing the data are met.
+
+* the `fat2_table` function was implemented to facilitate the generation of dynamic documents for tests in a factorial scheme with two factors or split plot
+
+* The `grid_onefactor` function was implemented to group graphs of DIC, DBC and DQL outputs. It is possible to join up to six graphs in one figure.
+
+* The `correlation` function has been improved
+
 # AgroR 1.3.5
 
 * Fixed test_two function bug for paired data.
 
-* Implemented the option to merge non-parametric and parametric tests in barplot_positive
+* Implemented the option to merge non-parametric and parametric tests in `barplot_positive`
 
 # AgroR 1.3.4
 

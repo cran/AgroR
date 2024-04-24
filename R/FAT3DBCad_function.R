@@ -278,11 +278,11 @@ FAT3DBC.ad = function(f1,
                      names.fat[2],
                      names.fat[3],
                      "Block",
-                     paste(names.fat[1],"x",names.fat[2]),
-                     paste(names.fat[1],"x",names.fat[3]),
-                     paste(names.fat[2],"x",names.fat[3]),
-                     paste(names.fat[1],"x",names.fat[2],"x",names.fat[3]),
-                     "Factorial vs Aditional",
+                     paste(names.fat[1],"\u00D7",names.fat[2]),
+                     paste(names.fat[1],"\u00D7",names.fat[3]),
+                     paste(names.fat[2],"\u00D7",names.fat[3]),
+                     paste(names.fat[1],"\u00D7",names.fat[2],"\u00D7",names.fat[3]),
+                     "Factorial \u00D7 Aditional",
                      "Residuals")
   print(anava1,na.print = "")
   cat("\n")

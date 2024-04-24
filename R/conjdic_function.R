@@ -251,9 +251,10 @@ conjdic=function(trat,
   cat(green(bold("\n-----------------------------------------------------------------\n")))
   print(as.matrix(datas),na.print = "")
   cat(green(bold("\n-----------------------------------------------------------------\n")))
-
+  anova=c()
+  tukey=c()
   if(qmresmedio > homog.value){
-    if(a$`Pr(>F)`[1] < alpha.f && quali==TRUE | qmresmedio > homog.value && quali==TRUE){
+    if(quali==TRUE){
     for(i in 1:length(levels(local))){
         anova[[i]]=anova(aov(resp~tratamento, data=dados[dados$local==levels(dados$local)[i],]))
         aov1=aov(resp~tratamento, data=dados[dados$local==levels(dados$local)[i],])
@@ -261,7 +262,7 @@ conjdic=function(trat,
         colnames(anova[[i]])=c("Df","Sum Sq","Mean.Sq","F value","Pr(F)" )
         rownames(anova[[i]])=c("Trat","Residuals")
 
-        if(quali==TRUE){
+        # if(quali==TRUE){
           if(mcomp=="tukey"){tukey[[i]]=TUKEY(aov1,"tratamento",alpha = alpha.t)$groups
           comp=TUKEY(aov1,"tratamento",alpha = alpha.t)$groups}
           if(mcomp=="duncan"){tukey[[i]]=duncan(aov1,"tratamento",alpha = alpha.t)$groups
@@ -286,6 +287,7 @@ conjdic=function(trat,
                                                       tapply(response, tratamento,
                                                              mean, na.rm=TRUE))[rownames(comp)]}
           names(tukey)[i]=levels(local)[i]
+          names(anova)[i]=levels(local)[i]
 
           dadosm=data.frame(comp,
                             media=with(dados[dados$local==levels(dados$local)[i],],
@@ -316,7 +318,8 @@ conjdic=function(trat,
             theme(text = element_text(size=textsize,color="black", family = family),
                   axis.title = element_text(size=textsize,color="black", family = family),
                   axis.text = element_text(size=textsize,color="black", family = family),
-                  legend.position = "none")}
+                  legend.position = "none")#}
+          print(grafico)
         graficos[[i]]=grafico}
       print(anova,na.print = "")
       teste=if(mcomp=="tukey"){"Tukey HSD"}else{
@@ -327,7 +330,7 @@ conjdic=function(trat,
       cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
       cat(green(bold("-----------------------------------------------------------------\n")))
       print(tukey)}
-    if(a$`Pr(>F)`[1] < alpha.f && quali==FALSE | qmresmedio > homog.value && quali==FALSE){
+    if(quali==FALSE){
         for(i in 1:length(levels(local))){
         data=dados[dados$local==levels(dados$local)[i],]
         dose1=data$tratnum
@@ -341,13 +344,12 @@ conjdic=function(trat,
                            theme=theme,
                            posi="top",
                            se=errorbar)[[1]]
-        graficos[[i]]=grafico[[1]]}}
-    }
+        graficos[[i]]=grafico[[1]]}}}
   if(a$`Pr(>F)`[1] < alpha.f && qmresmedio < homog.value){
     GLconj=datas$Df[4]
     SQconj=datas$`Sum Sq`[4]
     QMconj=datas$`Mean Sq`[4]
-    if(a$`Pr(>F)`[1] < alpha.f && quali==TRUE | qmresmedio > homog.value && quali==TRUE){
+    if(quali==TRUE){
       for(i in 1:length(levels(local))){
         anova[[i]]=anova(aov(resp~tratamento, data=dados[dados$local==levels(dados$local)[i],]))
         anova[[i]][2,]=c(GLconj,SQconj,QMconj,NA,NA)
@@ -412,18 +414,19 @@ conjdic=function(trat,
             theme(text = element_text(size=textsize,color="black", family = family),
                   axis.title = element_text(size=textsize,color="black", family = family),
                   axis.text = element_text(size=textsize,color="black", family = family),
-                  legend.position = "none")}
+                  legend.position = "none")#}
         graficos[[i]]=grafico}
+        }
       print(anova,na.print = "")
       teste=if(mcomp=="tukey"){"Tukey HSD"}else{
         if(mcomp=="sk"){"Scott-Knott"}else{
-          if(mcomp=="lsd"){"LSD-Fischer"}else{
+          if(mcomp=="lsd"){"LSD-Fisher"}else{
             if(mcomp=="duncan"){"Duncan"}}}}
       cat(green(bold("\n-----------------------------------------------------------------\n")))
       cat(green(italic(paste("Multiple Comparison Test:",teste,"\n"))))
       cat(green(bold("-----------------------------------------------------------------\n")))
       print(tukey)}
-    if(a$`Pr(>F)`[1] < alpha.f && quali==FALSE | qmresmedio > homog.value && quali==FALSE){
+    if(quali==FALSE){
       for(i in 1:length(levels(local))){
         data=dados[dados$local==levels(dados$local)[i],]
         dose1=data$tratnum
@@ -517,8 +520,8 @@ conjdic=function(trat,
 
     cat(green(bold("-----------------------------------------------------------------\n")))
     print(tukeyjuntos)
-    print(grafico1)
-    graficos=list(grafico1)
+    # print(grafico1)
+    # graficos=list(grafico1)
     }
     if(quali==FALSE){grafico1=polynomial(tratnum,
                            response,grau = grau,
@@ -532,7 +535,7 @@ conjdic=function(trat,
                            posi="top",
                            se=errorbar)
     }
-    graficos=list(grafico1[[1]])
+    graficos=list(grafico1)
 
     }
   cat(if(transf=="1"){}else{blue("\nNOTE: resp = transformed means; respO = averages without transforming\n")})
@@ -540,5 +543,5 @@ conjdic=function(trat,
   if(transf==1 && norm1$p.value<0.05 | transf==1 && indep$p.value<0.05 | transf==1 && homog1$p.value<0.05){cat(red("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric test and try to transform the data"))}
   if(transf != 1 && norm1$p.value<0.05 | transf!=1 && indep$p.value<0.05 | transf!=1 && homog1$p.value<0.05){cat(red("\n \nWarning!!! Your analysis is not valid, suggests using a non-parametric test"))}
   # print(graficos)
-  graph=as.list(graficos)
+  (graph=as.list(graficos))
 }
